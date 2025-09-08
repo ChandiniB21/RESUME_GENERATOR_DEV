@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Resume Preview</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      body {
+        background: #f4f4f4;
+        font-family: Arial, sans-serif;
+      }
+      .resume-wrapper {
+        max-width: 800px;
+        margin: 30px auto;
+        padding: 40px;
+        background: #fff;
+        color: #000;
+      }
+      .resume-header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .resume-header h1 {
+        margin: 0;
+        font-size: 28px;
+      }
+      .contact-line {
+        font-size: 14px;
+        color: #444;
+        margin-top: 6px;
+      }
+      h2 {
+        font-size: 18px;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 4px;
+        margin-top: 24px;
+        margin-bottom: 10px;
+      }
+      p {
+        margin: 6px 0;
+        line-height: 1.5;
+      }
+      ul {
+        margin: 6px 0 10px 20px;
+        padding: 0;
+      }
+      li {
+        margin: 4px 0;
+      }
+      .actions {
+        margin: 20px auto;
+        text-align: center;
+      }
+      .actions button {
+        margin: 0 6px;
+        padding: 10px 14px;
+      }
+      @media print {
+        .actions {
+          display: none;
+        }
+        body {
+          background: #fff;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="actions">
+      <button onclick="window.print()">Download PDF</button>
+      <button onclick="downloadTxt()">Download TXT</button>
+    </div>
+
+    <div class="resume-wrapper" id="resume"></div>
+
+    <script>
+      const data = JSON.parse(localStorage.getItem("resumeData") || "{}");
+      const resume = document.getElementById("resume");
+
+      function safe(s = "") {
+        return String(s).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#039;",
+            }[c])
+        );
+      }
+      function addSection(title, html) {
+        if (html && html.trim()) resume.innerHTML += `<h2>${title}</h2>${html}`;
+      }
+
+      // Header
+      const pi = data.personalInfo || {};
+      const pl = data.publicLinks || {};
+      const contacts = [
+        pi.email,
+        pi.phone,
+        pl.github,
+        pl.linkedin,
+        pl.portfolio,
+        pl.website,
+      ]
+        .filter(Boolean)
+        .map(safe)
+        .join(" | ");
+
+      resume.innerHTML += `
+      <div class="resume-header">
+        <h1>${safe(pi.fullName || "")}</h1>
+        <div class="contact-line">${contacts}</div>
+      </div>
+    `;
+
+      // Summary
+      if (pi.summary)
+        addSection("Professional Summary", `<p>${safe(pi.summary)}</p>`);
+
+      // Education
+      if (Array.isArray(data.education) && data.education.length) {
+        const html = data.education
+          .map(
+            (e) => `
+        <p><strong>${safe(e.degree || "")}</strong>, ${safe(
+              e.institution || ""
+            )} (${[e.startDate, e.endDate].filter(Boolean).join(" - ")})</p>
+        ${e.description ? `<p>${safe(e.description)}</p>` : ""}
+      `
+          )
+          .join("");
+        addSection("Education", html);
+      }
+
+      // Experience / Internship
+      if (Array.isArray(data.experience) && data.experience.length) {
+        const html = data.experience
+          .map((e) => {
+            const period =
+              (e.startDate || "") +
+              (e.current ? " - Present" : e.endDate ? " - " + e.endDate : "");
+            return `
+          <p><strong>${safe(e.jobTitle || "")}</strong>, ${safe(
+              e.company || ""
+            )} (${safe(period)})</p>
+          ${
+            e.description
+              ? `<ul>${e.description
+                  .split(/[\n•\-]\s*/)
+                  .filter(Boolean)
+                  .map((x) => `<li>${safe(x)}</li>`)
+                  .join("")}</ul>`
+              : ""
+          }
+        `;
+          })
+          .join("");
+        addSection("Internship / Work Experience", html);
+      }
+
+      // Projects
+      if (Array.isArray(data.projects) && data.projects.length) {
+        const html = data.projects
+          .map(
+            (p) => `
+        <p><strong>${safe(p.name || "")}</strong></p>
+        ${
+          p.description
+            ? `<ul>${p.description
+                .split(/[\n•\-]\s*/)
+                .filter(Boolean)
+                .map((x) => `<li>${safe(x)}</li>`)
+                .join("")}</ul>`
+            : ""
+        }
+      `
+          )
+          .join("");
+        addSection("Projects", html);
+      }
+
+      // Skills
+      if (Array.isArray(data.skills) && data.skills.length) {
+        const html = `<ul>${data.skills
+          .map(
+            (s) =>
+              `<li>${safe(s.name || "")} ${
+                s.level ? `(${safe(s.level)})` : ""
+              }</li>`
+          )
+          .join("")}</ul>`;
+        addSection("Skills", html);
+      }
+
+      // Languages
+      if (Array.isArray(data.languages) && data.languages.length) {
+        const html = `<ul>${data.languages
+          .map(
+            (l) =>
+              `<li>${safe(l.name || "")} ${
+                l.level ? `(${safe(l.level)})` : ""
+              }</li>`
+          )
+          .join("")}</ul>`;
+        addSection("Languages", html);
+      }
+
+      // Hobbies
+      if (Array.isArray(data.hobbies) && data.hobbies.length) {
+        const html = `<ul>${data.hobbies
+          .map((h) => `<li>${safe(h)}</li>`)
+          .join("")}</ul>`;
+        addSection("Hobbies", html);
+      }
+
+      // Additional Info
+      if (data.additional)
+        addSection("Additional Information", `<p>${safe(data.additional)}</p>`);
+
+      // TXT download
+      function downloadTxt() {
+        const text = resume.innerText;
+        const blob = new Blob([text], { type: "text/plain" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "resume.txt";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+    </script>
+  </body>
+</html>
