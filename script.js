@@ -243,6 +243,8 @@
     });
   }
 
+  // ... your existing code above ...
+
   // ===== Education =====
   els.addEducation.addEventListener("click", () => {
     data.education.push({
@@ -250,52 +252,175 @@
       institution: "",
       startDate: "",
       endDate: "",
+      current: false, // ✅ new field for "Currently studying"
+      cgpa: "", // ✅ new field for CGPA/Marks
       description: "",
     });
     renderEducation();
     saveToStorage();
   });
+
   function renderEducation() {
     els.eduList.innerHTML = "";
     data.education.forEach((edu, i) => {
       const div = document.createElement("div");
       div.className = "list-item";
       div.innerHTML = `
-        <div class="list-item-header">
-          <span class="list-item-title">Education ${i + 1}</span>
-          <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
-        </div>
-        <div class="row row-2">
-          <label>Degree/Course <input class="input" data-k="degree" data-i="${i}" value="${escapeHtml(
+      <div class="list-item-header">
+        <span class="list-item-title">Education ${i + 1}</span>
+        <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
+      </div>
+      <div class="row row-2">
+        <label>Degree/Course <input class="input" data-k="degree" data-i="${i}" value="${escapeHtml(
         edu.degree
       )}"></label>
-          <label>Institution <input class="input" data-k="institution" data-i="${i}" value="${escapeHtml(
+        <label>Institution <input class="input" data-k="institution" data-i="${i}" value="${escapeHtml(
         edu.institution
       )}"></label>
-        </div>
-        <div class="row row-2">
-          <label>Start Date <input class="input" type="date" data-k="startDate" data-i="${i}" value="${
+      </div>
+      <div class="row row-2">
+        <label>Start Date <input class="input" type="date" data-k="startDate" data-i="${i}" value="${
         edu.startDate || ""
       }"></label>
-          <label>End Date <input class="input" type="date" data-k="endDate" data-i="${i}" value="${
-        edu.endDate || ""
-      }"></label>
-        </div>
-        <label>Description
-          <textarea class="textarea" data-k="description" data-i="${i}" rows="3">${escapeHtml(
+        <label>End Date <input class="input" type="date" data-k="endDate" data-i="${i}" ${
+        edu.current ? "disabled" : ""
+      } value="${edu.endDate || ""}"></label>
+      </div>
+      <div class="row row-2">
+        <label class="full" style="display:flex;align-items:center;gap:10px;">
+          <input type="checkbox" data-k="current" data-i="${i}" ${
+        edu.current ? "checked" : ""
+      }/> Currently studying here
+        </label>
+      </div>
+      <div class="row row-2">
+        <label>CGPA/Marks <input class="input" data-k="cgpa" data-i="${i}" value="${escapeHtml(
+        edu.cgpa || ""
+      )}"></label>
+      </div>
+      <label>Description
+        <textarea class="textarea" data-k="description" data-i="${i}" rows="3">${escapeHtml(
         edu.description || ""
       )}</textarea>
-        </label>
-      `;
+      </label>
+    `;
+
       div.querySelector("[data-remove]").addEventListener("click", () => {
         data.education.splice(i, 1);
         renderEducation();
         saveToStorage();
       });
-      attachChangeHandlers(div, data.education, i);
+
+      attachChangeHandlers(div, data.education, i, (arr, idx, key, val, el) => {
+        if (key === "current") {
+          arr[idx].current = el.checked;
+          const endInput = div.querySelector('input[data-k="endDate"]');
+          if (endInput) {
+            endInput.disabled = el.checked;
+            if (el.checked) {
+              endInput.value = "";
+              arr[idx].endDate = "";
+            }
+          }
+        } else {
+          arr[idx][key] = val;
+        }
+      });
+
       els.eduList.appendChild(div);
     });
   }
+
+  // ... rest of your existing code unchanged ...
+  // ... your existing code above ...
+
+  // ===== Education =====
+  els.addEducation.addEventListener("click", () => {
+    data.education.push({
+      degree: "",
+      institution: "",
+      startDate: "",
+      endDate: "",
+      current: false, // ✅ new field for "Currently studying"
+      cgpa: "", // ✅ new field for CGPA/Marks
+      description: "",
+    });
+    renderEducation();
+    saveToStorage();
+  });
+
+  function renderEducation() {
+    els.eduList.innerHTML = "";
+    data.education.forEach((edu, i) => {
+      const div = document.createElement("div");
+      div.className = "list-item";
+      div.innerHTML = `
+      <div class="list-item-header">
+        <span class="list-item-title">Education ${i + 1}</span>
+        <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
+      </div>
+      <div class="row row-2">
+        <label>Degree/Course <input class="input" data-k="degree" data-i="${i}" value="${escapeHtml(
+        edu.degree
+      )}"></label>
+        <label>Institution <input class="input" data-k="institution" data-i="${i}" value="${escapeHtml(
+        edu.institution
+      )}"></label>
+      </div>
+      <div class="row row-2">
+        <label>Start Date <input class="input" type="date" data-k="startDate" data-i="${i}" value="${
+        edu.startDate || ""
+      }"></label>
+        <label>End Date <input class="input" type="date" data-k="endDate" data-i="${i}" ${
+        edu.current ? "disabled" : ""
+      } value="${edu.endDate || ""}"></label>
+      </div>
+      <div class="row row-2">
+        <label class="full" style="display:flex;align-items:center;gap:10px;">
+          <input type="checkbox" data-k="current" data-i="${i}" ${
+        edu.current ? "checked" : ""
+      }/> Currently studying here
+        </label>
+      </div>
+      <div class="row row-2">
+        <label>CGPA/Marks <input class="input" data-k="cgpa" data-i="${i}" value="${escapeHtml(
+        edu.cgpa || ""
+      )}"></label>
+      </div>
+      <label>Description
+        <textarea class="textarea" data-k="description" data-i="${i}" rows="3">${escapeHtml(
+        edu.description || ""
+      )}</textarea>
+      </label>
+    `;
+
+      div.querySelector("[data-remove]").addEventListener("click", () => {
+        data.education.splice(i, 1);
+        renderEducation();
+        saveToStorage();
+      });
+
+      attachChangeHandlers(div, data.education, i, (arr, idx, key, val, el) => {
+        if (key === "current") {
+          arr[idx].current = el.checked;
+          const endInput = div.querySelector('input[data-k="endDate"]');
+          if (endInput) {
+            endInput.disabled = el.checked;
+            if (el.checked) {
+              endInput.value = "";
+              arr[idx].endDate = "";
+            }
+          }
+        } else {
+          arr[idx][key] = val;
+        }
+      });
+
+      els.eduList.appendChild(div);
+    });
+  }
+
+  // ... rest of your existing code unchanged ...
 
   // ===== Skills =====
   els.addSkill.addEventListener("click", () => {
@@ -347,7 +472,14 @@
 
   // ===== Projects =====
   els.addProject.addEventListener("click", () => {
-    data.projects.push({ name: "", description: "" });
+    data.projects.push({
+      name: "",
+      description: "",
+      startDate: "",
+      endDate: "",
+      projectUrl: "",
+    });
+
     renderProjects();
     saveToStorage();
   });
@@ -357,23 +489,44 @@
       const div = document.createElement("div");
       div.className = "list-item";
       div.innerHTML = `
-        <div class="list-item-header">
-          <span class="list-item-title">Project ${i + 1}</span>
-          <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
-        </div>
+      <div class="list-item-header">
+        <span class="list-item-title">Project ${i + 1}</span>
+        <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
+      </div>
+      <div class="row row-2">
         <label>Project Name <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(
         project.name
       )}"></label>
-        <label>Description <textarea class="textarea" rows="3" data-k="description" data-i="${i}">${escapeHtml(
+        <label>Project URL <input class="input" type="url" data-k="projectUrl" data-i="${i}" value="${escapeHtml(
+        project.projectUrl || ""
+      )}"></label>
+      </div>
+      <div class="row row-2">
+        <label>Start Date <input class="input" type="date" data-k="startDate" data-i="${i}" value="${
+        project.startDate || ""
+      }"></label>
+        <label>End Date <input class="input" type="date" data-k="endDate" data-i="${i}" value="${
+        project.endDate || ""
+      }"></label>
+      </div>
+      <label>Description 
+        <textarea class="textarea" rows="3" data-k="description" data-i="${i}">${escapeHtml(
         project.description || ""
-      )}</textarea></label>
-      `;
+      )}</textarea>
+      </label>
+    `;
+
+      // ✅ Remove project
       div.querySelector("[data-remove]").addEventListener("click", () => {
         data.projects.splice(i, 1);
         renderProjects();
         saveToStorage();
       });
+
+      // ✅ Attach input change handlers
       attachChangeHandlers(div, data.projects, i);
+
+      // ✅ Finally append to DOM
       els.projectsList.appendChild(div);
     });
   }

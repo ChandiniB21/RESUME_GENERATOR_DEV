@@ -120,17 +120,35 @@
       if (pi.summary)
         addSection("Professional Summary", `<p>${safe(pi.summary)}</p>`);
 
+      // // Education
+      // if (Array.isArray(data.education) && data.education.length) {
+      //   const html = data.education
+      //     .map(
+      //       (e) => `
+      //   <p><strong>${safe(e.degree || "")}</strong>, ${safe(
+      //         e.institution || ""
+      //       )} (${[e.startDate, e.endDate].filter(Boolean).join(" - ")})</p>
+      //   ${e.description ? `<p>${safe(e.description)}</p>` : ""}
+      // `
+      //     )
+      //     .join("");
+      //   addSection("Education", html);
+      // }
       // Education
       if (Array.isArray(data.education) && data.education.length) {
         const html = data.education
-          .map(
-            (e) => `
+          .map((e) => {
+            const period =
+              (e.startDate || "") +
+              (e.current ? " - Present" : e.endDate ? " - " + e.endDate : "");
+            return `
         <p><strong>${safe(e.degree || "")}</strong>, ${safe(
               e.institution || ""
-            )} (${[e.startDate, e.endDate].filter(Boolean).join(" - ")})</p>
+            )} (${safe(period)})</p>
+        ${e.cgpa ? `<p>CGPA/Marks: ${safe(e.cgpa)}</p>` : ""}
         ${e.description ? `<p>${safe(e.description)}</p>` : ""}
-      `
-          )
+      `;
+          })
           .join("");
         addSection("Education", html);
       }
@@ -164,9 +182,20 @@
       // Projects
       if (Array.isArray(data.projects) && data.projects.length) {
         const html = data.projects
-          .map(
-            (p) => `
-        <p><strong>${safe(p.name || "")}</strong></p>
+          .map((p) => {
+            const period = [p.startDate, p.endDate].filter(Boolean).join(" - ");
+            return `
+        <p>
+          <strong>${safe(p.name || "")}</strong>
+          ${period ? ` (${safe(period)})` : ""}
+        </p>
+        ${
+          p.projectUrl
+            ? `<p><a href="${safe(p.projectUrl)}" target="_blank">${safe(
+                p.projectUrl
+              )}</a></p>`
+            : ""
+        }
         ${
           p.description
             ? `<ul>${p.description
@@ -176,8 +205,8 @@
                 .join("")}</ul>`
             : ""
         }
-      `
-          )
+      `;
+          })
           .join("");
         addSection("Projects", html);
       }
