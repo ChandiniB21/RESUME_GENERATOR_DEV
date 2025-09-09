@@ -20,7 +20,7 @@
     eduList: qs("#educationList"),
     skillsList: qs("#skillsList"),
     projectsList: qs("#projectsList"),
-
+    certificationsList: qs("#certificationsList"),
     btnSave: qs("#btn-save"),
     btnSave2: qs("#btn-save-2"),
     btnClear: qs("#btn-clear"),
@@ -31,6 +31,7 @@
     addEducation: qs("#addEducation"),
     addSkill: qs("#addSkill"),
     addProject: qs("#addProject"),
+    addCertification: qs("#addCertification"),
   };
 
   // ===== Defaults (mirrors your zip structure) =====
@@ -53,6 +54,7 @@
       education: [],
       skills: [],
       projects: [],
+      certifications: [],
     };
   }
 
@@ -74,6 +76,7 @@
     renderEducation();
     renderSkills();
     renderProjects();
+    renderCertifications();
   }
 
   // ===== Storage =====
@@ -102,6 +105,7 @@
     data.education = [];
     data.skills = [];
     data.projects = [];
+    data.certifications=[];
     initForm();
     saveToStorage();
   }
@@ -528,6 +532,45 @@
 
       // ✅ Finally append to DOM
       els.projectsList.appendChild(div);
+    });
+  }
+  // ===== Certificates =====
+  
+
+  els.addCertification.addEventListener("click", () => {
+    data.certifications.push({ name: "", issuer: "", date: "", description: "" });
+    renderCertifications();
+    saveToStorage();
+  });
+
+  function renderCertifications() {
+    els.certificationsList.innerHTML = "";
+    data.certifications.forEach((cert, i) => {
+      const div = document.createElement("div");
+      div.className = "list-item";
+      div.innerHTML = `
+        <div class="list-item-header">
+          <span class="list-item-title">Certification ${i + 1}</span>
+          <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
+        </div>
+        <div class="row row-2">
+          <label>Certificate Name <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(cert.name)}"></label>
+          <label>Issuer <input class="input" data-k="issuer" data-i="${i}" value="${escapeHtml(cert.issuer)}"></label>
+        </div>
+        <div class="row row-2">
+          <label>Date <input class="input" type="date" data-k="date" data-i="${i}" value="${cert.date || ""}"></label>
+        </div>
+        <label>Description
+          <textarea class="textarea" data-k="description" data-i="${i}" rows="2">${escapeHtml(cert.description || "")}</textarea>
+        </label>
+      `;
+      div.querySelector("[data-remove]").addEventListener("click", () => {
+        data.certifications.splice(i, 1);
+        renderCertifications();
+        saveToStorage();
+      });
+      attachChangeHandlers(div, data.certifications, i);
+      els.certificationsList.appendChild(div);
     });
   }
 

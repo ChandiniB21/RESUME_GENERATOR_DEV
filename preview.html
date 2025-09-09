@@ -210,6 +210,20 @@
           .join("");
         addSection("Projects", html);
       }
+      
+            // Certificates
+      if (Array.isArray(data.certifications) && data.certifications.length) {
+        const html = data.certifications
+          .map(
+            (c) => `
+        <p><strong>${safe(c.name || "")}</strong> - ${safe(c.issuer || "")} (${safe(c.date || "")})</p>
+        ${c.description ? `<p>${safe(c.description)}</p>` : ""}
+      `
+          )
+          .join("");
+        addSection("Certificates", html);
+      }
+
 
       // Skills
       if (Array.isArray(data.skills) && data.skills.length) {
