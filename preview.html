@@ -263,8 +263,13 @@
       }
 
       // Additional Info
-      if (data.additional)
-        addSection("Additional Information", `<p>${safe(data.additional)}</p>`);
+if (data.additionalInfo && data.additionalInfo.trim()) {
+  addSection(
+    "Additional Information",
+    `<p>${safe(data.additionalInfo)}</p>`
+  );
+}
+
 
       // TXT download
       function downloadTxt() {

@@ -23,6 +23,8 @@
       if (!Array.isArray(data[k])) data[k] = [];
     });
   })();
+      if (typeof data.additionalInfo !== "string") data.additionalInfo = "";
+
 
   const els = {
     // core
@@ -43,6 +45,8 @@
     certificationsList: qs("#certificationsList"),
     internshipsList: qs("#internshipsList"),
     hobbiesList: qs("#hobbiesList"),
+    additionalInfo: qs("#additionalInfo"),
+
     // addHobby: qs("#addHobby"),
 
     btnSave: qs("#btn-save"),
@@ -83,6 +87,8 @@
       certifications: [],
       internships: [],
       hobbies: [],
+      additionalInfo: "",   // ✅ new field
+
     };
   }
 
@@ -99,6 +105,8 @@
     els.linkedin.value = publicLinks.linkedin || "";
     els.portfolio.value = publicLinks.portfolio || "";
     els.website.value = publicLinks.website || "";
+    els.additionalInfo.value = data.additionalInfo || "";
+
 
     renderExperience();
     renderEducation();
@@ -138,6 +146,8 @@
     data.certifications = [];
     data.internships = [];
     data.hobbies = [];
+    data.additionalInfo = "";
+
 
     initForm();
     saveToStorage();
@@ -197,6 +207,12 @@
       evt,
       (e) => (data.publicLinks.website = e.target.value)
     );
+        els.additionalInfo.addEventListener(
+      evt,
+      (e) => (data.additionalInfo = e.target.value)
+    );
+
+
   });
 
   // ===== Experience =====
