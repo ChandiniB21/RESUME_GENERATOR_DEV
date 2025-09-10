@@ -590,6 +590,7 @@
       issuer: "",
       date: "",
       description: "",
+      url: "", 
     });
     renderCertifications();
     saveToStorage();
@@ -617,6 +618,9 @@
           <label>Date <input class="input" type="date" data-k="date" data-i="${i}" value="${
         cert.date || ""
       }"></label>
+      <label>Certificate URL 
+          <input class="input" type="url" placeholder="https://example.com/certificate" data-k="url" data-i="${i}" value="${escapeHtml(cert.url || "")}">
+        </label>
         </div>
         <label>Description
           <textarea class="textarea" data-k="description" data-i="${i}" rows="2">${escapeHtml(
