@@ -23,12 +23,13 @@
       if (!Array.isArray(data[k])) data[k] = [];
     });
   })();
-      if (typeof data.additionalInfo !== "string") data.additionalInfo = "";
-
+  if (typeof data.additionalInfo !== "string") data.additionalInfo = "";
 
   const els = {
     // core
     fullName: qs("#fullName"),
+    profilePhoto: qs("#profilePhoto"), // ✅ new
+
     email: qs("#email"),
     phone: qs("#phone"),
     location: qs("#location"),
@@ -69,6 +70,8 @@
     return {
       personalInfo: {
         fullName: "",
+        profilePhoto: "", // ✅ new
+
         email: "",
         phone: "",
         location: "",
@@ -87,8 +90,7 @@
       certifications: [],
       internships: [],
       hobbies: [],
-      additionalInfo: "",   // ✅ new field
-
+      additionalInfo: "", // ✅ new field
     };
   }
 
@@ -96,6 +98,10 @@
   function initForm() {
     const { personalInfo, publicLinks } = data;
     els.fullName.value = personalInfo.fullName || "";
+    if (personalInfo.profilePhoto) {
+      els.profilePhoto.setAttribute("data-has-photo", "true"); // ✅ marks existing photo
+    }
+
     els.email.value = personalInfo.email || "";
     els.phone.value = personalInfo.phone || "";
     els.location.value = personalInfo.location || "";
@@ -106,7 +112,6 @@
     els.portfolio.value = publicLinks.portfolio || "";
     els.website.value = publicLinks.website || "";
     els.additionalInfo.value = data.additionalInfo || "";
-
 
     renderExperience();
     renderEducation();
@@ -147,7 +152,6 @@
     data.internships = [];
     data.hobbies = [];
     data.additionalInfo = "";
-
 
     initForm();
     saveToStorage();
@@ -207,12 +211,23 @@
       evt,
       (e) => (data.publicLinks.website = e.target.value)
     );
-        els.additionalInfo.addEventListener(
+    // ✅ Profile photo upload
+    els.profilePhoto.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (evt) {
+          data.personalInfo.profilePhoto = evt.target.result; // store base64
+          saveToStorage();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    els.additionalInfo.addEventListener(
       evt,
       (e) => (data.additionalInfo = e.target.value)
     );
-
-
   });
 
   // ===== Experience =====
@@ -590,7 +605,7 @@
       issuer: "",
       date: "",
       description: "",
-      url: "", 
+      url: "",
     });
     renderCertifications();
     saveToStorage();
@@ -619,7 +634,9 @@
         cert.date || ""
       }"></label>
       <label>Certificate URL 
-          <input class="input" type="url" placeholder="https://example.com/certificate" data-k="url" data-i="${i}" value="${escapeHtml(cert.url || "")}">
+          <input class="input" type="url" placeholder="https://example.com/certificate" data-k="url" data-i="${i}" value="${escapeHtml(
+        cert.url || ""
+      )}">
         </label>
         </div>
         <label>Description
