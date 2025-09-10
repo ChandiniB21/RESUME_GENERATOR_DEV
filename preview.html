@@ -120,20 +120,6 @@
       if (pi.summary)
         addSection("Professional Summary", `<p>${safe(pi.summary)}</p>`);
 
-      // // Education
-      // if (Array.isArray(data.education) && data.education.length) {
-      //   const html = data.education
-      //     .map(
-      //       (e) => `
-      //   <p><strong>${safe(e.degree || "")}</strong>, ${safe(
-      //         e.institution || ""
-      //       )} (${[e.startDate, e.endDate].filter(Boolean).join(" - ")})</p>
-      //   ${e.description ? `<p>${safe(e.description)}</p>` : ""}
-      // `
-      //     )
-      //     .join("");
-      //   addSection("Education", html);
-      // }
       // Education
       if (Array.isArray(data.education) && data.education.length) {
         const html = data.education
@@ -210,20 +196,21 @@
           .join("");
         addSection("Projects", html);
       }
-      
-            // Certificates
+
+      // Certificates
       if (Array.isArray(data.certifications) && data.certifications.length) {
         const html = data.certifications
           .map(
             (c) => `
-        <p><strong>${safe(c.name || "")}</strong> - ${safe(c.issuer || "")} (${safe(c.date || "")})</p>
+        <p><strong>${safe(c.name || "")}</strong> - ${safe(
+              c.issuer || ""
+            )} (${safe(c.date || "")})</p>
         ${c.description ? `<p>${safe(c.description)}</p>` : ""}
       `
           )
           .join("");
         addSection("Certificates", html);
       }
-
 
       // Skills
       if (Array.isArray(data.skills) && data.skills.length) {
@@ -254,7 +241,7 @@
       // Hobbies
       if (Array.isArray(data.hobbies) && data.hobbies.length) {
         const html = `<ul>${data.hobbies
-          .map((h) => `<li>${safe(h)}</li>`)
+          .map((h) => `<li>${safe(h.hobby || "")}</li>`)
           .join("")}</ul>`;
         addSection("Hobbies", html);
       }
