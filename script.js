@@ -17,6 +17,7 @@
       "skills",
       "projects",
       "certifications",
+      "internships",
       "hobbies",
     ].forEach((k) => {
       if (!Array.isArray(data[k])) data[k] = [];
@@ -40,8 +41,9 @@
     skillsList: qs("#skillsList"),
     projectsList: qs("#projectsList"),
     certificationsList: qs("#certificationsList"),
+    internshipsList: qs("#internshipsList"),
     hobbiesList: qs("#hobbiesList"),
-    addHobby: qs("#addHobby"),
+    // addHobby: qs("#addHobby"),
 
     btnSave: qs("#btn-save"),
     btnSave2: qs("#btn-save-2"),
@@ -54,6 +56,8 @@
     addSkill: qs("#addSkill"),
     addProject: qs("#addProject"),
     addCertification: qs("#addCertification"),
+    addInternship: qs("#addInternship"),
+    addHobby: qs("#addHobby"),
   };
 
   // ===== Defaults (mirrors your zip structure) =====
@@ -77,6 +81,7 @@
       skills: [],
       projects: [],
       certifications: [],
+      internships: [],
       hobbies: [],
     };
   }
@@ -100,6 +105,7 @@
     renderSkills();
     renderProjects();
     renderCertifications();
+    renderInternships();
     renderHobbies();
   }
 
@@ -130,6 +136,7 @@
     data.skills = [];
     data.projects = [];
     data.certifications = [];
+    data.internships = [];
     data.hobbies = [];
 
     initForm();
@@ -608,6 +615,59 @@
       });
       attachChangeHandlers(div, data.certifications, i);
       els.certificationsList.appendChild(div);
+    });
+  }
+  // ===== Internships (NEW) =====
+  els.addInternship.addEventListener("click", () => {
+    data.internships.push({
+      name: "",
+      organization: "",
+      startDate: "",
+      endDate: "",
+      description: "",
+    });
+    renderInternships();
+    saveToStorage();
+  });
+  function renderInternships() {
+    els.internshipsList.innerHTML = "";
+    data.internships.forEach((intern, i) => {
+      const div = document.createElement("div");
+      div.className = "list-item";
+      div.innerHTML = `
+        <div class="list-item-header">
+          <span class="list-item-title">Internship ${i + 1}</span>
+          <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
+        </div>
+        <div class="row row-2">
+          <label>Internship Name <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(
+        intern.name
+      )}"></label>
+          <label>Organization <input class="input" data-k="organization" data-i="${i}" value="${escapeHtml(
+        intern.organization
+      )}"></label>
+        </div>
+        <div class="row row-2">
+          <label>Start Date <input type="date" class="input" data-k="startDate" data-i="${i}" value="${
+        intern.startDate || ""
+      }"></label>
+          <label>End Date <input type="date" class="input" data-k="endDate" data-i="${i}" value="${
+        intern.endDate || ""
+      }"></label>
+        </div>
+        <label>Description
+          <textarea class="textarea" rows="3" data-k="description" data-i="${i}">${escapeHtml(
+        intern.description || ""
+      )}</textarea>
+        </label>
+      `;
+      div.querySelector("[data-remove]").addEventListener("click", () => {
+        data.internships.splice(i, 1);
+        renderInternships();
+        saveToStorage();
+      });
+      attachChangeHandlers(div, data.internships, i);
+      els.internshipsList.appendChild(div);
     });
   }
   // ===== Hobbies =====

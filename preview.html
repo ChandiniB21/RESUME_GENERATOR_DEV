@@ -139,7 +139,7 @@
         addSection("Education", html);
       }
 
-      // Experience / Internship
+      // Work Experience
       if (Array.isArray(data.experience) && data.experience.length) {
         const html = data.experience
           .map((e) => {
@@ -147,22 +147,38 @@
               (e.startDate || "") +
               (e.current ? " - Present" : e.endDate ? " - " + e.endDate : "");
             return `
-          <p><strong>${safe(e.jobTitle || "")}</strong>, ${safe(
+        <p><strong>${safe(e.jobTitle || "")}</strong>, ${safe(
               e.company || ""
             )} (${safe(period)})</p>
-          ${
-            e.description
-              ? `<ul>${e.description
-                  .split(/[\n•\-]\s*/)
-                  .filter(Boolean)
-                  .map((x) => `<li>${safe(x)}</li>`)
-                  .join("")}</ul>`
-              : ""
-          }
-        `;
+        ${
+          e.description
+            ? `<ul>${e.description
+                .split(/[\n•\-]\s*/)
+                .filter(Boolean)
+                .map((x) => `<li>${safe(x)}</li>`)
+                .join("")}</ul>`
+            : ""
+        }
+      `;
           })
           .join("");
-        addSection("Internship / Work Experience", html);
+        addSection("Work Experience", html);
+      }
+
+      // ===== Internships (NEW) =====
+      if (Array.isArray(data.internships) && data.internships.length) {
+        const html = data.internships
+          .map((i) => {
+            const period = [i.startDate, i.endDate].filter(Boolean).join(" - ");
+            return `
+              <p><strong>${safe(i.name || "")}</strong>, ${safe(
+              i.organization || ""
+            )} (${safe(period)})</p>
+              ${i.description ? `<p>${safe(i.description)}</p>` : ""}
+            `;
+          })
+          .join("");
+        addSection("Internships", html);
       }
 
       // Projects
