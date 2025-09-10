@@ -110,11 +110,18 @@
         .join(" | ");
 
       resume.innerHTML += `
-      <div class="resume-header">
-        <h1>${safe(pi.fullName || "")}</h1>
-        <div class="contact-line">${contacts}</div>
-      </div>
-    `;
+  <div class="resume-header" style="display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <h1>${safe(pi.fullName || "")}</h1>
+      <div class="contact-line">${contacts}</div>
+    </div>
+    ${
+      pi.profilePhoto
+        ? `<img src="${pi.profilePhoto}" alt="Profile Photo" style="width:100px;height:100px;border-radius:50%;object-fit:cover;margin-left:20px;" />`
+        : ""
+    }
+  </div>
+`;
 
       // Summary
       if (pi.summary)
@@ -222,10 +229,12 @@
               c.issuer || ""
             )} (${safe(c.date || "")})</p>
             ${
-          c.url
-            ? `<p><a href="${safe(c.url)}" target="_blank">${safe(c.url)}</a></p>`
-            : ""
-        }
+              c.url
+                ? `<p><a href="${safe(c.url)}" target="_blank">${safe(
+                    c.url
+                  )}</a></p>`
+                : ""
+            }
         ${c.description ? `<p>${safe(c.description)}</p>` : ""}
       `
           )
