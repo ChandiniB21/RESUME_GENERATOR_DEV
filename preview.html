@@ -221,6 +221,11 @@
         <p><strong>${safe(c.name || "")}</strong> - ${safe(
               c.issuer || ""
             )} (${safe(c.date || "")})</p>
+            ${
+          c.url
+            ? `<p><a href="${safe(c.url)}" target="_blank">${safe(c.url)}</a></p>`
+            : ""
+        }
         ${c.description ? `<p>${safe(c.description)}</p>` : ""}
       `
           )
