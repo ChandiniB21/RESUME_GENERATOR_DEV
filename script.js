@@ -4,6 +4,25 @@
   const qa = (s) => Array.from(document.querySelectorAll(s));
 
   const data = loadFromStorage() || getDefaultData();
+  // --- MIGRATION / NORMALIZATION: make sure all fields exist even if old localStorage is loaded
+  (() => {
+    const def = getDefaultData();
+    // ensure nested objects have all keys
+    data.personalInfo = { ...def.personalInfo, ...(data.personalInfo || {}) };
+    data.publicLinks = { ...def.publicLinks, ...(data.publicLinks || {}) };
+    // ensure arrays always exist
+    [
+      "experience",
+      "education",
+      "skills",
+      "projects",
+      "certifications",
+      "hobbies",
+    ].forEach((k) => {
+      if (!Array.isArray(data[k])) data[k] = [];
+    });
+  })();
+
   const els = {
     // core
     fullName: qs("#fullName"),
@@ -21,6 +40,9 @@
     skillsList: qs("#skillsList"),
     projectsList: qs("#projectsList"),
     certificationsList: qs("#certificationsList"),
+    hobbiesList: qs("#hobbiesList"),
+    addHobby: qs("#addHobby"),
+
     btnSave: qs("#btn-save"),
     btnSave2: qs("#btn-save-2"),
     btnClear: qs("#btn-clear"),
@@ -55,6 +77,7 @@
       skills: [],
       projects: [],
       certifications: [],
+      hobbies: [],
     };
   }
 
@@ -77,6 +100,7 @@
     renderSkills();
     renderProjects();
     renderCertifications();
+    renderHobbies();
   }
 
   // ===== Storage =====
@@ -105,7 +129,9 @@
     data.education = [];
     data.skills = [];
     data.projects = [];
-    data.certifications=[];
+    data.certifications = [];
+    data.hobbies = [];
+
     initForm();
     saveToStorage();
   }
@@ -335,94 +361,94 @@
     });
   }
 
-  // ... rest of your existing code unchanged ...
-  // ... your existing code above ...
+  // // ... rest of your existing code unchanged ...
+  // // ... your existing code above ...
 
-  // ===== Education =====
-  els.addEducation.addEventListener("click", () => {
-    data.education.push({
-      degree: "",
-      institution: "",
-      startDate: "",
-      endDate: "",
-      current: false, // ✅ new field for "Currently studying"
-      cgpa: "", // ✅ new field for CGPA/Marks
-      description: "",
-    });
-    renderEducation();
-    saveToStorage();
-  });
+  // // ===== Education =====
+  // els.addEducation.addEventListener("click", () => {
+  //   data.education.push({
+  //     degree: "",
+  //     institution: "",
+  //     startDate: "",
+  //     endDate: "",
+  //     current: false, // ✅ new field for "Currently studying"
+  //     cgpa: "", // ✅ new field for CGPA/Marks
+  //     description: "",
+  //   });
+  //   renderEducation();
+  //   saveToStorage();
+  // });
 
-  function renderEducation() {
-    els.eduList.innerHTML = "";
-    data.education.forEach((edu, i) => {
-      const div = document.createElement("div");
-      div.className = "list-item";
-      div.innerHTML = `
-      <div class="list-item-header">
-        <span class="list-item-title">Education ${i + 1}</span>
-        <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
-      </div>
-      <div class="row row-2">
-        <label>Degree/Course <input class="input" data-k="degree" data-i="${i}" value="${escapeHtml(
-        edu.degree
-      )}"></label>
-        <label>Institution <input class="input" data-k="institution" data-i="${i}" value="${escapeHtml(
-        edu.institution
-      )}"></label>
-      </div>
-      <div class="row row-2">
-        <label>Start Date <input class="input" type="date" data-k="startDate" data-i="${i}" value="${
-        edu.startDate || ""
-      }"></label>
-        <label>End Date <input class="input" type="date" data-k="endDate" data-i="${i}" ${
-        edu.current ? "disabled" : ""
-      } value="${edu.endDate || ""}"></label>
-      </div>
-      <div class="row row-2">
-        <label class="full" style="display:flex;align-items:center;gap:10px;">
-          <input type="checkbox" data-k="current" data-i="${i}" ${
-        edu.current ? "checked" : ""
-      }/> Currently studying here
-        </label>
-      </div>
-      <div class="row row-2">
-        <label>CGPA/Marks <input class="input" data-k="cgpa" data-i="${i}" value="${escapeHtml(
-        edu.cgpa || ""
-      )}"></label>
-      </div>
-      <label>Description
-        <textarea class="textarea" data-k="description" data-i="${i}" rows="3">${escapeHtml(
-        edu.description || ""
-      )}</textarea>
-      </label>
-    `;
+  // function renderEducation() {
+  //   els.eduList.innerHTML = "";
+  //   data.education.forEach((edu, i) => {
+  //     const div = document.createElement("div");
+  //     div.className = "list-item";
+  //     div.innerHTML = `
+  //     <div class="list-item-header">
+  //       <span class="list-item-title">Education ${i + 1}</span>
+  //       <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
+  //     </div>
+  //     <div class="row row-2">
+  //       <label>Degree/Course <input class="input" data-k="degree" data-i="${i}" value="${escapeHtml(
+  //       edu.degree
+  //     )}"></label>
+  //       <label>Institution <input class="input" data-k="institution" data-i="${i}" value="${escapeHtml(
+  //       edu.institution
+  //     )}"></label>
+  //     </div>
+  //     <div class="row row-2">
+  //       <label>Start Date <input class="input" type="date" data-k="startDate" data-i="${i}" value="${
+  //       edu.startDate || ""
+  //     }"></label>
+  //       <label>End Date <input class="input" type="date" data-k="endDate" data-i="${i}" ${
+  //       edu.current ? "disabled" : ""
+  //     } value="${edu.endDate || ""}"></label>
+  //     </div>
+  //     <div class="row row-2">
+  //       <label class="full" style="display:flex;align-items:center;gap:10px;">
+  //         <input type="checkbox" data-k="current" data-i="${i}" ${
+  //       edu.current ? "checked" : ""
+  //     }/> Currently studying here
+  //       </label>
+  //     </div>
+  //     <div class="row row-2">
+  //       <label>CGPA/Marks <input class="input" data-k="cgpa" data-i="${i}" value="${escapeHtml(
+  //       edu.cgpa || ""
+  //     )}"></label>
+  //     </div>
+  //     <label>Description
+  //       <textarea class="textarea" data-k="description" data-i="${i}" rows="3">${escapeHtml(
+  //       edu.description || ""
+  //     )}</textarea>
+  //     </label>
+  //   `;
 
-      div.querySelector("[data-remove]").addEventListener("click", () => {
-        data.education.splice(i, 1);
-        renderEducation();
-        saveToStorage();
-      });
+  //     div.querySelector("[data-remove]").addEventListener("click", () => {
+  //       data.education.splice(i, 1);
+  //       renderEducation();
+  //       saveToStorage();
+  //     });
 
-      attachChangeHandlers(div, data.education, i, (arr, idx, key, val, el) => {
-        if (key === "current") {
-          arr[idx].current = el.checked;
-          const endInput = div.querySelector('input[data-k="endDate"]');
-          if (endInput) {
-            endInput.disabled = el.checked;
-            if (el.checked) {
-              endInput.value = "";
-              arr[idx].endDate = "";
-            }
-          }
-        } else {
-          arr[idx][key] = val;
-        }
-      });
+  //     attachChangeHandlers(div, data.education, i, (arr, idx, key, val, el) => {
+  //       if (key === "current") {
+  //         arr[idx].current = el.checked;
+  //         const endInput = div.querySelector('input[data-k="endDate"]');
+  //         if (endInput) {
+  //           endInput.disabled = el.checked;
+  //           if (el.checked) {
+  //             endInput.value = "";
+  //             arr[idx].endDate = "";
+  //           }
+  //         }
+  //       } else {
+  //         arr[idx][key] = val;
+  //       }
+  //     });
 
-      els.eduList.appendChild(div);
-    });
-  }
+  //     els.eduList.appendChild(div);
+  //   });
+  // }
 
   // ... rest of your existing code unchanged ...
 
@@ -535,10 +561,13 @@
     });
   }
   // ===== Certificates =====
-  
-
   els.addCertification.addEventListener("click", () => {
-    data.certifications.push({ name: "", issuer: "", date: "", description: "" });
+    data.certifications.push({
+      name: "",
+      issuer: "",
+      date: "",
+      description: "",
+    });
     renderCertifications();
     saveToStorage();
   });
@@ -554,14 +583,22 @@
           <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
         </div>
         <div class="row row-2">
-          <label>Certificate Name <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(cert.name)}"></label>
-          <label>Issuer <input class="input" data-k="issuer" data-i="${i}" value="${escapeHtml(cert.issuer)}"></label>
+          <label>Certificate Name <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(
+        cert.name
+      )}"></label>
+          <label>Issuer <input class="input" data-k="issuer" data-i="${i}" value="${escapeHtml(
+        cert.issuer
+      )}"></label>
         </div>
         <div class="row row-2">
-          <label>Date <input class="input" type="date" data-k="date" data-i="${i}" value="${cert.date || ""}"></label>
+          <label>Date <input class="input" type="date" data-k="date" data-i="${i}" value="${
+        cert.date || ""
+      }"></label>
         </div>
         <label>Description
-          <textarea class="textarea" data-k="description" data-i="${i}" rows="2">${escapeHtml(cert.description || "")}</textarea>
+          <textarea class="textarea" data-k="description" data-i="${i}" rows="2">${escapeHtml(
+        cert.description || ""
+      )}</textarea>
         </label>
       `;
       div.querySelector("[data-remove]").addEventListener("click", () => {
@@ -571,6 +608,44 @@
       });
       attachChangeHandlers(div, data.certifications, i);
       els.certificationsList.appendChild(div);
+    });
+  }
+  // ===== Hobbies =====
+  els.addHobby.addEventListener("click", () => {
+    data.hobbies.push({ hobby: "" });
+    renderHobbies();
+    saveToStorage();
+  });
+
+  function renderHobbies() {
+    els.hobbiesList.innerHTML = "";
+    // extra guard (works even if a future edit removes hobbies in storage)
+    const list = Array.isArray(data.hobbies)
+      ? data.hobbies
+      : (data.hobbies = []);
+    list.forEach((hob, i) => {
+      const div = document.createElement("div");
+      div.className = "list-item";
+      div.innerHTML = `
+      <div class="list-item-header">
+        <span class="list-item-title">Hobby ${i + 1}</span>
+        <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
+      </div>
+      <label>Hobby
+        <input class="input" data-k="hobby" data-i="${i}" value="${escapeHtml(
+        hob.hobby || ""
+      )}">
+      </label>
+    `;
+
+      div.querySelector("[data-remove]").addEventListener("click", () => {
+        data.hobbies.splice(i, 1);
+        renderHobbies();
+        saveToStorage();
+      });
+
+      attachChangeHandlers(div, data.hobbies, i);
+      els.hobbiesList.appendChild(div);
     });
   }
 
