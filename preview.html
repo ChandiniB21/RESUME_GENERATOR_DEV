@@ -233,9 +233,11 @@
         const html = `<ul>${data.skills
           .map(
             (s) =>
-              `<li>${safe(s.name || "")} ${
-                s.level ? `(${safe(s.level)})` : ""
-              }</li>`
+              `<li>
+          ${safe(s.name || "")}
+          ${s.category ? ` - ${safe(s.category)}` : ""}
+          ${s.level ? ` (${safe(s.level)})` : ""}
+        </li>`
           )
           .join("")}</ul>`;
         addSection("Skills", html);
@@ -263,13 +265,12 @@
       }
 
       // Additional Info
-if (data.additionalInfo && data.additionalInfo.trim()) {
-  addSection(
-    "Additional Information",
-    `<p>${safe(data.additionalInfo)}</p>`
-  );
-}
-
+      if (data.additionalInfo && data.additionalInfo.trim()) {
+        addSection(
+          "Additional Information",
+          `<p>${safe(data.additionalInfo)}</p>`
+        );
+      }
 
       // TXT download
       function downloadTxt() {
