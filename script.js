@@ -19,6 +19,7 @@
       "certifications",
       "internships",
       "hobbies",
+      "languages",
     ].forEach((k) => {
       if (!Array.isArray(data[k])) data[k] = [];
     });
@@ -38,9 +39,8 @@
     linkedin: qs("#linkedin"),
     portfolio: qs("#portfolio"),
     website: qs("#website"),
-    addCustomLink: qs("#addCustomLink"),   // button
+    addCustomLink: qs("#addCustomLink"), // button
     customLinksList: qs("#customLinksList"), // container
-
 
     expList: qs("#experienceList"),
     eduList: qs("#educationList"),
@@ -66,6 +66,8 @@
     addCertification: qs("#addCertification"),
     addInternship: qs("#addInternship"),
     addHobby: qs("#addHobby"),
+    addLanguage: qs("#addLanguage"),
+    languagesList: qs("#languagesList"),
   };
 
   // ===== Defaults (mirrors your zip structure) =====
@@ -94,6 +96,7 @@
       certifications: [],
       internships: [],
       hobbies: [],
+      languages: [],
       additionalInfo: "", // ✅ new field
     };
   }
@@ -125,7 +128,7 @@
     renderInternships();
     renderHobbies();
     renderCustomLinks();
-
+    renderLanguages();
   }
 
   // ===== Storage =====
@@ -158,6 +161,7 @@
     data.internships = [];
     data.hobbies = [];
     data.additionalInfo = "";
+    data.languages = [];
 
     initForm();
     saveToStorage();
@@ -751,57 +755,98 @@
       els.hobbiesList.appendChild(div);
     });
   }
-// ===== Custom Links =====
-// Add new custom website (only URL)
-if (els.addCustomLink) {
-  els.addCustomLink.addEventListener("click", () => {
-    // push only url (empty string)
-    data.publicLinks.custom.push({ url: "" });
-    renderCustomLinks();
+  // ===== Languages =====
+  els.addLanguage.addEventListener("click", () => {
+    data.languages.push({ name: "" }); // store as object like hobbies
+    renderLanguages();
     saveToStorage();
   });
-}
 
-// Event delegation for Remove buttons (robust across re-renders)
-if (els.customLinksList) {
-  els.customLinksList.addEventListener("click", (e) => {
-    const btn = e.target.closest('[data-remove]');
-    if (!btn) return;
-    const idx = Number(btn.getAttribute("data-remove"));
-    if (!Number.isFinite(idx)) return;
-    data.publicLinks.custom.splice(idx, 1);
-    renderCustomLinks();
-    saveToStorage();
-  });
-}
+  function renderLanguages() {
+    els.languagesList.innerHTML = "";
+    const list = Array.isArray(data.languages)
+      ? data.languages
+      : (data.languages = []);
 
-function renderCustomLinks() {
-  if (!els.customLinksList) return;
-  els.customLinksList.innerHTML = "";
-  const list = Array.isArray(data.publicLinks.custom)
-    ? data.publicLinks.custom
-    : (data.publicLinks.custom = []);
+    list.forEach((lang, i) => {
+      const div = document.createElement("div");
+      div.className = "list-item";
+      div.innerHTML = `
+      <div class="list-item-header">
+        <span class="list-item-title">Language ${i + 1}</span>
+        <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
+      </div>
+      <label>Language
+        <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(
+        lang.name || ""
+      )}">
+      </label>
+    `;
 
-  list.forEach((link, i) => {
-    const div = document.createElement("div");
-    div.className = "list-item";
-    div.innerHTML = `
+      // remove
+      div.querySelector("[data-remove]").addEventListener("click", () => {
+        data.languages.splice(i, 1);
+        renderLanguages();
+        saveToStorage();
+      });
+
+      // attach change
+      attachChangeHandlers(div, data.languages, i);
+
+      els.languagesList.appendChild(div);
+    });
+  }
+
+  // ===== Custom Links =====
+  // Add new custom website (only URL)
+  if (els.addCustomLink) {
+    els.addCustomLink.addEventListener("click", () => {
+      // push only url (empty string)
+      data.publicLinks.custom.push({ url: "" });
+      renderCustomLinks();
+      saveToStorage();
+    });
+  }
+
+  // Event delegation for Remove buttons (robust across re-renders)
+  if (els.customLinksList) {
+    els.customLinksList.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-remove]");
+      if (!btn) return;
+      const idx = Number(btn.getAttribute("data-remove"));
+      if (!Number.isFinite(idx)) return;
+      data.publicLinks.custom.splice(idx, 1);
+      renderCustomLinks();
+      saveToStorage();
+    });
+  }
+
+  function renderCustomLinks() {
+    if (!els.customLinksList) return;
+    els.customLinksList.innerHTML = "";
+    const list = Array.isArray(data.publicLinks.custom)
+      ? data.publicLinks.custom
+      : (data.publicLinks.custom = []);
+
+    list.forEach((link, i) => {
+      const div = document.createElement("div");
+      div.className = "list-item";
+      div.innerHTML = `
       <div class="list-item-header">
         <span class="list-item-title">Website ${i + 1}</span>
         <button type="button" class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
       </div>
       <label>Website URL
         <input class="input" type="url" data-k="url" data-i="${i}" value="${escapeHtml(
-      link.url || ""
-    )}">
+        link.url || ""
+      )}">
       </label>
     `;
-    // bind input handlers for this item
-    attachChangeHandlers(div, data.publicLinks.custom, i);
-    els.customLinksList.appendChild(div);
-  });
-}
-
+      // bind input handlers for this item
+      attachChangeHandlers(div, data.publicLinks.custom, i);
+      els.customLinksList.appendChild(div);
+    });
+  }
 
   // ===== Helpers =====
   function attachChangeHandlers(scopeEl, arr, idx, onSpecial) {
