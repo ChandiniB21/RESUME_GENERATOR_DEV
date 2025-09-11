@@ -97,7 +97,7 @@
       // Header
       const pi = data.personalInfo || {};
       const pl = data.publicLinks || {};
-      const contacts = [
+      let contacts = [
         pi.email,
         pi.phone,
         pl.github,
@@ -108,6 +108,20 @@
         .filter(Boolean)
         .map(safe)
         .join(" | ");
+        // Add custom website links
+if (Array.isArray(pl.custom)) {
+  pl.custom
+    .map((c) => c.url)
+    .filter(Boolean)
+    .forEach((url) => {
+      if (contacts.length) {
+        contacts += " | " + safe(url);
+      } else {
+        contacts = safe(url);
+      }
+    });
+}
+
 
       resume.innerHTML += `
   <div class="resume-header" style="display:flex;justify-content:space-between;align-items:center;">
