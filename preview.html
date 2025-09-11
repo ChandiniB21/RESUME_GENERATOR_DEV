@@ -108,20 +108,19 @@
         .filter(Boolean)
         .map(safe)
         .join(" | ");
-        // Add custom website links
-if (Array.isArray(pl.custom)) {
-  pl.custom
-    .map((c) => c.url)
-    .filter(Boolean)
-    .forEach((url) => {
-      if (contacts.length) {
-        contacts += " | " + safe(url);
-      } else {
-        contacts = safe(url);
+      // Add custom website links
+      if (Array.isArray(pl.custom)) {
+        pl.custom
+          .map((c) => c.url)
+          .filter(Boolean)
+          .forEach((url) => {
+            if (contacts.length) {
+              contacts += " | " + safe(url);
+            } else {
+              contacts = safe(url);
+            }
+          });
       }
-    });
-}
-
 
       resume.innerHTML += `
   <div class="resume-header" style="display:flex;justify-content:space-between;align-items:center;">
@@ -274,12 +273,7 @@ if (Array.isArray(pl.custom)) {
       // Languages
       if (Array.isArray(data.languages) && data.languages.length) {
         const html = `<ul>${data.languages
-          .map(
-            (l) =>
-              `<li>${safe(l.name || "")} ${
-                l.level ? `(${safe(l.level)})` : ""
-              }</li>`
-          )
+          .map((l) => `<li>${safe(l.name || "")}</li>`)
           .join("")}</ul>`;
         addSection("Languages", html);
       }
