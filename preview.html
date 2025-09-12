@@ -63,6 +63,20 @@
           background: #fff;
         }
       }
+      .resume-content,
+      .resume-content * {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        white-space: normal;
+        hyphens: auto;
+        box-sizing: border-box;
+      }
+      .resume-content a,
+      .resume-content code,
+      .resume-content pre {
+        word-break: break-all;
+        overflow-wrap: anywhere;
+      }
     </style>
   </head>
   <body>
@@ -91,7 +105,16 @@
         );
       }
       function addSection(title, html) {
-        if (html && html.trim()) resume.innerHTML += `<h2>${title}</h2>${html}`;
+        if (html && html.trim()) {
+          // ensure wrapper exists
+          let contentWrapper = document.querySelector(".resume-content");
+          if (!contentWrapper) {
+            contentWrapper = document.createElement("div");
+            contentWrapper.className = "resume-content";
+            resume.appendChild(contentWrapper);
+          }
+          contentWrapper.innerHTML += `<h2>${title}</h2>${html}`;
+        }
       }
 
       // Header
