@@ -288,10 +288,8 @@
 
       // Additional Info
       if (data.additionalInfo && data.additionalInfo.trim()) {
-        addSection(
-          "Additional Information",
-          `<p>${safe(data.additionalInfo)}</p>`
-        );
+        const formatted = safe(data.additionalInfo).replace(/\n/g, "<br>");
+        addSection("Additional Information", `<p>${formatted}</p>`);
       }
 
       // TXT download
