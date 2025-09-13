@@ -292,6 +292,16 @@
         addSection("Additional Information", `<p>${formatted}</p>`);
       }
 
+
+      // Declaration
+      if (data.declaration && data.declaration.trim()) {
+      const formatted = safe(data.declaration).replace(/\n/g, "<br>");
+      addSection("Declaration", `<p>${formatted}</p>`);
+      }
+
+
+
+
       // TXT download
       function downloadTxt() {
         const text = resume.innerText;
