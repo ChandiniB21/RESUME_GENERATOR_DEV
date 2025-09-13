@@ -51,6 +51,7 @@
     hobbiesList: qs("#hobbiesList"),
     additionalInfo: qs("#additionalInfo"),
 
+
     // addHobby: qs("#addHobby"),
 
     btnSave: qs("#btn-save"),
@@ -68,6 +69,9 @@
     addHobby: qs("#addHobby"),
     addLanguage: qs("#addLanguage"),
     languagesList: qs("#languagesList"),
+    declarationList: qs("#declarationList"),   // container div
+    addDeclaration: qs("#addDeclaration"),     // + Add Declaration button
+
   };
 
   // ===== Defaults (mirrors your zip structure) =====
@@ -98,6 +102,8 @@
       hobbies: [],
       languages: [],
       additionalInfo: "", // ✅ new field
+      declaration: "", // ✅ NEW field
+
     };
   }
 
@@ -119,6 +125,10 @@
     els.portfolio.value = publicLinks.portfolio || "";
     els.website.value = publicLinks.website || "";
     els.additionalInfo.value = data.additionalInfo || "";
+    if (data.declaration) {
+    renderDeclarationItem(data.declaration);
+  }
+
 
     renderExperience();
     renderEducation();
@@ -796,6 +806,46 @@
       els.languagesList.appendChild(div);
     });
   }
+
+// ===== Declaration =====
+if (els.addDeclaration) {
+  els.addDeclaration.addEventListener("click", () => {
+    if (els.declarationList.querySelector(".list-item")) return; // allow only one
+
+    renderDeclarationItem("");
+  });
+}
+
+function renderDeclarationItem(text) {
+  const div = document.createElement("div");
+  div.className = "list-item";
+  div.innerHTML = `
+    <div class="list-item-header">
+      <span class="list-item-title">Declaration</span>
+      <button type="button" class="btn btn-small btn-danger remove-declaration">Remove</button>
+    </div>
+    <label>
+      <textarea class="textarea declaration-input" rows="3" placeholder="Enter your declaration...">${escapeHtml(text)}</textarea>
+    </label>
+  `;
+
+  // remove button
+  div.querySelector(".remove-declaration").addEventListener("click", () => {
+    data.declaration = "";
+    els.declarationList.innerHTML = "";
+    saveToStorage();
+  });
+
+  // text change
+  div.querySelector(".declaration-input").addEventListener("input", (e) => {
+    data.declaration = e.target.value;
+    saveToStorage();
+  });
+
+  els.declarationList.appendChild(div);
+}
+
+
 
   // ===== Custom Links =====
   // Add new custom website (only URL)
