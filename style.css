@@ -280,3 +280,30 @@ label {
 .container {
   margin-top: 80px;  /* header ki space */
 }
+/* brief highlight so user notices required field */
+.invalid-highlight {
+  animation: pulse 1.2s ease-in-out;
+  outline: 2px solid rgba(220, 38, 38, 0.9); /* red-ish outline */
+  border-radius: 4px;
+}
+
+@keyframes pulse {
+  0%   { transform: translateY(0); }
+  25%  { transform: translateY(-4px); }
+  50%  { transform: translateY(0); }
+  75%  { transform: translateY(-2px); }
+  100% { transform: translateY(0); }
+}
+.invalid-highlight {
+  outline: 2px solid rgba(220, 38, 38, 0.9);
+  border-radius: 4px;
+}
+
+.error-msg {
+  color: #dc2626; /* red */
+  font-size: 0.85rem;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+

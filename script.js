@@ -986,3 +986,153 @@ function renderDeclarationItem(text) {
   // Init
   initForm();
 })();
+// Validation + redirect-to-first-invalid implementation
+function findFirstInvalidField() {
+  // select all elements that are marked required
+  const requiredEls = Array.from(document.querySelectorAll('[required]'));
+
+  for (const el of requiredEls) {
+    // Use built-in validity when possible (for email, url, etc.)
+    // For file inputs, check files length; for others use value.trim()
+    if (el.type === 'file') {
+      if (!el.files || el.files.length === 0) return el;
+    } else {
+      // treat empty string (including only-spaces) as invalid
+      const val = (el.value || '').toString().trim();
+      // For inputs with built-in validation use checkValidity
+      if (typeof el.checkValidity === 'function') {
+        if (!el.checkValidity() || val === '') return el;
+      } else {
+        if (val === '') return el;
+      }
+    }
+  }
+  return null; // all required ok
+}
+
+function showInvalidCue(el) {
+  if (!el) return;
+  // focus + smooth scroll to center
+  el.focus({ preventScroll: false });
+  try {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } catch (e) {
+    // fallback
+    el.scrollIntoView();
+  }
+
+  // temporary visual highlight (needs CSS .invalid-highlight)
+  el.classList.add('invalid-highlight');
+  setTimeout(() => el.classList.remove('invalid-highlight'), 1800);
+}
+
+function handlePreviewClick(e) {
+  const firstInvalid = findFirstInvalidField();
+  if (firstInvalid) {
+    // prevent preview and redirect/focus to that field
+    e && e.preventDefault && e.preventDefault();
+    showInvalidCue(firstInvalid);
+    return false;
+  }
+
+  // no invalid fields -> proceed to preview behavior
+  // If you already have existing preview logic, call it here.
+  // Example: openPreviewModal();
+  console.log('All required fields filled — proceed to preview.');
+  return true;
+}
+
+// attach to both preview buttons (top and footer)
+document.addEventListener('DOMContentLoaded', () => {
+  const previewBtns = [
+    document.getElementById('btn-preview'),
+    document.getElementById('btn-preview-2')
+  ].filter(Boolean);
+
+  previewBtns.forEach(btn => btn.addEventListener('click', handlePreviewClick));
+
+  // Optional: when user presses Enter in a required field, remove highlight
+  document.addEventListener('input', (ev) => {
+    const target = ev.target;
+    if (target && target.classList && target.classList.contains('invalid-highlight')) {
+      const val = (target.value || '').toString().trim();
+      if (val) target.classList.remove('invalid-highlight');
+    }
+  });
+});
+function findFirstInvalidField() {
+  const requiredEls = Array.from(document.querySelectorAll('[required]'));
+
+  for (const el of requiredEls) {
+    if (el.type === 'file') {
+      if (!el.files || el.files.length === 0) return el;
+    } else {
+      const val = (el.value || '').toString().trim();
+      if (typeof el.checkValidity === 'function') {
+        if (!el.checkValidity() || val === '') return el;
+      } else {
+        if (val === '') return el;
+      }
+    }
+  }
+  return null;
+}
+
+function showInvalidCue(el) {
+  if (!el) return;
+
+  // Focus + scroll
+  el.focus({ preventScroll: false });
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  // Add visual class
+  el.classList.add('invalid-highlight');
+
+  // Create or show error message
+  let msg = el.parentNode.querySelector('.error-msg');
+  if (!msg) {
+    msg = document.createElement('div');
+    msg.className = 'error-msg';
+    msg.textContent = 'Please enter this field';
+    el.parentNode.appendChild(msg);
+  } else {
+    msg.style.display = 'block';
+  }
+}
+
+function clearError(el) {
+  el.classList.remove('invalid-highlight');
+  const msg = el.parentNode.querySelector('.error-msg');
+  if (msg) msg.style.display = 'none';
+}
+
+function handlePreviewClick(e) {
+  const firstInvalid = findFirstInvalidField();
+  if (firstInvalid) {
+    e.preventDefault();
+    showInvalidCue(firstInvalid);
+    return false;
+  }
+
+  console.log('All required fields filled — proceed to preview.');
+  return true;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const previewBtns = [
+    document.getElementById('btn-preview'),
+    document.getElementById('btn-preview-2')
+  ].filter(Boolean);
+
+  previewBtns.forEach(btn => btn.addEventListener('click', handlePreviewClick));
+
+  // Clear error on typing
+  document.addEventListener('input', (ev) => {
+    const target = ev.target;
+    if (target && target.hasAttribute('required')) {
+      if (target.value.trim() !== '') clearError(target);
+    }
+  });
+});
+
+
