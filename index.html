@@ -26,7 +26,7 @@
           <label
             >Full Name* <input class="input" id="fullName" required
           /></label>
-          
+
           <label
             >Email* <input class="input" id="email" type="email" required
           /></label>
@@ -34,7 +34,10 @@
             >Phone* <input class="input" id="phone" type="tel" required
           /></label>
           <label>Location <input class="input" id="location" /></label>
-          <label>Profile Photo <input class="input" id="profilePhoto" type="file" accept="image/*" /></label>
+          <label
+            >Profile Photo
+            <input class="input" id="profilePhoto" type="file" accept="image/*"
+          /></label>
 
           <label class="full"
             >Professional Summary*
@@ -55,23 +58,36 @@
           <button class="btn btn-small" id="addCustomLink">+ Add Link</button>
         </div>
         <div class="card-body grid-2">
-          <label>GitHub
-            <input class="input" id="github" type="url" placeholder="https://github.com/username" />
+          <label
+            >GitHub
+            <input
+              class="input"
+              id="github"
+              type="url"
+              placeholder="https://github.com/username"
+            />
           </label>
-          <label>LinkedIn
-            <input class="input" id="linkedin" type="url" placeholder="https://linkedin.com/in/..." />
+          <label
+            >LinkedIn
+            <input
+              class="input"
+              id="linkedin"
+              type="url"
+              placeholder="https://linkedin.com/in/..."
+            />
           </label>
-          <label>Portfolio
+          <label
+            >Portfolio
             <input class="input" id="portfolio" type="url" />
           </label>
-          <label>Website
+          <label
+            >Website
             <input class="input" id="website" type="url" />
           </label>
         </div>
         <!-- dynamic custom links -->
         <div class="card-body" id="customLinksList"></div>
       </section>
-
 
       <!-- ===== Experience ===== -->
       <section class="card">
@@ -141,7 +157,7 @@
         </div>
         <div class="card-body" id="hobbiesList"></div>
       </section>
-            <!-- ===== Languages (NEW) ===== -->
+      <!-- ===== Languages (NEW) ===== -->
       <section class="card">
         <div class="card-header between">
           <h2>Languages</h2>
@@ -149,8 +165,8 @@
         </div>
         <div class="card-body" id="languagesList"></div>
       </section>
-      
-            <!-- ===== Additional Information (NEW) ===== -->
+
+      <!-- ===== Additional Information (NEW) ===== -->
       <section class="card">
         <div class="card-header">
           <h2>Additional Information</h2>
@@ -168,15 +184,15 @@
       </section>
 
       <!-- ===== Declaration (NEW) ===== -->
-<section class="card">
-  <div class="card-header between">
-    <h2>Declaration</h2>
-    <button class="btn btn-small" id="addDeclaration">+ Add Declaration</button>
-  </div>
-  <div class="card-body" id="declarationList"></div>
-</section>
-
-
+      <section class="card">
+        <div class="card-header between">
+          <h2>Declaration</h2>
+          <button class="btn btn-small" id="addDeclaration">
+            + Add Declaration
+          </button>
+        </div>
+        <div class="card-body" id="declarationList"></div>
+      </section>
 
       <!-- ===== Footer Actions ===== -->
       <div class="footer-actions">
@@ -185,7 +201,6 @@
         <button class="btn btn-primary" id="btn-preview-2">Preview</button>
       </div>
     </main>
-    
 
     <script src="script.js"></script>
   </body>

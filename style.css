@@ -63,6 +63,11 @@ body {
   box-shadow: var(--shadow);
   margin-bottom: 18px;
 }
+.card textarea,
+input {
+  font-size: 17px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
 .card-header {
   padding: 14px 16px;
   border-bottom: 1px solid var(--border);
@@ -133,7 +138,11 @@ label {
   transform: translateY(0);
 }
 .btn-primary {
-  background: linear-gradient(180deg, #4c74ff, #3065ff); /* Updated with new blue gradient */
+  background: linear-gradient(
+    180deg,
+    #4c74ff,
+    #3065ff
+  ); /* Updated with new blue gradient */
   border-color: #3d61ff;
   color: white; /* Changed text color for better contrast */
 }
@@ -143,7 +152,11 @@ label {
   color: var(--text);
 }
 .btn-danger {
-  background: linear-gradient(180deg, #ff6b6b, #e65b5b); /* Updated with new red gradient */
+  background: linear-gradient(
+    180deg,
+    #ff6b6b,
+    #e65b5b
+  ); /* Updated with new red gradient */
   border-color: #ff6b6b;
   color: white; /* Changed text color for better contrast */
 }
