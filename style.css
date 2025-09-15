@@ -28,6 +28,7 @@ body {
   color: var(--text);
 }
 
+
 .app-header {
   position: sticky;
   top: 0;
@@ -254,4 +255,21 @@ label {
     box-shadow: none;
     border: none;
   }
+}
+
+.app-header {
+  position: relative;
+}
+.app-header {
+  position: relative;
+  display: flex;
+  justify-content: flex-end; /* buttons right side lo undipovadaniki */
+  align-items: center;
+}
+
+.app-header h1 {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0; /* extra spacing remove cheyyali ante */
 }
