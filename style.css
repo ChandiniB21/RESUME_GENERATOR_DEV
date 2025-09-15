@@ -258,18 +258,25 @@ label {
 }
 
 .app-header {
-  position: relative;
-}
-.app-header {
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;               /* header height */
   display: flex;
-  justify-content: flex-end; /* buttons right side lo undipovadaniki */
+  justify-content: flex-end;  /* buttons right side lo */
   align-items: center;
+  background: #f8f6ed;        /* header background (same nee theme lo) */
+  padding: 0 20px;
+  z-index: 1000;              /* content kinda povakudadhu */
 }
 
 .app-header h1 {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  margin: 0; /* extra spacing remove cheyyali ante */
+  margin: 0;
+}
+.container {
+  margin-top: 80px;  /* header ki space */
 }
