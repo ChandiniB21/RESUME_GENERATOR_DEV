@@ -16,18 +16,19 @@
 * {
   box-sizing: border-box;
 }
+
 html,
 body {
   margin: 0;
   padding: 0;
 }
+
 body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
     "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
   background: var(--bg);
   color: var(--text);
 }
-
 
 .app-header {
   position: sticky;
@@ -41,6 +42,7 @@ body {
   align-items: center;
   justify-content: space-between;
 }
+
 .app-header h1 {
   margin: 0;
   font-size: 20px;
@@ -116,7 +118,15 @@ label {
   color: var(--text);
   padding: 10px 12px;
   border-radius: 10px;
+  margin-top: 10px;
 }
+.input:focus,
+.textarea:focus,
+.card-body:focus {
+  background-color: var(--bs-body-bg);
+  border-color: black;
+}
+
 .textarea {
   resize: vertical;
   min-height: 100px;
@@ -262,13 +272,13 @@ label {
   top: 0;
   left: 0;
   right: 0;
-  height: 60px;               /* header height */
+  height: 60px; /* header height */
   display: flex;
-  justify-content: flex-end;  /* buttons right side lo */
+  justify-content: flex-end; /* buttons right side lo */
   align-items: center;
-  background: #f8f6ed;        /* header background (same nee theme lo) */
+  background: #f8f6ed; /* header background (same nee theme lo) */
   padding: 0 20px;
-  z-index: 1000;              /* content kinda povakudadhu */
+  z-index: 1000; /* content kinda povakudadhu */
 }
 
 .app-header h1 {
@@ -278,7 +288,7 @@ label {
   margin: 0;
 }
 .container {
-  margin-top: 80px;  /* header ki space */
+  margin-top: 80px; /* header ki space */
 }
 /* brief highlight so user notices required field */
 .invalid-highlight {
@@ -288,11 +298,21 @@ label {
 }
 
 @keyframes pulse {
-  0%   { transform: translateY(0); }
-  25%  { transform: translateY(-4px); }
-  50%  { transform: translateY(0); }
-  75%  { transform: translateY(-2px); }
-  100% { transform: translateY(0); }
+  0% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-4px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 .invalid-highlight {
   outline: 2px solid rgba(220, 38, 38, 0.9);
@@ -306,4 +326,64 @@ label {
   font-style: italic;
 }
 
+/* --- base look for form controls --- */
+.input,
+.textarea,
+input,
+textarea,
+select,
+[contenteditable] {
+  box-sizing: border-box;
+  border: 1px solid #ced4da; /* initial border */
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: background-color 0.12s ease, border-color 0.12s ease,
+    box-shadow 0.12s ease;
+  background-clip: padding-box;
+}
 
+/* make file inputs visually consistent (browsers vary) */
+input[type="file"] {
+  padding: 0.35rem 0.5rem;
+}
+
+/* --- focus for individual fields --- */
+/* include both class and element selectors so dynamically added elements are covered */
+.input:focus,
+.textarea:focus,
+input:focus,
+textarea:focus,
+select:focus,
+input[type="file"]:focus,
+[contenteditable]:focus {
+  background-color: var(
+    --bs-body-bg,
+    #fff
+  ); /* fallback if --bs-body-bg not defined */
+  border-color: #000; /* your requested black border */
+  outline: none; /* prefer custom shadow */
+  /* box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06); */
+}
+
+/* keyboard-only visible focus (nice accessibility behavior) */
+.input:focus-visible,
+.textarea:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(0, 0, 0, 0.08);
+}
+
+/* --- highlight the card/body when any descendant has focus --- */
+.card-body:focus-within {
+  background-color: var(--bs-body-bg, #fff);
+  border-color: #000;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+
+/* optional: slightly increase hit area for labels that wrap inputs */
+.card-body label {
+  display: block;
+  margin-bottom: 0.6rem;
+  cursor: text;
+}
