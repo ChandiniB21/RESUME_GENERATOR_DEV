@@ -25,6 +25,8 @@
     });
   })();
   if (typeof data.additionalInfo !== "string") data.additionalInfo = "";
+  if (typeof data.declaration !== "string") data.declaration = "";
+
 
   const els = {
     // core
@@ -50,6 +52,8 @@
     internshipsList: qs("#internshipsList"),
     hobbiesList: qs("#hobbiesList"),
     additionalInfo: qs("#additionalInfo"),
+    declaration: qs("#declaration"),
+
 
 
     // addHobby: qs("#addHobby"),
@@ -69,8 +73,7 @@
     addHobby: qs("#addHobby"),
     addLanguage: qs("#addLanguage"),
     languagesList: qs("#languagesList"),
-    declarationList: qs("#declarationList"),   // container div
-    addDeclaration: qs("#addDeclaration"),     // + Add Declaration button
+    
 
   };
 
@@ -102,7 +105,8 @@
       hobbies: [],
       languages: [],
       additionalInfo: "", // ✅ new field
-      declaration: "", // ✅ NEW field
+      declaration: "",
+
 
     };
   }
@@ -125,9 +129,8 @@
     els.portfolio.value = publicLinks.portfolio || "";
     els.website.value = publicLinks.website || "";
     els.additionalInfo.value = data.additionalInfo || "";
-    if (data.declaration) {
-    renderDeclarationItem(data.declaration);
-  }
+    els.declaration.value = data.declaration || "";
+
 
 
     renderExperience();
@@ -171,6 +174,9 @@
     data.internships = [];
     data.hobbies = [];
     data.additionalInfo = "";
+    data.declaration = "";
+
+
     data.languages = [];
 
     initForm();
@@ -248,6 +254,9 @@
       evt,
       (e) => (data.additionalInfo = e.target.value)
     );
+
+    els.declaration.addEventListener(evt, (e) => (data.declaration = e.target.value));
+
   });
 
   // ===== Experience =====
@@ -807,43 +816,8 @@
     });
   }
 
-// ===== Declaration =====
-if (els.addDeclaration) {
-  els.addDeclaration.addEventListener("click", () => {
-    if (els.declarationList.querySelector(".list-item")) return; // allow only one
 
-    renderDeclarationItem("");
-  });
-}
 
-function renderDeclarationItem(text) {
-  const div = document.createElement("div");
-  div.className = "list-item";
-  div.innerHTML = `
-    <div class="list-item-header">
-      <span class="list-item-title">Declaration</span>
-      <button type="button" class="btn btn-small btn-danger remove-declaration">Remove</button>
-    </div>
-    <label>
-      <textarea class="textarea declaration-input" rows="3" placeholder="Enter your declaration...">${escapeHtml(text)}</textarea>
-    </label>
-  `;
-
-  // remove button
-  div.querySelector(".remove-declaration").addEventListener("click", () => {
-    data.declaration = "";
-    els.declarationList.innerHTML = "";
-    saveToStorage();
-  });
-
-  // text change
-  div.querySelector(".declaration-input").addEventListener("input", (e) => {
-    data.declaration = e.target.value;
-    saveToStorage();
-  });
-
-  els.declarationList.appendChild(div);
-}
 
 
 
@@ -1126,6 +1100,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   previewBtns.forEach(btn => btn.addEventListener('click', handlePreviewClick));
 
+  
+
   // Clear error on typing
   document.addEventListener('input', (ev) => {
     const target = ev.target;
@@ -1133,6 +1109,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (target.value.trim() !== '') clearError(target);
     }
   });
+
+ // Clear Declaration
+document.getElementById("clear").addEventListener("click", () => {
+  if (confirm("Are you sure you want to clear the declaration field?")) {
+    const declarationField = document.getElementById("declaration");
+    if (declarationField) declarationField.value = "";
+  }
+});
+
 });
 
 
