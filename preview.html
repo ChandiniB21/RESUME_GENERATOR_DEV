@@ -81,6 +81,7 @@
   </head>
   <body>
     <div class="actions">
+       
       <button onclick="window.print()">Download PDF</button>
       <button onclick="downloadTxt()">Download TXT</button>
     </div>
@@ -193,22 +194,55 @@ let contacts = contactParts.join(" | ");
 
       // Education
       if (Array.isArray(data.education) && data.education.length) {
+        function getSelectedEduType() {
+          const selected = document.querySelector('input[name="eduType"]:checked');
+          return selected ? selected.value : "cgpa";
+        }
+         function renderEducation() {
+          const eduType = getSelectedEduType();
         const html = data.education
           .map((e) => {
             const period =
               (e.startDate || "") +
               (e.current ? " - Present" : e.endDate ? " - " + e.endDate : "");
+              let valueText = "";
+              if (eduType === "cgpa" && e.cgpa) valueText = `CGPA: ${safe(e.cgpa)}`;
+              else if (eduType === "marks" && e.marks) valueText = `Marks: ${safe(e.marks)}`;
+              else if (eduType === "grade" && e.grade) valueText = `Grade: ${safe(e.grade)}`;
+
             return `
         <p><strong>${safe(e.degree || "")}</strong>, ${safe(
               e.institution || ""
             )} (${safe(period)})</p>
-        ${e.cgpa ? `<p>CGPA/Marks: ${safe(e.cgpa)}</p>` : ""}
-        ${e.description ? `<p>${safe(e.description)}</p>` : ""}
-      `;
-          })
-          .join("");
+          ${valueText ? `<p>${valueText}</p>` : ""}
+${e.description ? `<p>${safe(e.description)}</p>` : ""}
+`;
+  })
+  .join("");
         addSection("Education", html);
       }
+      renderEducation();
+
+        // Update on radio change
+        document.querySelectorAll('input[name="eduType"]').forEach((radio) => {
+          radio.addEventListener("change", () => {
+            const contentWrapper = document.querySelector(".resume-content");
+            const oldSection = Array.from(contentWrapper.querySelectorAll("h2"))
+              .find(h2 => h2.textContent === "Education");
+            if (oldSection) {
+              let node = oldSection.nextElementSibling;
+              while (node && node.tagName !== "H2") {
+                const next = node.nextElementSibling;
+                node.remove();
+                node = next;
+              }
+              oldSection.remove();
+            }
+            renderEducation();
+          });
+        });
+      }
+
 
       // Work Experience
       if (Array.isArray(data.experience) && data.experience.length) {
