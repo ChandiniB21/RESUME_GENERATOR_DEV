@@ -317,28 +317,29 @@
         data.experience,
         i,
         (arr, idx, key, val, el) => {
-               if (key === "current") {
-        arr[idx].current = el.checked;
-        const endInput = div.querySelector('input[data-k="endDate"]');
-        if (endInput) {
-          if (el.checked) {
-            endInput.value = "";
-            arr[idx].endDate = "";
-            endInput.disabled = true;
-            endInput.classList.add("dimmed"); // ✅ add dimmed
+          if (key === "current") {
+            arr[idx].current = el.checked;
+            const endInput = div.querySelector('input[data-k="endDate"]');
+            if (endInput) {
+              if (el.checked) {
+                endInput.value = "";
+                arr[idx].endDate = "";
+                endInput.disabled = true;
+                endInput.classList.add("dimmed"); // ✅ add dimmed
+              } else {
+                endInput.disabled = false;
+                endInput.classList.remove("dimmed"); // ✅ remove dimmed
+              }
+            }
           } else {
-            endInput.disabled = false;
-            endInput.classList.remove("dimmed"); // ✅ remove dimmed
+            arr[idx][key] = val;
           }
         }
-      } else {
-        arr[idx][key] = val;
-      }
-    });
+      );
 
-    els.expList.appendChild(div);
-  });
-}
+      els.expList.appendChild(div);
+    });
+  }
 
   // ... your existing code above ...
 
@@ -350,8 +351,8 @@
       startDate: "",
       endDate: "",
       current: false, // ✅ new field for "Currently studying"
-       score: "",       // store CGPA/Marks/Grade value
-      scoreType: "CGPA", // default selection // 
+      score: "", // store CGPA/Marks/Grade value
+      scoreType: "CGPA", // default selection //
       description: "",
     });
     renderEducation();
@@ -393,13 +394,21 @@
       </div>
        <div class="row row-2">
         <label>Score 
-          <input class="input" data-k="score" data-i="${i}" value="${escapeHtml(edu.score || "")}">
+          <input class="input" data-k="score" data-i="${i}" value="${escapeHtml(
+        edu.score || ""
+      )}">
         </label>
         <label>Type
           <div style="display:flex;gap:10px;">
-            <label><input type="radio" name="scoreType_${i}" value="CGPA" ${edu.scoreType==="CGPA" ? "checked":""}/> CGPA</label>
-            <label><input type="radio" name="scoreType_${i}" value="Marks" ${edu.scoreType==="Marks" ? "checked":""}/> Marks</label>
-            <label><input type="radio" name="scoreType_${i}" value="Grade" ${edu.scoreType==="Grade" ? "checked":""}/> Grade</label>
+            <label><input type="radio" name="scoreType_${i}" value="CGPA" ${
+        edu.scoreType === "CGPA" ? "checked" : ""
+      }/> CGPA</label>
+            <label><input type="radio" name="scoreType_${i}" value="Marks" ${
+        edu.scoreType === "Marks" ? "checked" : ""
+      }/> Marks</label>
+            <label><input type="radio" name="scoreType_${i}" value="Grade" ${
+        edu.scoreType === "Grade" ? "checked" : ""
+      }/> Grade</label>
           </div>
         </label>
       </div>
@@ -417,28 +426,28 @@
       });
 
       attachChangeHandlers(div, data.education, i, (arr, idx, key, val, el) => {
-          if (key === "current") {
-        arr[idx].current = el.checked;
-        const endInput = div.querySelector('input[data-k="endDate"]');
-        if (endInput) {
-          if (el.checked) {
-            endInput.value = "";
-            arr[idx].endDate = "";
-            endInput.disabled = true;
-            endInput.classList.add("dimmed"); // ✅ add dimmed
-          } else {
-            endInput.disabled = false;
-            endInput.classList.remove("dimmed"); // ✅ remove dimmed
+        if (key === "current") {
+          arr[idx].current = el.checked;
+          const endInput = div.querySelector('input[data-k="endDate"]');
+          if (endInput) {
+            if (el.checked) {
+              endInput.value = "";
+              arr[idx].endDate = "";
+              endInput.disabled = true;
+              endInput.classList.add("dimmed"); // ✅ add dimmed
+            } else {
+              endInput.disabled = false;
+              endInput.classList.remove("dimmed"); // ✅ remove dimmed
+            }
           }
+        } else {
+          arr[idx][key] = val;
         }
-      } else {
-        arr[idx][key] = val;
-      }
-    });
+      });
 
-    els.eduList.appendChild(div);
-  });
-}
+      els.eduList.appendChild(div);
+    });
+  }
   // // ... rest of your existing code unchanged ...
   // // ... your existing code above ...
 
@@ -733,8 +742,8 @@
       }"></label>
        <label class="full" style="display:flex;align-items:center;gap:10px">
           <input type="checkbox" data-k="current" data-i="${i}" ${
-      intern.current ? "checked" : ""
-    }/> Currently working here
+        intern.current ? "checked" : ""
+      }/> Currently working here
         </label>
         </div>
         <label>Description
@@ -748,29 +757,34 @@
         renderInternships();
         saveToStorage();
       });
-     attachChangeHandlers(div, data.internships, i, (arr, idx, key, val, el) => {
-      if (key === "current") {
-        arr[idx].current = el.checked;
-        const endInput = div.querySelector('input[data-k="endDate"]');
-        if (endInput) {
-          if (el.checked) {
-            endInput.value = "";
-            arr[idx].endDate = "";
-            endInput.disabled = true;
-            endInput.classList.add("dimmed"); // optional styling
+      attachChangeHandlers(
+        div,
+        data.internships,
+        i,
+        (arr, idx, key, val, el) => {
+          if (key === "current") {
+            arr[idx].current = el.checked;
+            const endInput = div.querySelector('input[data-k="endDate"]');
+            if (endInput) {
+              if (el.checked) {
+                endInput.value = "";
+                arr[idx].endDate = "";
+                endInput.disabled = true;
+                endInput.classList.add("dimmed"); // optional styling
+              } else {
+                endInput.disabled = false;
+                endInput.classList.remove("dimmed");
+              }
+            }
           } else {
-            endInput.disabled = false;
-            endInput.classList.remove("dimmed");
+            arr[idx][key] = val;
           }
         }
-      } else {
-        arr[idx][key] = val;
-      }
-    });
+      );
 
-    els.internshipsList.appendChild(div);
-  });
-}
+      els.internshipsList.appendChild(div);
+    });
+  }
   // ===== Hobbies =====
   els.addHobby.addEventListener("click", () => {
     data.hobbies.push({ hobby: "" });
@@ -874,34 +888,35 @@
       saveToStorage();
     });
   }
-   function renderCustomLinks() {
-  if (!els.customLinksList) return;
-  els.customLinksList.innerHTML = "";
-  const list = Array.isArray(data.publicLinks.custom)
-    ? data.publicLinks.custom
-    : (data.publicLinks.custom = []);
+  function renderCustomLinks() {
+    if (!els.customLinksList) return;
+    els.customLinksList.innerHTML = "";
+    const list = Array.isArray(data.publicLinks.custom)
+      ? data.publicLinks.custom
+      : (data.publicLinks.custom = []);
 
-  list.forEach((link, i) => {
-    const div = document.createElement("div");
-    div.className = "list-item";
-    div.innerHTML = `
+    list.forEach((link, i) => {
+      const div = document.createElement("div");
+      div.className = "list-item";
+      div.innerHTML = `
       <div class="list-item-header">
         <span class="list-item-title">Custom Link ${i + 1}</span>
         <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
       </div>
       <label>URL
         <input class="input" type="url" data-k="url" data-i="${i}" 
-          placeholder="https://example.com" value="${escapeHtml(link.url || "")}">
+          placeholder="https://example.com" value="${escapeHtml(
+            link.url || ""
+          )}">
       </label>
     `;
 
-    // 👇 this makes sure updates save
-    attachChangeHandlers(div, list, i);
+      // 👇 this makes sure updates save
+      attachChangeHandlers(div, list, i);
 
-    els.customLinksList.appendChild(div);
-  });
-}
-
+      els.customLinksList.appendChild(div);
+    });
+  }
 
   // ===== Helpers =====
   function attachChangeHandlers(scopeEl, arr, idx, onSpecial) {
@@ -1152,6 +1167,83 @@ document.addEventListener("DOMContentLoaded", () => {
     if (confirm("Are you sure you want to clear the declaration field?")) {
       const declarationField = document.getElementById("declaration");
       if (declarationField) declarationField.value = "";
+    }
+  });
+});
+// ===== Keyboard Navigation (Enter + Arrow Keys) =====
+document.addEventListener("DOMContentLoaded", () => {
+  function isVisible(el) {
+    return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+  }
+
+  function getFocusableElements() {
+    const selector = [
+      'input:not([type="hidden"]):not([disabled])',
+      "textarea:not([disabled])",
+      "select:not([disabled])",
+      "button:not([disabled])",
+      '[contenteditable="true"]',
+    ].join(",");
+    return Array.from(document.querySelectorAll(selector)).filter(isVisible);
+  }
+
+  const excludedTypes = new Set([
+    "checkbox",
+    "radio",
+    "file",
+    "submit",
+    "reset",
+    "button",
+    "image",
+    "range",
+    "color",
+    "hidden",
+  ]);
+
+  function moveFocus(current, dir) {
+    const focusables = getFocusableElements();
+    const idx = focusables.indexOf(current);
+    if (idx === -1) return;
+    const next = focusables[idx + dir];
+    if (!next) return;
+    next.focus();
+    if (
+      next.select &&
+      (next.tagName === "INPUT" || next.tagName === "TEXTAREA")
+    ) {
+      next.select();
+    }
+    if (typeof next.scrollIntoView === "function") {
+      next.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }
+
+  document.addEventListener("keydown", (e) => {
+    const el = e.target;
+    const tag = el.tagName.toLowerCase();
+    const type = (el.type || "").toLowerCase();
+
+    if (e.metaKey || e.altKey) return; // ignore shortcuts
+
+    if (e.key === "Enter") {
+      if (tag === "button" || excludedTypes.has(type)) return;
+
+      if (tag === "textarea") {
+        if (e.shiftKey) return; // allow Shift+Enter newline
+      }
+      e.preventDefault();
+      moveFocus(el, +1);
+    }
+
+    if (["ArrowDown", "ArrowRight"].includes(e.key)) {
+      if (tag === "textarea" && !e.ctrlKey) return;
+      e.preventDefault();
+      moveFocus(el, +1);
+    }
+    if (["ArrowUp", "ArrowLeft"].includes(e.key)) {
+      if (tag === "textarea" && !e.ctrlKey) return;
+      e.preventDefault();
+      moveFocus(el, -1);
     }
   });
 });
