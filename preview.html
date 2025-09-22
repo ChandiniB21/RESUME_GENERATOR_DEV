@@ -271,20 +271,23 @@ ${e.description ? `<p>${safe(e.description)}</p>` : ""}
       }
 
       // ===== Internships (NEW) =====
-      if (Array.isArray(data.internships) && data.internships.length) {
-        const html = data.internships
-          .map((i) => {
-            const period = [i.startDate, i.endDate].filter(Boolean).join(" - ");
-            return `
-              <p><strong>${safe(i.name || "")}</strong>, ${safe(
-              i.organization || ""
-            )} (${safe(period)})</p>
-              ${i.description ? `<p>${safe(i.description)}</p>` : ""}
-            `;
-          })
-          .join("");
-        addSection("Internships", html);
-      }
+      // ===== Internships (UPDATED with Currently Working) =====
+if (Array.isArray(data.internships) && data.internships.length) {
+  const html = data.internships
+    .map((i) => {
+      const period =
+        (i.startDate || "") + " - " + (i.current ? "Present" : i.endDate || "");
+      return `
+        <p><strong>${safe(i.name || "")}</strong>, ${safe(
+        i.organization || ""
+      )} (${safe(period)})</p>
+        ${i.description ? `<p>${safe(i.description)}</p>` : ""}
+      `;
+    })
+    .join("");
+  addSection("Internships", html);
+}
+
 
       // Projects
       if (Array.isArray(data.projects) && data.projects.length) {

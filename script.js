@@ -731,6 +731,11 @@
           <label>End Date <input type="date" class="input" data-k="endDate" data-i="${i}" value="${
         intern.endDate || ""
       }"></label>
+       <label class="full" style="display:flex;align-items:center;gap:10px">
+          <input type="checkbox" data-k="current" data-i="${i}" ${
+      intern.current ? "checked" : ""
+    }/> Currently working here
+        </label>
         </div>
         <label>Description
           <textarea class="textarea" rows="3" data-k="description" data-i="${i}">${escapeHtml(
@@ -743,10 +748,29 @@
         renderInternships();
         saveToStorage();
       });
-      attachChangeHandlers(div, data.internships, i);
-      els.internshipsList.appendChild(div);
+     attachChangeHandlers(div, data.internships, i, (arr, idx, key, val, el) => {
+      if (key === "current") {
+        arr[idx].current = el.checked;
+        const endInput = div.querySelector('input[data-k="endDate"]');
+        if (endInput) {
+          if (el.checked) {
+            endInput.value = "";
+            arr[idx].endDate = "";
+            endInput.disabled = true;
+            endInput.classList.add("dimmed"); // optional styling
+          } else {
+            endInput.disabled = false;
+            endInput.classList.remove("dimmed");
+          }
+        }
+      } else {
+        arr[idx][key] = val;
+      }
     });
-  }
+
+    els.internshipsList.appendChild(div);
+  });
+}
   // ===== Hobbies =====
   els.addHobby.addEventListener("click", () => {
     data.hobbies.push({ hobby: "" });
