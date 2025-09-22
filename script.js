@@ -322,23 +322,28 @@
         data.experience,
         i,
         (arr, idx, key, val, el) => {
-          if (key === "current") {
-            arr[idx].current = el.checked;
-            // toggle endDate input
-            const endInput = div.querySelector('input[data-k="endDate"]');
-            if (endInput) {
-              endInput.disabled = el.checked;
-              if (el.checked) endInput.value = "";
-              arr[idx].endDate = "";
-            }
+               if (key === "current") {
+        arr[idx].current = el.checked;
+        const endInput = div.querySelector('input[data-k="endDate"]');
+        if (endInput) {
+          if (el.checked) {
+            endInput.value = "";
+            arr[idx].endDate = "";
+            endInput.disabled = true;
+            endInput.classList.add("dimmed"); // ✅ add dimmed
           } else {
-            arr[idx][key] = val;
+            endInput.disabled = false;
+            endInput.classList.remove("dimmed"); // ✅ remove dimmed
           }
         }
-      );
-      els.expList.appendChild(div);
+      } else {
+        arr[idx][key] = val;
+      }
     });
-  }
+
+    els.expList.appendChild(div);
+  });
+}
 
   // ... your existing code above ...
 
@@ -350,7 +355,8 @@
       startDate: "",
       endDate: "",
       current: false, // ✅ new field for "Currently studying"
-      cgpa: "", // ✅ new field for CGPA/Marks
+       score: "",       // store CGPA/Marks/Grade value
+      scoreType: "CGPA", // default selection // 
       description: "",
     });
     renderEducation();
@@ -390,10 +396,17 @@
       }/> Currently studying here
         </label>
       </div>
-      <div class="row row-2">
-        <label>CGPA/Marks <input class="input" data-k="cgpa" data-i="${i}" value="${escapeHtml(
-        edu.cgpa || ""
-      )}"></label>
+       <div class="row row-2">
+        <label>Score 
+          <input class="input" data-k="score" data-i="${i}" value="${escapeHtml(edu.score || "")}">
+        </label>
+        <label>Type
+          <div style="display:flex;gap:10px;">
+            <label><input type="radio" name="scoreType_${i}" value="CGPA" ${edu.scoreType==="CGPA" ? "checked":""}/> CGPA</label>
+            <label><input type="radio" name="scoreType_${i}" value="Marks" ${edu.scoreType==="Marks" ? "checked":""}/> Marks</label>
+            <label><input type="radio" name="scoreType_${i}" value="Grade" ${edu.scoreType==="Grade" ? "checked":""}/> Grade</label>
+          </div>
+        </label>
       </div>
       <label>Description
         <textarea class="textarea" data-k="description" data-i="${i}" rows="3">${escapeHtml(
@@ -409,25 +422,28 @@
       });
 
       attachChangeHandlers(div, data.education, i, (arr, idx, key, val, el) => {
-        if (key === "current") {
-          arr[idx].current = el.checked;
-          const endInput = div.querySelector('input[data-k="endDate"]');
-          if (endInput) {
-            endInput.disabled = el.checked;
-            if (el.checked) {
-              endInput.value = "";
-              arr[idx].endDate = "";
-            }
+          if (key === "current") {
+        arr[idx].current = el.checked;
+        const endInput = div.querySelector('input[data-k="endDate"]');
+        if (endInput) {
+          if (el.checked) {
+            endInput.value = "";
+            arr[idx].endDate = "";
+            endInput.disabled = true;
+            endInput.classList.add("dimmed"); // ✅ add dimmed
+          } else {
+            endInput.disabled = false;
+            endInput.classList.remove("dimmed"); // ✅ remove dimmed
           }
-        } else {
-          arr[idx][key] = val;
         }
-      });
-
-      els.eduList.appendChild(div);
+      } else {
+        arr[idx][key] = val;
+      }
     });
-  }
 
+    els.eduList.appendChild(div);
+  });
+}
   // // ... rest of your existing code unchanged ...
   // // ... your existing code above ...
 
@@ -844,33 +860,34 @@
       saveToStorage();
     });
   }
+   function renderCustomLinks() {
+  if (!els.customLinksList) return;
+  els.customLinksList.innerHTML = "";
+  const list = Array.isArray(data.publicLinks.custom)
+    ? data.publicLinks.custom
+    : (data.publicLinks.custom = []);
 
-  function renderCustomLinks() {
-    if (!els.customLinksList) return;
-    els.customLinksList.innerHTML = "";
-    const list = Array.isArray(data.publicLinks.custom)
-      ? data.publicLinks.custom
-      : (data.publicLinks.custom = []);
-
-    list.forEach((link, i) => {
-      const div = document.createElement("div");
-      div.className = "list-item";
-      div.innerHTML = `
+  list.forEach((link, i) => {
+    const div = document.createElement("div");
+    div.className = "list-item";
+    div.innerHTML = `
       <div class="list-item-header">
-        <span class="list-item-title">Website ${i + 1}</span>
-        <button type="button" class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
+        <span class="list-item-title">Custom Link ${i + 1}</span>
+        <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
       </div>
-      <label>Website URL
-        <input class="input" type="url" data-k="url" data-i="${i}" value="${escapeHtml(
-        link.url || ""
-      )}">
+      <label>URL
+        <input class="input" type="url" data-k="url" data-i="${i}" 
+          placeholder="https://example.com" value="${escapeHtml(link.url || "")}">
       </label>
     `;
-      // bind input handlers for this item
-      attachChangeHandlers(div, data.publicLinks.custom, i);
-      els.customLinksList.appendChild(div);
-    });
-  }
+
+    // 👇 this makes sure updates save
+    attachChangeHandlers(div, list, i);
+
+    els.customLinksList.appendChild(div);
+  });
+}
+
 
   // ===== Helpers =====
   function attachChangeHandlers(scopeEl, arr, idx, onSpecial) {
