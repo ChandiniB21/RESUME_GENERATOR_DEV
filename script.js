@@ -1,3 +1,4 @@
+
 // Single-form version using plain JS + localStorage
 (function () {
   const qs = (s) => document.querySelector(s);
@@ -352,102 +353,92 @@
       endDate: "",
       current: false, // ✅ new field for "Currently studying"
       score: "", // store CGPA/Marks/Grade value
-      scoreType: "CGPA", // default selection //
+      scoreType: "", // default selection //
       description: "",
     });
     renderEducation();
     saveToStorage();
   });
 
-  function renderEducation() {
-    els.eduList.innerHTML = "";
-    data.education.forEach((edu, i) => {
-      const div = document.createElement("div");
-      div.className = "list-item";
-      div.innerHTML = `
+   function renderEducation() {
+  els.eduList.innerHTML = "";
+  data.education.forEach((edu, i) => {
+    const div = document.createElement("div");
+    div.className = "list-item";
+    div.innerHTML = `
       <div class="list-item-header">
         <span class="list-item-title">Education ${i + 1}</span>
         <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
       </div>
       <div class="row row-2">
-        <label>Degree/Course <input class="input" data-k="degree" data-i="${i}" value="${escapeHtml(
-        edu.degree
-      )}"></label>
-        <label>Institution <input class="input" data-k="institution" data-i="${i}" value="${escapeHtml(
-        edu.institution
-      )}"></label>
+        <label>Degree/Course <input class="input" data-k="degree" data-i="${i}" value="${escapeHtml(edu.degree)}"></label>
+        <label>Institution <input class="input" data-k="institution" data-i="${i}" value="${escapeHtml(edu.institution)}"></label>
       </div>
       <div class="row row-2">
-        <label>Start Date <input class="input" type="date" data-k="startDate" data-i="${i}" value="${
-        edu.startDate || ""
-      }"></label>
-        <label>End Date <input class="input" type="date" data-k="endDate" data-i="${i}" ${
-        edu.current ? "disabled" : ""
-      } value="${edu.endDate || ""}"></label>
+        <label>Start Date <input class="input" type="date" data-k="startDate" data-i="${i}" value="${edu.startDate || ""}"></label>
+        <label>End Date <input class="input" type="date" data-k="endDate" data-i="${i}" ${edu.current ? "disabled" : ""} value="${edu.endDate || ""}"></label>
       </div>
       <div class="row row-2">
         <label class="full" style="display:flex;align-items:center;gap:10px;">
-          <input type="checkbox" data-k="current" data-i="${i}" ${
-        edu.current ? "checked" : ""
-      }/> Currently studying here
+          <input type="checkbox" data-k="current" data-i="${i}" ${edu.current ? "checked" : ""}/> Currently studying here
         </label>
       </div>
-       <div class="row row-2">
-        <label>Score 
-          <input class="input" data-k="score" data-i="${i}" value="${escapeHtml(
-        edu.score || ""
-      )}">
+      <div class="row row-2">
+        <label>Score
+          <input class="input" data-k="score" data-i="${i}" value="${escapeHtml(edu.score || "")}">
         </label>
         <label>Type
           <div style="display:flex;gap:10px;">
-            <label><input type="radio" name="scoreType_${i}" value="CGPA" ${
-        edu.scoreType === "CGPA" ? "checked" : ""
-      }/> CGPA</label>
-            <label><input type="radio" name="scoreType_${i}" value="Marks" ${
-        edu.scoreType === "Marks" ? "checked" : ""
-      }/> Marks</label>
-            <label><input type="radio" name="scoreType_${i}" value="Grade" ${
-        edu.scoreType === "Grade" ? "checked" : ""
-      }/> Grade</label>
+            <label><input type="radio" name="scoreType_${i}" value="CGPA" ${edu.scoreType === "CGPA" ? "checked" : ""}/> CGPA</label>
+            <label><input type="radio" name="scoreType_${i}" value="Marks" ${edu.scoreType === "Marks" ? "checked" : ""}/> Marks</label>
+            <label><input type="radio" name="scoreType_${i}" value="Grade" ${edu.scoreType === "Grade" ? "checked" : ""}/> Grade</label>
           </div>
         </label>
       </div>
       <label>Description
-        <textarea class="textarea" data-k="description" data-i="${i}" rows="3">${escapeHtml(
-        edu.description || ""
-      )}</textarea>
+        <textarea class="textarea" data-k="description" data-i="${i}" rows="3">${escapeHtml(edu.description || "")}</textarea>
       </label>
     `;
 
-      div.querySelector("[data-remove]").addEventListener("click", () => {
-        data.education.splice(i, 1);
-        renderEducation();
+    // Remove button
+    div.querySelector("[data-remove]").addEventListener("click", () => {
+      data.education.splice(i, 1);
+      renderEducation();
+      saveToStorage();
+    });
+
+    // Attach input/change handlers
+    attachChangeHandlers(div, data.education, i, (arr, idx, key, val, el) => {
+      if (key === "current") {
+        arr[idx].current = el.checked;
+        const endInput = div.querySelector('input[data-k="endDate"]');
+        if (endInput) {
+          endInput.disabled = el.checked;
+          if (el.checked) {
+            endInput.value = "";
+            arr[idx].endDate = "";
+            endInput.classList.add("dimmed");
+          } else {
+            endInput.classList.remove("dimmed");
+          }
+        }
+      } else if (key === "scoreType") {
+        arr[idx].scoreType = val;
+      } else arr[idx][key] = val;
+    });
+
+    // ✅ Add listener to radio buttons to update scoreType
+    div.querySelectorAll(`input[name="scoreType_${i}"]`).forEach((radio) => {
+      radio.addEventListener("change", (e) => {
+        data.education[i].scoreType = e.target.value;
         saveToStorage();
       });
-
-      attachChangeHandlers(div, data.education, i, (arr, idx, key, val, el) => {
-        if (key === "current") {
-          arr[idx].current = el.checked;
-          const endInput = div.querySelector('input[data-k="endDate"]');
-          if (endInput) {
-            if (el.checked) {
-              endInput.value = "";
-              arr[idx].endDate = "";
-              endInput.disabled = true;
-              endInput.classList.add("dimmed"); // ✅ add dimmed
-            } else {
-              endInput.disabled = false;
-              endInput.classList.remove("dimmed"); // ✅ remove dimmed
-            }
-          }
-        } else {
-          arr[idx][key] = val;
-        }
-      });
-
-      els.eduList.appendChild(div);
     });
-  }
+
+    els.eduList.appendChild(div);
+  });
+}
+
   // // ... rest of your existing code unchanged ...
   // // ... your existing code above ...
 
