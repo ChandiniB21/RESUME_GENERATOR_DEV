@@ -7,18 +7,95 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    
+  <div class="app-layout"> <!-- START layout wrapper -->
+
+    <!-- Sidebar / Navigation -->
+    <aside class="sidebar">
+      <h2 class="logo">Resume Builder</h2>
+      <nav class="nav-menu">
+        <a href="#step-1" class="nav-item active">
+          <span class="icon">👤</span>
+          <span class="label">Personal Info</span>
+        </a>
+        <a href="#step-2" class="nav-item">
+          <span class="icon">🔗</span>
+          <span class="label">Public Links</span>
+        </a>
+        <a href="#step-3" class="nav-item">
+          <span class="icon">💼</span>
+          <span class="label">Experience</span>
+        </a>
+        <a href="#step-4" class="nav-item">
+          <span class="icon">🎓</span>
+          <span class="label">Education</span>
+        </a>
+        <a href="#step-5" class="nav-item">
+          <span class="icon">🛠️</span>
+          <span class="label">Skills</span>
+        </a>
+        <a href="#step-6" class="nav-item">
+          <span class="icon">📂</span>
+          <span class="label">Projects</span>
+        </a>
+        <a href="#step-7" class="nav-item">
+          <span class="icon">📜</span>
+          <span class="label">Certificates</span>
+        </a>
+        <a href="#step-8" class="nav-item">
+          <span class="icon">🏢</span>
+          <span class="label">Internships</span>
+        </a>
+        <a href="#step-9" class="nav-item">
+          <span class="icon">🎨</span>
+          <span class="label">Hobbies</span>
+        </a>
+        <a href="#step-10" class="nav-item">
+          <span class="icon">🗣️</span>
+          <span class="label">Languages</span>
+        </a>
+        <a href="#step-11" class="nav-item">
+          <span class="icon">📝</span>
+          <span class="label">Additional Info</span>
+        </a>
+        <a href="#step-12" class="nav-item">
+          <span class="icon">✔️</span>
+          <span class="label">Declaration</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+       
+
+      
+      <!-- Keep your existing header and main content here -->
+
     <header class="app-header">
+      
       <h1>Resume Builder</h1>
       <div class="actions">
-        <button class="btn" id="btn-save">Save</button>
-        <button class="btn btn-secondary" id="btn-clear">Clear</button>
-        <button class="btn btn-primary" id="btn-preview">Preview</button>
+        <button type="button" class="btn" id="btn-save">Save</button>
+        <button type="button" class="btn btn-secondary" id="btn-clear">
+          Clear
+        </button>
+        <button type="button" class="btn btn-primary" id="btn-preview">
+          Preview
+        </button>
       </div>
     </header>
 
+    <!-- ===== Progress Bar ===== -->
+       <div class="progress-wrapper">
+         <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
+       </div>
+      </div>
+
     <main class="container">
       <!-- ===== Personal Info ===== -->
-      <section class="card">
+      <section class="card wizard-step" id="step-1" data-step="1">
         <div class="card-header">
           <h2>Personal Information</h2>
         </div>
@@ -52,10 +129,12 @@
       </section>
 
       <!-- ===== Public Links (NEW: static + dynamic) ===== -->
-      <section class="card">
+      <section class="card wizard-step" id="step-2" data-step="2">
         <div class="card-header between">
           <h2>Public Links</h2>
-          <button class="btn btn-small" id="addCustomLink">+ Add Link</button>
+          <button type="button" class="btn btn-small" id="addCustomLink">
+            + Add Link
+          </button>
         </div>
         <div class="card-body grid-2">
           <label
@@ -90,10 +169,10 @@
       </section>
 
       <!-- ===== Experience ===== -->
-      <section class="card">
+      <section class="card wizard-step" id="step-3" data-step="3">
         <div class="card-header between">
           <h2>Work Experience</h2>
-          <button class="btn btn-small" id="addExperience">
+          <button type="button" class="btn btn-small" id="addExperience">
             + Add Experience
           </button>
         </div>
@@ -101,10 +180,10 @@
       </section>
 
       <!-- ===== Education ===== -->
-      <section class="card">
+      <section class="card wizard-step" id="step-4" data-step="4">
         <div class="card-header between">
           <h2>Education</h2>
-          <button class="btn btn-small" id="addEducation">
+          <button type="button" class="btn btn-small" id="addEducation">
             + Add Education
           </button>
         </div>
@@ -112,37 +191,41 @@
       </section>
 
       <!-- ===== Skills ===== -->
-      <section class="card">
+      <section class="card wizard-step" id="step-5" data-step="5">
         <div class="card-header between">
           <h2>Skills</h2>
-          <button class="btn btn-small" id="addSkill">+ Add Skill</button>
+          <button type="button" class="btn btn-small" id="addSkill">
+            + Add Skill
+          </button>
         </div>
         <div class="card-body" id="skillsList"></div>
       </section>
 
       <!-- ===== Projects ===== -->
-      <section class="card">
+      <section class="card wizard-step" id="step-6" data-step="6">
         <div class="card-header between">
           <h2>Projects</h2>
-          <button class="btn btn-small" id="addProject">+ Add Project</button>
+          <button type="button" class="btn btn-small" id="addProject">
+            + Add Project
+          </button>
         </div>
         <div class="card-body" id="projectsList"></div>
       </section>
       <!-- ===== Certificates ===== -->
-      <section class="card">
+      <section class="card wizard-step" id="step-7" data-step="7">
         <div class="card-header between">
           <h2>Certifications</h2>
-          <button class="btn btn-small" id="addCertification">
+          <button type="button" class="btn btn-small" id="addCertification">
             + Add Certificate
           </button>
         </div>
         <div class="card-body" id="certificationsList"></div>
       </section>
       <!-- ===== Internship ===== -->
-      <section class="card">
+      <section class="card wizard-step" id="step-8" data-step="8">
         <div class="card-header between">
           <h2>Internships</h2>
-          <button class="btn btn-small" id="addInternship">
+          <button type="button" class="btn btn-small" id="addInternship">
             + Add Internship
           </button>
         </div>
@@ -150,24 +233,28 @@
       </section>
 
       <!-- ===== Hobbies (NEW) ===== -->
-      <section class="card">
+      <section class="card wizard-step" id="step-9" data-step="9">
         <div class="card-header between">
           <h2>Hobbies</h2>
-          <button class="btn btn-small" id="addHobby">+ Add Hobby</button>
+          <button type="button" class="btn btn-small" id="addHobby">
+            + Add Hobby
+          </button>
         </div>
         <div class="card-body" id="hobbiesList"></div>
       </section>
       <!-- ===== Languages (NEW) ===== -->
-      <section class="card">
+      <section class="card wizard-step" id="step-10" data-step="10">
         <div class="card-header between">
           <h2>Languages</h2>
-          <button class="btn btn-small" id="addLanguage">+ Add Language</button>
+          <button type="button" class="btn btn-small" id="addLanguage">
+            + Add Language
+          </button>
         </div>
         <div class="card-body" id="languagesList"></div>
       </section>
 
       <!-- ===== Additional Information (NEW) ===== -->
-      <section class="card">
+      <section class="card wizard-step" id="step-11" data-step="11">
         <div class="card-header">
           <h2>Additional Information</h2>
         </div>
@@ -184,7 +271,7 @@
       </section>
 
       <!-- ===== declaration section ===== -->
-      <div class="card">
+      <div class="card wizard-step" id="step-12" data-step="12">
         <div class="card-header">
           <h2>Declaration</h2>
         </div>
@@ -198,15 +285,29 @@
           </label>
         </div>
       </div>
-
-      <!-- ===== Footer Actions ===== -->
+      <!-- ===== Footer Actions (Duplicate for better UX) ===== -->
       <div class="footer-actions">
-        <button class="btn" id="btn-save-2">Save</button>
-        <button class="btn btn-secondary" id="btn-clear-2">Clear</button>
-        <button class="btn btn-primary" id="btn-preview-2">Preview</button>
+        <button type="button" class="btn" id="btn-save-2">Save</button>
+        <button type="button" class="btn btn-secondary" id="btn-clear-2">
+          Clear
+        </button>
+        <button type="button" class="btn btn-primary" id="btn-preview-2">
+          Preview
+        </button>
+      </div>
+
+      <!--  ===== Wizard Navigation ===== -->
+      <div class="wizard-navigation">
+        <button type="button" class="btn" id="prevStep" style="display: none">
+          Previous
+        </button>
+        <button type="button" class="btn btn-primary" id="nextStep">
+          Next
+        </button>
       </div>
     </main>
+  </div>
 
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
   </body>
 </html>

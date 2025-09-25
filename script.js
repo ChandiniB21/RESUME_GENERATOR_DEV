@@ -1,5 +1,5 @@
-
 // Single-form version using plain JS + localStorage
+
 (function () {
   const qs = (s) => document.querySelector(s);
   const qa = (s) => Array.from(document.querySelectorAll(s));
@@ -360,84 +360,104 @@
     saveToStorage();
   });
 
-   function renderEducation() {
-  els.eduList.innerHTML = "";
-  data.education.forEach((edu, i) => {
-    const div = document.createElement("div");
-    div.className = "list-item";
-    div.innerHTML = `
+  function renderEducation() {
+    els.eduList.innerHTML = "";
+    data.education.forEach((edu, i) => {
+      const div = document.createElement("div");
+      div.className = "list-item";
+      div.innerHTML = `
       <div class="list-item-header">
         <span class="list-item-title">Education ${i + 1}</span>
         <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
       </div>
       <div class="row row-2">
-        <label>Degree/Course <input class="input" data-k="degree" data-i="${i}" value="${escapeHtml(edu.degree)}"></label>
-        <label>Institution <input class="input" data-k="institution" data-i="${i}" value="${escapeHtml(edu.institution)}"></label>
+        <label>Degree/Course <input class="input" data-k="degree" data-i="${i}" value="${escapeHtml(
+        edu.degree
+      )}"></label>
+        <label>Institution <input class="input" data-k="institution" data-i="${i}" value="${escapeHtml(
+        edu.institution
+      )}"></label>
       </div>
       <div class="row row-2">
-        <label>Start Date <input class="input" type="date" data-k="startDate" data-i="${i}" value="${edu.startDate || ""}"></label>
-        <label>End Date <input class="input" type="date" data-k="endDate" data-i="${i}" ${edu.current ? "disabled" : ""} value="${edu.endDate || ""}"></label>
+        <label>Start Date <input class="input" type="date" data-k="startDate" data-i="${i}" value="${
+        edu.startDate || ""
+      }"></label>
+        <label>End Date <input class="input" type="date" data-k="endDate" data-i="${i}" ${
+        edu.current ? "disabled" : ""
+      } value="${edu.endDate || ""}"></label>
       </div>
       <div class="row row-2">
         <label class="full" style="display:flex;align-items:center;gap:10px;">
-          <input type="checkbox" data-k="current" data-i="${i}" ${edu.current ? "checked" : ""}/> Currently studying here
+          <input type="checkbox" data-k="current" data-i="${i}" ${
+        edu.current ? "checked" : ""
+      }/> Currently studying here
         </label>
       </div>
       <div class="row row-2">
         <label>Score
-          <input class="input" data-k="score" data-i="${i}" value="${escapeHtml(edu.score || "")}">
+          <input class="input" data-k="score" data-i="${i}" value="${escapeHtml(
+        edu.score || ""
+      )}">
         </label>
         <label>Type
           <div style="display:flex;gap:10px;">
-            <label><input type="radio" name="scoreType_${i}" value="CGPA" ${edu.scoreType === "CGPA" ? "checked" : ""}/> CGPA</label>
-            <label><input type="radio" name="scoreType_${i}" value="Marks" ${edu.scoreType === "Marks" ? "checked" : ""}/> Marks</label>
-            <label><input type="radio" name="scoreType_${i}" value="Grade" ${edu.scoreType === "Grade" ? "checked" : ""}/> Grade</label>
+            <label><input type="radio" name="scoreType_${i}" value="CGPA" ${
+        edu.scoreType === "CGPA" ? "checked" : ""
+      }/> CGPA</label>
+            <label><input type="radio" name="scoreType_${i}" value="Marks" ${
+        edu.scoreType === "Marks" ? "checked" : ""
+      }/> Marks</label>
+            <label><input type="radio" name="scoreType_${i}" value="Grade" ${
+        edu.scoreType === "Grade" ? "checked" : ""
+      }/> Grade</label>
           </div>
         </label>
       </div>
       <label>Description
-        <textarea class="textarea" data-k="description" data-i="${i}" rows="3">${escapeHtml(edu.description || "")}</textarea>
+        <textarea class="textarea" data-k="description" data-i="${i}" rows="3">${escapeHtml(
+        edu.description || ""
+      )}</textarea>
       </label>
     `;
 
-    // Remove button
-    div.querySelector("[data-remove]").addEventListener("click", () => {
-      data.education.splice(i, 1);
-      renderEducation();
-      saveToStorage();
-    });
-
-    // Attach input/change handlers
-    attachChangeHandlers(div, data.education, i, (arr, idx, key, val, el) => {
-      if (key === "current") {
-        arr[idx].current = el.checked;
-        const endInput = div.querySelector('input[data-k="endDate"]');
-        if (endInput) {
-          endInput.disabled = el.checked;
-          if (el.checked) {
-            endInput.value = "";
-            arr[idx].endDate = "";
-            endInput.classList.add("dimmed");
-          } else {
-            endInput.classList.remove("dimmed");
-          }
-        }
-      } else if (key === "scoreType") {
-        arr[idx].scoreType = val;
-      } else arr[idx][key] = val;
-    });
-
-    // ✅ Add listener to radio buttons to update scoreType
-    div.querySelectorAll(`input[name="scoreType_${i}"]`).forEach((radio) => {
-      radio.addEventListener("change", (e) => {
-        data.education[i].scoreType = e.target.value;
+      // Remove button
+      div.querySelector("[data-remove]").addEventListener("click", () => {
+        data.education.splice(i, 1);
+        renderEducation();
         saveToStorage();
       });
-    });
 
-    els.eduList.appendChild(div);
-  });
-}
+      // Attach input/change handlers
+      attachChangeHandlers(div, data.education, i, (arr, idx, key, val, el) => {
+        if (key === "current") {
+          arr[idx].current = el.checked;
+          const endInput = div.querySelector('input[data-k="endDate"]');
+          if (endInput) {
+            endInput.disabled = el.checked;
+            if (el.checked) {
+              endInput.value = "";
+              arr[idx].endDate = "";
+              endInput.classList.add("dimmed");
+            } else {
+              endInput.classList.remove("dimmed");
+            }
+          }
+        } else if (key === "scoreType") {
+          arr[idx].scoreType = val;
+        } else arr[idx][key] = val;
+      });
+
+      // ✅ Add listener to radio buttons to update scoreType
+      div.querySelectorAll(`input[name="scoreType_${i}"]`).forEach((radio) => {
+        radio.addEventListener("change", (e) => {
+          data.education[i].scoreType = e.target.value;
+          saveToStorage();
+        });
+      });
+
+      els.eduList.appendChild(div);
+    });
+  }
 
   // // ... rest of your existing code unchanged ...
   // // ... your existing code above ...
@@ -1237,4 +1257,126 @@ document.addEventListener("DOMContentLoaded", () => {
       moveFocus(el, -1);
     }
   });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const steps = Array.from(document.querySelectorAll(".wizard-step"));
+  const prevBtn = document.getElementById("prevStep");
+  const nextBtn = document.getElementById("nextStep");
+  let currentStep = 0;
+
+  function showStep(index) {
+    steps.forEach((s, i) => (s.style.display = i === index ? "block" : "none"));
+    prevBtn.style.display = index === 0 ? "none" : "inline-block";
+    nextBtn.textContent = index === steps.length - 1 ? "Preview" : "Next";
+  }
+
+  function validateStep(index) {
+    const requiredEls = Array.from(steps[index].querySelectorAll("[required]"));
+    for (const el of requiredEls) {
+      if (!el.value.trim()) {
+        el.focus();
+        alert("Please fill all required fields in this step.");
+        return false;
+      }
+    }
+    return true;
+  }
+
+  prevBtn.addEventListener("click", () => {
+    if (currentStep > 0) {
+      currentStep--;
+      showStep(currentStep);
+    }
+  });
+
+  nextBtn.addEventListener("click", () => {
+    if (!validateStep(currentStep)) return;
+    if (currentStep < steps.length - 1) {
+      currentStep++;
+      showStep(currentStep);
+    } else {
+      document.getElementById("btn-preview").click(); // open preview
+    }
+  });
+
+  showStep(currentStep);
+});
+
+const totalSteps = 12;
+let currentStep = 1;
+
+function updateProgress() {
+  const percent = Math.round((currentStep / totalSteps) * 100);
+  const progressFill = document.getElementById("progressFill");
+  progressFill.style.width = percent + "%";
+  progressFill.textContent = percent + "%";
+}
+
+// Example: call this whenever next/prev buttons are clicked
+document.getElementById("nextStep").addEventListener("click", () => {
+  if (currentStep < totalSteps) currentStep++;
+  updateProgress();
+});
+
+document.getElementById("prevStep").addEventListener("click", () => {
+  if (currentStep > 1) currentStep--;
+  updateProgress();
+});
+
+// Initialize
+updateProgress();
+
+// ===== Sidebar Navigation for Wizard =====
+document.addEventListener("DOMContentLoaded", () => {
+  const navItems = document.querySelectorAll(".nav-item");
+  const steps = Array.from(document.querySelectorAll(".wizard-step"));
+  const prevBtn = document.getElementById("prevStep");
+  const nextBtn = document.getElementById("nextStep");
+  const progressFill = document.getElementById("progressFill");
+  let currentStep = 0;
+
+  function showStep(index) {
+    steps.forEach((s, i) => (s.style.display = i === index ? "block" : "none"));
+    prevBtn.style.display = index === 0 ? "none" : "inline-block";
+    nextBtn.textContent = index === steps.length - 1 ? "Preview" : "Next";
+
+    // Sidebar highlight
+    navItems.forEach((i) => i.classList.remove("active"));
+    navItems[index].classList.add("active");
+
+    // Progress update
+    const percent = Math.round(((index + 1) / steps.length) * 100);
+    progressFill.style.width = percent + "%";
+    progressFill.textContent = percent + "%";
+  }
+
+  // Sidebar click → go to that step
+  navItems.forEach((item, idx) => {
+    item.addEventListener("click", (e) => {
+      e.preventDefault();
+      currentStep = idx;
+      showStep(currentStep);
+    });
+  });
+
+  // Prev/Next buttons
+  prevBtn.addEventListener("click", () => {
+    if (currentStep > 0) {
+      currentStep--;
+      showStep(currentStep);
+    }
+  });
+
+  nextBtn.addEventListener("click", () => {
+    if (currentStep < steps.length - 1) {
+      currentStep++;
+      showStep(currentStep);
+    } else {
+      document.getElementById("btn-preview").click();
+    }
+  });
+
+  // Init
+  showStep(currentStep);
 });
