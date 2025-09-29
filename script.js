@@ -1428,3 +1428,30 @@ document.addEventListener("DOMContentLoaded", () => {
   // Init
   showStep(currentStep);
 });
+    
+
+    // <!-- Fix: Limit Languages dropdown height -->
+    
+      document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('focusin', function(e) {
+          const sel = e.target.closest('#languagesList select');
+          if (!sel) return;
+          sel.dataset._prevSize = sel.size || 1;
+          sel.size = Math.min(5, sel.options.length); // show only up to 5
+        });
+
+        document.addEventListener('focusout', function(e) {
+          const sel = e.target.closest('#languagesList select');
+          if (!sel) return;
+          sel.size = sel.dataset._prevSize || 1;
+          delete sel.dataset._prevSize;
+        });
+
+        document.addEventListener('change', function(e) {
+          const sel = e.target.closest('#languagesList select');
+          if (!sel) return;
+          sel.size = sel.dataset._prevSize || 1;
+          delete sel.dataset._prevSize;
+        });
+      });
+    
