@@ -158,23 +158,33 @@
   }
   function clearAll() {
     if (!confirm("Clear all fields?")) return;
-    const fresh = getDefaultData();
-    Object.assign(data.personalInfo, fresh.personalInfo);
-    Object.assign(data.publicLinks, fresh.publicLinks);
-    data.experience = [];
-    data.education = [];
-    data.skills = [];
-    data.projects = [];
-    data.certifications = [];
-    data.internships = [];
-    data.hobbies = [];
-    data.additionalInfo = "";
-    data.declaration = "";
+    {
+      const fresh = getDefaultData();
+      Object.assign(data.personalInfo, fresh.personalInfo);
+      Object.assign(data.publicLinks, fresh.publicLinks);
+      data.experience = [];
+      data.education = [];
+      data.skills = [];
+      data.projects = [];
+      data.certifications = [];
+      data.internships = [];
+      data.hobbies = [];
+      data.additionalInfo = "";
+      data.declaration = "";
 
-    data.languages = [];
+      data.languages = [];
 
-    initForm();
-    saveToStorage();
+      initForm();
+      saveToStorage();
+      // 🧹 FIX: remove red highlight and error messages after clear
+      document.querySelectorAll(".invalid-highlight").forEach((el) => {
+        el.classList.remove("invalid-highlight");
+      });
+
+      document.querySelectorAll(".error-msg").forEach((msg) => {
+        msg.remove();
+      });
+    }
   }
 
   // ===== Mini toast =====
@@ -903,6 +913,10 @@
       alert(
         "Please fill: Full Name, valid Email, valid Phone (≥7 digits), and Summary."
       );
+      //---
+      document.getElementById("step-1").click(); // simulate navbar click
+
+      //---
       return false;
     }
     return true;
@@ -920,9 +934,9 @@
   [els.btnSave, els.btnSave2].forEach((b) =>
     b.addEventListener("click", () => saveToStorage(true))
   );
-  [els.btnClear, els.btnClear2].forEach((b) =>
-    b.addEventListener("click", clearAll)
-  );
+  [els.btnClear, els.btnClear2].forEach(function (b) {
+    b.addEventListener("click", clearAll);
+  });
   [els.btnPreview, els.btnPreview2].forEach((b) =>
     b.addEventListener("click", openPreview)
   );
