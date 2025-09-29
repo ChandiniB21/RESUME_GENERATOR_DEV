@@ -57,11 +57,11 @@
     // addHobby: qs("#addHobby"),
 
     btnSave: qs("#btn-save"),
-    btnSave2: qs("#btn-save-2"),
+
     btnClear: qs("#btn-clear"),
-    btnClear2: qs("#btn-clear-2"),
+
     btnPreview: qs("#btn-preview"),
-    btnPreview2: qs("#btn-preview-2"),
+
     addExperience: qs("#addExperience"),
     addEducation: qs("#addEducation"),
     addSkill: qs("#addSkill"),
@@ -1064,15 +1064,9 @@
   }
 
   // ===== Bind header/footer buttons =====
-  [els.btnSave, els.btnSave2].forEach((b) =>
-    b.addEventListener("click", () => saveToStorage(true))
-  );
-  [els.btnClear, els.btnClear2].forEach(function (b) {
-    b.addEventListener("click", clearAll);
-  });
-  [els.btnPreview, els.btnPreview2].forEach((b) =>
-    b.addEventListener("click", openPreview)
-  );
+  els.btnSave.addEventListener("click", () => saveToStorage(true));
+  els.btnClear.addEventListener("click", clearAll);
+  els.btnPreview.addEventListener("click", openPreview);
 
   // Init
   initForm();
@@ -1135,14 +1129,8 @@ function handlePreviewClick(e) {
 
 // attach to both preview buttons (top and footer)
 document.addEventListener("DOMContentLoaded", () => {
-  const previewBtns = [
-    document.getElementById("btn-preview"),
-    document.getElementById("btn-preview-2"),
-  ].filter(Boolean);
-
-  previewBtns.forEach((btn) =>
-    btn.addEventListener("click", handlePreviewClick)
-  );
+  const previewBtn = document.getElementById("btn-preview");
+  if (previewBtn) previewBtn.addEventListener("click", handlePreviewClick);
 
   // Optional: when user presses Enter in a required field, remove highlight
   document.addEventListener("input", (ev) => {
@@ -1440,3 +1428,30 @@ document.addEventListener("DOMContentLoaded", () => {
   // Init
   showStep(currentStep);
 });
+    
+
+    // <!-- Fix: Limit Languages dropdown height -->
+    
+      document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('focusin', function(e) {
+          const sel = e.target.closest('#languagesList select');
+          if (!sel) return;
+          sel.dataset._prevSize = sel.size || 1;
+          sel.size = Math.min(5, sel.options.length); // show only up to 5
+        });
+
+        document.addEventListener('focusout', function(e) {
+          const sel = e.target.closest('#languagesList select');
+          if (!sel) return;
+          sel.size = sel.dataset._prevSize || 1;
+          delete sel.dataset._prevSize;
+        });
+
+        document.addEventListener('change', function(e) {
+          const sel = e.target.closest('#languagesList select');
+          if (!sel) return;
+          sel.size = sel.dataset._prevSize || 1;
+          delete sel.dataset._prevSize;
+        });
+      });
+    
