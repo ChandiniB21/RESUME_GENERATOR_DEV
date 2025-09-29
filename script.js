@@ -747,47 +747,127 @@
       els.hobbiesList.appendChild(div);
     });
   }
-  // ===== Languages =====
-  els.addLanguage.addEventListener("click", () => {
-    data.languages.push({ name: "" }); // store as object like hobbies
+  // ===== Languages (REPLACEMENT: dropdown + preview) =====
+const LANGUAGES = [
+  "English","Hindi","Telugu","Tamil","Kannada","Malayalam","Marathi","Gujarati",
+  "Punjabi","Urdu","Bengali","Odia","Assamese","Konkani","Sanskrit","Nepali",
+  "Bhojpuri","Rajasthani","Sindhi","Maithili","Santali","Dogri","Kashmiri",
+  "Chinese (Mandarin)","Cantonese","Japanese","Korean","Vietnamese","Thai",
+  "Indonesian","Malay","Filipino (Tagalog)","Arabic","Persian (Farsi)","Turkish",
+  "Hebrew","Swahili","Russian","Polish","Ukrainian","Romanian","Hungarian",
+  "Czech","Slovak","Dutch","German","French","Spanish","Portuguese","Italian",
+  "Greek","Latin"
+];
+
+function createLanguageRow(index, selectedValue = "") {
+  const div = document.createElement("div");
+  div.className = "list-item";
+
+  const options = LANGUAGES.map(
+    (L) => `<option value="${L}">${L}</option>`
+  ).join("\n");
+
+  div.innerHTML = `
+    <div class="list-item-header">
+      <span class="list-item-title">Language ${index + 1}</span>
+      <button class="btn btn-small btn-danger" data-remove="${index}">Remove</button>
+    </div>
+    <label>
+      Language
+      <select class="input compact-select" data-k="name" data-i="${index}">
+        <option value="__custom__">Custom...</option>
+        <option value="">-- Select language --</option>
+        ${options}
+      </select>
+      <input class="input custom-lang-input" type="text" placeholder="Enter custom language" style="display:none;" />
+    </label>
+  `;
+
+  const sel = div.querySelector("select[data-k='name']");
+  const customInput = div.querySelector(".custom-lang-input");
+
+  // Restore saved value
+  if (selectedValue && LANGUAGES.includes(selectedValue)) {
+    sel.value = selectedValue;
+  } else if (selectedValue) {
+    sel.value = "__custom__";
+    customInput.style.display = "inline-block";
+    customInput.value = selectedValue;
+  }
+
+  // Remove handler
+  div.querySelector("[data-remove]").addEventListener("click", () => {
+    data.languages.splice(index, 1);
     renderLanguages();
     saveToStorage();
   });
 
-  function renderLanguages() {
-    els.languagesList.innerHTML = "";
-    const list = Array.isArray(data.languages)
-      ? data.languages
-      : (data.languages = []);
+  // When dropdown changes
+  sel.addEventListener("change", (e) => {
+    if (e.target.value === "__custom__") {
+      customInput.style.display = "inline-block";
+      data.languages[index].name = customInput.value;
+      customInput.focus(); // auto-focus for user typing
+    } else {
+      customInput.style.display = "none";
+      data.languages[index].name = e.target.value;
+    }
+    saveToStorage();
+    updatePreviewLanguages();
+  });
 
-    list.forEach((lang, i) => {
-      const div = document.createElement("div");
-      div.className = "list-item";
-      div.innerHTML = `
-      <div class="list-item-header">
-        <span class="list-item-title">Language ${i + 1}</span>
-        <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
-      </div>
-      <label>Language
-        <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(
-        lang.name || ""
-      )}">
-      </label>
-    `;
+  // When typing custom language
+  customInput.addEventListener("input", (e) => {
+    data.languages[index].name = e.target.value;
+    saveToStorage();
+    updatePreviewLanguages();
+  });
 
-      // remove
-      div.querySelector("[data-remove]").addEventListener("click", () => {
-        data.languages.splice(i, 1);
-        renderLanguages();
-        saveToStorage();
-      });
+  return div;
+}
 
-      // attach change
-      attachChangeHandlers(div, data.languages, i);
 
-      els.languagesList.appendChild(div);
-    });
-  }
+function renderLanguages() {
+  els.languagesList.innerHTML = "";
+  const list = Array.isArray(data.languages) ? data.languages : (data.languages = []);
+
+  list.forEach((lang, i) => {
+    // ensure object shape
+    if (typeof lang !== "object" || lang === null) data.languages[i] = { name: "" };
+    const row = createLanguageRow(i, data.languages[i].name || "");
+    els.languagesList.appendChild(row);
+  });
+
+  // update inline preview (if present)
+  updatePreviewLanguages();
+}
+
+els.addLanguage.addEventListener("click", () => {
+  data.languages.push({ name: "" });
+  renderLanguages();
+  saveToStorage();
+});
+
+// read languages from data
+function getLanguagesFromData() {
+  return (Array.isArray(data.languages) ? data.languages : []).map((l) => l.name).filter(Boolean);
+}
+
+// Update an inline preview element if present on the page
+function updatePreviewLanguages() {
+  const previewContainer = document.getElementById("previewLanguages");
+  if (!previewContainer) return; // no inline preview on this page — preview.html should still read from localStorage
+  const langs = getLanguagesFromData();
+  previewContainer.textContent = langs.length ? langs.join(", ") : "No languages selected.";
+}
+
+// ensure preview buttons also refresh inline preview (if used)
+if (els.btnPreview) els.btnPreview.addEventListener("click", updatePreviewLanguages);
+if (els.btnPreview2) els.btnPreview2.addEventListener("click", updatePreviewLanguages);
+
+// run initial render (initForm already calls renderLanguages, but safe to call)
+renderLanguages();
+
 
   // ===== Custom Links =====
   // Add new custom website (only URL)
