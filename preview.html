@@ -77,11 +77,47 @@
         word-break: break-all;
         overflow-wrap: anywhere;
       }
+
+      /* --- Resume Header Layout --- */
+      .resume-header {
+        display: flex;
+        justify-content: space-between; /* keep photo fixed right */
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      /* If no photo → center everything */
+      .resume-header.no-photo {
+        justify-content: center;
+        text-align: center;
+      }
+
+      /* Text block auto-centered */
+      .resume-details {
+        flex: 1;
+        text-align: center; /* center the text block */
+      }
+
+      /* Contact line inline */
+      .contact-line {
+        font-size: 14px;
+        color: #444;
+        margin-top: 6px;
+        display: inline-block;
+      }
+
+      /* Profile photo always static (right side) */
+      .preview-photo {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-left: 20px;
+      }
     </style>
   </head>
   <body>
     <div class="actions">
-       
       <button onclick="window.print()">Download PDF</button>
       <button onclick="downloadTxt()">Download TXT</button>
     </div>
@@ -106,14 +142,13 @@
         );
       }
       function ensureUrl(url) {
-  if (!url) return "";
-  url = String(url).trim();
-  // if already starts with http:// or https:// keep as is
-  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url)) return url;
-  // otherwise add https://
-  return "https://" + url;
-}
-
+        if (!url) return "";
+        url = String(url).trim();
+        // if already starts with http:// or https:// keep as is
+        if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url)) return url;
+        // otherwise add https://
+        return "https://" + url;
+      }
 
       function addSection(title, html) {
         if (html && html.trim()) {
@@ -131,58 +166,72 @@
       // Header
       const pi = data.personalInfo || {};
       const pl = data.publicLinks || {};
-    
-       // Build contacts with clickable links
-const contactParts = [];
 
-// email → mailto
-if (pi.email) {
-  contactParts.push(`<a href="mailto:${encodeURIComponent(pi.email)}">${safe(pi.email)}</a>`);
-}
+      // Build contacts with clickable links
+      const contactParts = [];
 
-// phone as plain text
-if (pi.phone) contactParts.push(safe(pi.phone));
+      // email → mailto
+      if (pi.email) {
+        contactParts.push(
+          `<a href="mailto:${encodeURIComponent(pi.email)}">${safe(
+            pi.email
+          )}</a>`
+        );
+      }
 
-// public links
-const labelMap = {
-  github: "GitHub",
-  linkedin: "LinkedIn",
-  portfolio: "Portfolio",
-  website: "Website"
-};
-["github","linkedin","portfolio","website"].forEach((k) => {
-  const v = (pl && pl[k]) || "";
-  if (v && v.trim()) {
-    const href = ensureUrl(v);
-    const label = labelMap[k] || (k.charAt(0).toUpperCase() + k.slice(1));
-    contactParts.push(`<a href="${safe(href)}" target="_blank" rel="noopener noreferrer">${safe(label)}</a>`);
-  }
-});
+      // phone as plain text
+      if (pi.phone) contactParts.push(safe(pi.phone));
 
-// custom links — show as Custom 1, Custom 2...
-if (Array.isArray(pl.custom)) {
-  pl.custom.forEach((c, i) => {
-    const url = (c && c.url) ? c.url.trim() : "";
-    if (url) {
-      const href = ensureUrl(url);
-      const label = `Custom ${i + 1}`;
-      contactParts.push(`<a href="${safe(href)}" target="_blank" rel="noopener noreferrer">${safe(label)}</a>`);
-    }
-  });
-}
+      // public links
+      const labelMap = {
+        github: "GitHub",
+        linkedin: "LinkedIn",
+        portfolio: "Portfolio",
+        website: "Website",
+      };
+      ["github", "linkedin", "portfolio", "website"].forEach((k) => {
+        const v = (pl && pl[k]) || "";
+        if (v && v.trim()) {
+          const href = ensureUrl(v);
+          const label = labelMap[k] || k.charAt(0).toUpperCase() + k.slice(1);
+          contactParts.push(
+            `<a href="${safe(
+              href
+            )}" target="_blank" rel="noopener noreferrer">${safe(label)}</a>`
+          );
+        }
+      });
 
-let contacts = contactParts.join(" | ");
+      // custom links — show as Custom 1, Custom 2...
+      if (Array.isArray(pl.custom)) {
+        pl.custom.forEach((c, i) => {
+          const url = c && c.url ? c.url.trim() : "";
+          if (url) {
+            const href = ensureUrl(url);
+            const label = `Custom ${i + 1}`;
+            contactParts.push(
+              `<a href="${safe(
+                href
+              )}" target="_blank" rel="noopener noreferrer">${safe(label)}</a>`
+            );
+          }
+        });
+      }
 
+      let contacts = contactParts.join(" | ");
 
       resume.innerHTML += `
-  <div class="resume-header" style="display:flex;justify-content:space-between;align-items:center;">
-    <div>
+  <div class="resume-header ${pi.profilePhoto ? "with-photo" : "no-photo"}">
+    <div class="resume-details">
       <h1>${safe(pi.fullName || "")}</h1>
-      <div class="contact-line">${contacts}</div>
+      <div class="contact-line">
+        ${contacts}
+        ${pi.location ? ` | ${safe(pi.location)}` : ""}
+      </div>
     </div>
     ${
       pi.profilePhoto
-        ? `<img src="${pi.profilePhoto}" alt="Profile Photo" style="width:100px;height:100px;border-radius:50%;object-fit:cover;margin-left:20px;" />`
+        ? `<img src="${pi.profilePhoto}" alt="Profile Photo" class="preview-photo" />`
         : ""
     }
   </div>
@@ -197,10 +246,17 @@ let contacts = contactParts.join(" | ");
       if (Array.isArray(data.education) && data.education.length) {
         const html = data.education
           .map((e) => {
-            const period = (e.startDate || "") + (e.current ? " - Present" : e.endDate ? " - " + e.endDate : "");
-            const score = e.score && e.scoreType ? `${safe(e.scoreType)}: ${safe(e.score)}` : "";
+            const period =
+              (e.startDate || "") +
+              (e.current ? " - Present" : e.endDate ? " - " + e.endDate : "");
+            const score =
+              e.score && e.scoreType
+                ? `${safe(e.scoreType)}: ${safe(e.score)}`
+                : "";
             return `
-              <p><strong>${safe(e.degree || "")}</strong>, ${safe(e.institution || "")} (${safe(period)})</p>
+              <p><strong>${safe(e.degree || "")}</strong>, ${safe(
+              e.institution || ""
+            )} (${safe(period)})</p>
               ${score ? `<p>${score}</p>` : ""}
               ${e.description ? `<p>${safe(e.description)}</p>` : ""}
             `;
@@ -237,22 +293,23 @@ let contacts = contactParts.join(" | ");
 
       // ===== Internships (NEW) =====
       // ===== Internships (UPDATED with Currently Working) =====
-if (Array.isArray(data.internships) && data.internships.length) {
-  const html = data.internships
-    .map((i) => {
-      const period =
-        (i.startDate || "") + " - " + (i.current ? "Present" : i.endDate || "");
-      return `
+      if (Array.isArray(data.internships) && data.internships.length) {
+        const html = data.internships
+          .map((i) => {
+            const period =
+              (i.startDate || "") +
+              " - " +
+              (i.current ? "Present" : i.endDate || "");
+            return `
         <p><strong>${safe(i.name || "")}</strong>, ${safe(
-        i.organization || ""
-      )} (${safe(period)})</p>
+              i.organization || ""
+            )} (${safe(period)})</p>
         ${i.description ? `<p>${safe(i.description)}</p>` : ""}
       `;
-    })
-    .join("");
-  addSection("Internships", html);
-}
-
+          })
+          .join("");
+        addSection("Internships", html);
+      }
 
       // Projects
       if (Array.isArray(data.projects) && data.projects.length) {
@@ -266,10 +323,10 @@ if (Array.isArray(data.internships) && data.internships.length) {
         </p>
         ${
           p.projectUrl
-          
-          ? `<p><a href="${safe(ensureUrl(p.projectUrl))}" target="_blank">${safe(p.projectUrl)}</a></p>`
-          : ""
-
+            ? `<p><a href="${safe(
+                ensureUrl(p.projectUrl)
+              )}" target="_blank">${safe(p.projectUrl)}</a></p>`
+            : ""
         }
         ${
           p.description
@@ -295,10 +352,11 @@ if (Array.isArray(data.internships) && data.internships.length) {
               c.issuer || ""
             )} (${safe(c.date || "")})</p>
             ${
-             c.url
-             ? `<p><a href="${safe(ensureUrl(c.url))}" target="_blank">${safe(c.url)}</a></p>`
-             : ""
-
+              c.url
+                ? `<p><a href="${safe(
+                    ensureUrl(c.url)
+                  )}" target="_blank">${safe(c.url)}</a></p>`
+                : ""
             }
         ${c.description ? `<p>${safe(c.description)}</p>` : ""}
       `
@@ -343,12 +401,12 @@ if (Array.isArray(data.internships) && data.internships.length) {
         const formatted = safe(data.additionalInfo).replace(/\n/g, "<br>");
         addSection("Additional Information", `<p>${formatted}</p>`);
       }
-      
+
       // Declaration
-    if (data.declaration && data.declaration.trim()) {
-    const formatted = safe(data.declaration).replace(/\n/g, "<br>");
-    addSection("Declaration", `<p>${formatted}</p>`);
-    }
+      if (data.declaration && data.declaration.trim()) {
+        const formatted = safe(data.declaration).replace(/\n/g, "<br>");
+        addSection("Declaration", `<p>${formatted}</p>`);
+      }
 
       // TXT download
       function downloadTxt() {
