@@ -1316,7 +1316,14 @@ document.addEventListener("DOMContentLoaded", () => {
   function showStep(index) {
     steps.forEach((s, i) => (s.style.display = i === index ? "block" : "none"));
     prevBtn.style.display = index === 0 ? "none" : "inline-block";
-    nextBtn.textContent = index === steps.length - 1 ? "Preview" : "Next";
+
+    // 👇 Hide Next button on last step (no Preview here)
+    if (index === steps.length - 1) {
+      nextBtn.style.display = "none";
+    } else {
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = "Next";
+    }
   }
 
   function validateStep(index) {
@@ -1343,8 +1350,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentStep < steps.length - 1) {
       currentStep++;
       showStep(currentStep);
-    } else {
-      document.getElementById("btn-preview").click(); // open preview
     }
   });
 
@@ -1387,7 +1392,14 @@ document.addEventListener("DOMContentLoaded", () => {
   function showStep(index) {
     steps.forEach((s, i) => (s.style.display = i === index ? "block" : "none"));
     prevBtn.style.display = index === 0 ? "none" : "inline-block";
-    nextBtn.textContent = index === steps.length - 1 ? "Preview" : "Next";
+
+    // 🔑 Hide Next button entirely on last step
+    if (index === steps.length - 1) {
+      nextBtn.style.display = "none";
+    } else {
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = "Next";
+    }
 
     // Sidebar highlight
     navItems.forEach((i) => i.classList.remove("active"));
@@ -1420,8 +1432,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentStep < steps.length - 1) {
       currentStep++;
       showStep(currentStep);
-    } else {
-      document.getElementById("btn-preview").click();
     }
   });
 
