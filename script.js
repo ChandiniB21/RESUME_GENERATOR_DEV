@@ -1454,4 +1454,79 @@ document.addEventListener("DOMContentLoaded", () => {
           delete sel.dataset._prevSize;
         });
       });
+      // ====== Select size fix: show limited number of options consistently ======
+// Drop-in: put at end of your script.js or in a new file included after script.js
+
+(function() {
+  const MAX_VISIBLE = 8; // change to how many items you want visible when opened
+
+  function enhanceSelect(s) {
+    if (s.__sizeEnhanced) return;
+    s.__sizeEnhanced = true;
+
+    // remember original size
+    const originalSize = s.size || 1;
+    s.dataset._originalSize = originalSize;
+
+    // when user presses mouse down (before native opens), convert to size=listbox
+    s.addEventListener('mousedown', function (ev) {
+      // only for single-selects
+      if (s.multiple) return;
+      // set size to min(MAX_VISIBLE, options length) so it's limited
+      const want = Math.min(MAX_VISIBLE, s.options.length || MAX_VISIBLE);
+      s.size = want;
+      // prevent default focus jump issues in some browsers:
+      // allow subsequent click to select
+      // (no ev.preventDefault() here, letting native behavior proceed)
+    });
+
+    // when it loses focus or user selects, revert back
+    s.addEventListener('blur', function () {
+      s.size = s.dataset._originalSize || 1;
+    });
+    s.addEventListener('change', function () {
+      // small delay to allow selection to apply then close
+      setTimeout(() => {
+        s.size = s.dataset._originalSize || 1;
+        // keep the value selected (native does)
+      }, 0);
+    });
+
+    // also close on Escape key
+    s.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        s.size = s.dataset._originalSize || 1;
+        s.blur();
+      }
+    });
+  }
+
+  // enhance all existing selects (or restrict to a selector if desired)
+  function enhanceAll(selectSelector = 'select') {
+    document.querySelectorAll(selectSelector).forEach(enhanceSelect);
+  }
+
+  // run on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => enhanceAll('select'));
+  } else {
+    enhanceAll('select');
+  }
+
+  // Watch for dynamically added selects inside languagesList (or whole document)
+  const observer = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      for (const n of m.addedNodes) {
+        if (!(n instanceof HTMLElement)) continue;
+        if (n.tagName === 'SELECT') enhanceSelect(n);
+        // also if node contains selects
+        const nested = n.querySelectorAll && n.querySelectorAll('select');
+        if (nested && nested.length) nested.forEach(enhanceSelect);
+      }
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+
+})();
+
     
