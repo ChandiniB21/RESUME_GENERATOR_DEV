@@ -1294,12 +1294,12 @@ document.addEventListener("DOMContentLoaded", () => {
       moveFocus(el, +1);
     }
 
-    if (["ArrowDown", "ArrowRight"].includes(e.key)) {
+    if (e.key === "ArrowDown") {
       if (tag === "textarea" && !e.ctrlKey) return;
       e.preventDefault();
       moveFocus(el, +1);
     }
-    if (["ArrowUp", "ArrowLeft"].includes(e.key)) {
+    if (e.key === "ArrowUp") {
       if (tag === "textarea" && !e.ctrlKey) return;
       e.preventDefault();
       moveFocus(el, -1);
@@ -1428,36 +1428,35 @@ document.addEventListener("DOMContentLoaded", () => {
   // Init
   showStep(currentStep);
 });
-    
 
-    // <!-- Fix: Limit Languages dropdown height -->
-    
-      document.addEventListener('DOMContentLoaded', function() {
-        document.addEventListener('focusin', function(e) {
-          const sel = e.target.closest('#languagesList select');
-          if (!sel) return;
-          sel.dataset._prevSize = sel.size || 1;
-          sel.size = Math.min(5, sel.options.length); // show only up to 5
-        });
+// <!-- Fix: Limit Languages dropdown height -->
 
-        document.addEventListener('focusout', function(e) {
-          const sel = e.target.closest('#languagesList select');
-          if (!sel) return;
-          sel.size = sel.dataset._prevSize || 1;
-          delete sel.dataset._prevSize;
-        });
+document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("focusin", function (e) {
+    const sel = e.target.closest("#languagesList select");
+    if (!sel) return;
+    sel.dataset._prevSize = sel.size || 1;
+    sel.size = Math.min(5, sel.options.length); // show only up to 5
+  });
 
-        document.addEventListener('change', function(e) {
-          const sel = e.target.closest('#languagesList select');
-          if (!sel) return;
-          sel.size = sel.dataset._prevSize || 1;
-          delete sel.dataset._prevSize;
-        });
-      });
-      // ====== Select size fix: show limited number of options consistently ======
+  document.addEventListener("focusout", function (e) {
+    const sel = e.target.closest("#languagesList select");
+    if (!sel) return;
+    sel.size = sel.dataset._prevSize || 1;
+    delete sel.dataset._prevSize;
+  });
+
+  document.addEventListener("change", function (e) {
+    const sel = e.target.closest("#languagesList select");
+    if (!sel) return;
+    sel.size = sel.dataset._prevSize || 1;
+    delete sel.dataset._prevSize;
+  });
+});
+// ====== Select size fix: show limited number of options consistently ======
 // Drop-in: put at end of your script.js or in a new file included after script.js
 
-(function() {
+(function () {
   const MAX_VISIBLE = 8; // change to how many items you want visible when opened
 
   function enhanceSelect(s) {
@@ -1469,7 +1468,7 @@ document.addEventListener("DOMContentLoaded", () => {
     s.dataset._originalSize = originalSize;
 
     // when user presses mouse down (before native opens), convert to size=listbox
-    s.addEventListener('mousedown', function (ev) {
+    s.addEventListener("mousedown", function (ev) {
       // only for single-selects
       if (s.multiple) return;
       // set size to min(MAX_VISIBLE, options length) so it's limited
@@ -1481,10 +1480,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // when it loses focus or user selects, revert back
-    s.addEventListener('blur', function () {
+    s.addEventListener("blur", function () {
       s.size = s.dataset._originalSize || 1;
     });
-    s.addEventListener('change', function () {
+    s.addEventListener("change", function () {
       // small delay to allow selection to apply then close
       setTimeout(() => {
         s.size = s.dataset._originalSize || 1;
@@ -1493,8 +1492,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // also close on Escape key
-    s.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
+    s.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
         s.size = s.dataset._originalSize || 1;
         s.blur();
       }
@@ -1502,15 +1501,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // enhance all existing selects (or restrict to a selector if desired)
-  function enhanceAll(selectSelector = 'select') {
+  function enhanceAll(selectSelector = "select") {
     document.querySelectorAll(selectSelector).forEach(enhanceSelect);
   }
 
   // run on DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => enhanceAll('select'));
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => enhanceAll("select"));
   } else {
-    enhanceAll('select');
+    enhanceAll("select");
   }
 
   // Watch for dynamically added selects inside languagesList (or whole document)
@@ -1518,15 +1517,12 @@ document.addEventListener("DOMContentLoaded", () => {
     for (const m of mutations) {
       for (const n of m.addedNodes) {
         if (!(n instanceof HTMLElement)) continue;
-        if (n.tagName === 'SELECT') enhanceSelect(n);
+        if (n.tagName === "SELECT") enhanceSelect(n);
         // also if node contains selects
-        const nested = n.querySelectorAll && n.querySelectorAll('select');
+        const nested = n.querySelectorAll && n.querySelectorAll("select");
         if (nested && nested.length) nested.forEach(enhanceSelect);
       }
     }
   });
   observer.observe(document.body, { childList: true, subtree: true });
-
 })();
-
-    
