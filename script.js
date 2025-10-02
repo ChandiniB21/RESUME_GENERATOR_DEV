@@ -473,53 +473,103 @@
   // // ... your existing code above ...
   // ... rest of your existing code unchanged ...
 
-  // ===== Skills =====
-  els.addSkill.addEventListener("click", () => {
-    data.skills.push({ name: "", category: "", level: "Beginner" });
-    renderSkills();
-    saveToStorage();
-  });
-  function renderSkills() {
-    els.skillsList.innerHTML = "";
-    data.skills.forEach((skill, i) => {
-      const div = document.createElement("div");
-      div.className = "list-item";
-      div.innerHTML = `
-        <div class="list-item-header">
-          <span class="list-item-title">Skill ${i + 1}</span>
-          <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
-        </div>
-        <div class="row row-3">
-          <label>Skill Name <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(
-        skill.name
-      )}"></label>
-          <label>Category <input class="input" data-k="category" data-i="${i}" placeholder="Programming, Design..." value="${escapeHtml(
-        skill.category
-      )}"></label>
-          <label>Level
-            <select class="select" data-k="level" data-i="${i}">
-              <option ${
-                skill.level === "Beginner" ? "selected" : ""
-              }>Beginner</option>
-              <option ${
-                skill.level === "Intermediate" ? "selected" : ""
-              }>Intermediate</option>
-              <option ${
-                skill.level === "Expert" ? "selected" : ""
-              }>Expert</option>
-            </select>
-          </label>
-        </div>
-      `;
-      div.querySelector("[data-remove]").addEventListener("click", () => {
-        data.skills.splice(i, 1);
+  // ===== Skills (input first, pills below, cards stay visible) =====
+const SKILL_PILLS = [
+  { name: "JavaScript", category: "Programming Language" },
+  { name: "Python", category: "Programming Language" },
+  { name: "C++", category: "Programming Language" },
+  { name: "Java", category: "Programming Language" },
+  { name: "React", category: "Framework" },
+  { name: "HTML", category: "Markup" },
+  { name: "CSS", category: "Style" },
+  { name: "SQL", category: "Database" },
+  { name: "MATLAB", category: "Tool" },
+  { name: "PLC", category: "Electronics" },
+  { name: "VLSI", category: "Electronics" }
+];
+
+const CATEGORY_PILLS = [
+  "Programming Language",
+  "Framework",
+  "Tool",
+  "Electronics",
+  "Data Science"
+];
+
+// + Add Skill → add empty card + show pills below
+els.addSkill.addEventListener("click", () => {
+  data.skills.push({ name: "", category: "", level: "Beginner" });
+  renderSkills();
+  saveToStorage();
+});
+
+function renderSkills() {
+  els.skillsList.innerHTML = "";
+
+  data.skills.forEach((skill, i) => {
+    const div = document.createElement("div");
+    div.className = "list-item";
+    div.innerHTML = `
+      <div class="list-item-header">
+        <span class="list-item-title">Skill ${i + 1}</span>
+        <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
+      </div>
+      <div class="row row-3">
+        <label>Skill Name 
+          <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(skill.name)}">
+        </label>
+        <label>Category 
+          <input class="input" data-k="category" data-i="${i}" value="${escapeHtml(skill.category)}">
+        </label>
+        <label>Level
+          <select class="select" data-k="level" data-i="${i}">
+            <option ${skill.level === "Beginner" ? "selected" : ""}>Beginner</option>
+            <option ${skill.level === "Intermediate" ? "selected" : ""}>Intermediate</option>
+            <option ${skill.level === "Expert" ? "selected" : ""}>Expert</option>
+          </select>
+        </label>
+      </div>
+      <div class="skills-pills" style="margin-top:10px;">
+        ${SKILL_PILLS.map(
+          ({ name, category }) => `
+          <button type="button" class="pill-btn" data-skill="${name}" data-cat="${category}" style="margin:4px;">
+            ${name}
+          </button>`
+        ).join("")}
+        ${CATEGORY_PILLS.map(
+          (cat) => `
+          <button type="button" class="pill-btn" data-skill="" data-cat="${cat}" style="margin:4px;">
+            ${cat}
+          </button>`
+        ).join("")}
+      </div>
+    `;
+
+    // remove card
+    div.querySelector("[data-remove]").addEventListener("click", () => {
+      data.skills.splice(i, 1);
+      renderSkills();
+      saveToStorage();
+    });
+
+    // input change update
+    attachChangeHandlers(div, data.skills, i);
+
+    // pills click → auto-fill inputs
+    div.querySelectorAll(".pill-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const skill = btn.getAttribute("data-skill");
+        const cat = btn.getAttribute("data-cat");
+        if (skill) data.skills[i].name = skill;
+        if (cat) data.skills[i].category = cat;
         renderSkills();
         saveToStorage();
       });
-      attachChangeHandlers(div, data.skills, i);
-      els.skillsList.appendChild(div);
     });
-  }
+
+    els.skillsList.appendChild(div);
+  });
+}
 
   // ===== Projects =====
   els.addProject.addEventListener("click", () => {
