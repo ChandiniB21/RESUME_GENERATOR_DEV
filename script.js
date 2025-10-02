@@ -473,53 +473,103 @@
   // // ... your existing code above ...
   // ... rest of your existing code unchanged ...
 
-  // ===== Skills =====
-  els.addSkill.addEventListener("click", () => {
-    data.skills.push({ name: "", category: "", level: "Beginner" });
-    renderSkills();
-    saveToStorage();
-  });
-  function renderSkills() {
-    els.skillsList.innerHTML = "";
-    data.skills.forEach((skill, i) => {
-      const div = document.createElement("div");
-      div.className = "list-item";
-      div.innerHTML = `
-        <div class="list-item-header">
-          <span class="list-item-title">Skill ${i + 1}</span>
-          <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
-        </div>
-        <div class="row row-3">
-          <label>Skill Name <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(
-        skill.name
-      )}"></label>
-          <label>Category <input class="input" data-k="category" data-i="${i}" placeholder="Programming, Design..." value="${escapeHtml(
-        skill.category
-      )}"></label>
-          <label>Level
-            <select class="select" data-k="level" data-i="${i}">
-              <option ${
-                skill.level === "Beginner" ? "selected" : ""
-              }>Beginner</option>
-              <option ${
-                skill.level === "Intermediate" ? "selected" : ""
-              }>Intermediate</option>
-              <option ${
-                skill.level === "Expert" ? "selected" : ""
-              }>Expert</option>
-            </select>
-          </label>
-        </div>
-      `;
-      div.querySelector("[data-remove]").addEventListener("click", () => {
-        data.skills.splice(i, 1);
+  // ===== Skills (input first, pills below, cards stay visible) =====
+const SKILL_PILLS = [
+  { name: "JavaScript", category: "Programming Language" },
+  { name: "Python", category: "Programming Language" },
+  { name: "C++", category: "Programming Language" },
+  { name: "Java", category: "Programming Language" },
+  { name: "React", category: "Framework" },
+  { name: "HTML", category: "Markup" },
+  { name: "CSS", category: "Style" },
+  { name: "SQL", category: "Database" },
+  { name: "MATLAB", category: "Tool" },
+  { name: "PLC", category: "Electronics" },
+  { name: "VLSI", category: "Electronics" }
+];
+
+const CATEGORY_PILLS = [
+  "Programming Language",
+  "Framework",
+  "Tool",
+  "Electronics",
+  "Data Science"
+];
+
+// + Add Skill → add empty card + show pills below
+els.addSkill.addEventListener("click", () => {
+  data.skills.push({ name: "", category: "", level: "Beginner" });
+  renderSkills();
+  saveToStorage();
+});
+
+function renderSkills() {
+  els.skillsList.innerHTML = "";
+
+  data.skills.forEach((skill, i) => {
+    const div = document.createElement("div");
+    div.className = "list-item";
+    div.innerHTML = `
+      <div class="list-item-header">
+        <span class="list-item-title">Skill ${i + 1}</span>
+        <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
+      </div>
+      <div class="row row-3">
+        <label>Skill Name 
+          <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(skill.name)}">
+        </label>
+        <label>Category 
+          <input class="input" data-k="category" data-i="${i}" value="${escapeHtml(skill.category)}">
+        </label>
+        <label>Level
+          <select class="select" data-k="level" data-i="${i}">
+            <option ${skill.level === "Beginner" ? "selected" : ""}>Beginner</option>
+            <option ${skill.level === "Intermediate" ? "selected" : ""}>Intermediate</option>
+            <option ${skill.level === "Expert" ? "selected" : ""}>Expert</option>
+          </select>
+        </label>
+      </div>
+      <div class="skills-pills" style="margin-top:10px;">
+        ${SKILL_PILLS.map(
+          ({ name, category }) => `
+          <button type="button" class="pill-btn" data-skill="${name}" data-cat="${category}" style="margin:4px;">
+            ${name}
+          </button>`
+        ).join("")}
+        ${CATEGORY_PILLS.map(
+          (cat) => `
+          <button type="button" class="pill-btn" data-skill="" data-cat="${cat}" style="margin:4px;">
+            ${cat}
+          </button>`
+        ).join("")}
+      </div>
+    `;
+
+    // remove card
+    div.querySelector("[data-remove]").addEventListener("click", () => {
+      data.skills.splice(i, 1);
+      renderSkills();
+      saveToStorage();
+    });
+
+    // input change update
+    attachChangeHandlers(div, data.skills, i);
+
+    // pills click → auto-fill inputs
+    div.querySelectorAll(".pill-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const skill = btn.getAttribute("data-skill");
+        const cat = btn.getAttribute("data-cat");
+        if (skill) data.skills[i].name = skill;
+        if (cat) data.skills[i].category = cat;
         renderSkills();
         saveToStorage();
       });
-      attachChangeHandlers(div, data.skills, i);
-      els.skillsList.appendChild(div);
     });
-  }
+
+    els.skillsList.appendChild(div);
+  });
+}
 
   // ===== Projects =====
   els.addProject.addEventListener("click", () => {
@@ -1294,12 +1344,12 @@ document.addEventListener("DOMContentLoaded", () => {
       moveFocus(el, +1);
     }
 
-    if (["ArrowDown", "ArrowRight"].includes(e.key)) {
+    if (e.key === "ArrowDown") {
       if (tag === "textarea" && !e.ctrlKey) return;
       e.preventDefault();
       moveFocus(el, +1);
     }
-    if (["ArrowUp", "ArrowLeft"].includes(e.key)) {
+    if (e.key === "ArrowUp") {
       if (tag === "textarea" && !e.ctrlKey) return;
       e.preventDefault();
       moveFocus(el, -1);
@@ -1316,7 +1366,14 @@ document.addEventListener("DOMContentLoaded", () => {
   function showStep(index) {
     steps.forEach((s, i) => (s.style.display = i === index ? "block" : "none"));
     prevBtn.style.display = index === 0 ? "none" : "inline-block";
-    nextBtn.textContent = index === steps.length - 1 ? "Preview" : "Next";
+
+    // 👇 Hide Next button on last step (no Preview here)
+    if (index === steps.length - 1) {
+      nextBtn.style.display = "none";
+    } else {
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = "Next";
+    }
   }
 
   function validateStep(index) {
@@ -1343,8 +1400,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentStep < steps.length - 1) {
       currentStep++;
       showStep(currentStep);
-    } else {
-      document.getElementById("btn-preview").click(); // open preview
     }
   });
 
@@ -1387,7 +1442,14 @@ document.addEventListener("DOMContentLoaded", () => {
   function showStep(index) {
     steps.forEach((s, i) => (s.style.display = i === index ? "block" : "none"));
     prevBtn.style.display = index === 0 ? "none" : "inline-block";
-    nextBtn.textContent = index === steps.length - 1 ? "Preview" : "Next";
+
+    // 🔑 Hide Next button entirely on last step
+    if (index === steps.length - 1) {
+      nextBtn.style.display = "none";
+    } else {
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = "Next";
+    }
 
     // Sidebar highlight
     navItems.forEach((i) => i.classList.remove("active"));
@@ -1420,44 +1482,41 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentStep < steps.length - 1) {
       currentStep++;
       showStep(currentStep);
-    } else {
-      document.getElementById("btn-preview").click();
     }
   });
 
   // Init
   showStep(currentStep);
 });
-    
 
-    // <!-- Fix: Limit Languages dropdown height -->
-    
-      document.addEventListener('DOMContentLoaded', function() {
-        document.addEventListener('focusin', function(e) {
-          const sel = e.target.closest('#languagesList select');
-          if (!sel) return;
-          sel.dataset._prevSize = sel.size || 1;
-          sel.size = Math.min(5, sel.options.length); // show only up to 5
-        });
+// <!-- Fix: Limit Languages dropdown height -->
 
-        document.addEventListener('focusout', function(e) {
-          const sel = e.target.closest('#languagesList select');
-          if (!sel) return;
-          sel.size = sel.dataset._prevSize || 1;
-          delete sel.dataset._prevSize;
-        });
+document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("focusin", function (e) {
+    const sel = e.target.closest("#languagesList select");
+    if (!sel) return;
+    sel.dataset._prevSize = sel.size || 1;
+    sel.size = Math.min(5, sel.options.length); // show only up to 5
+  });
 
-        document.addEventListener('change', function(e) {
-          const sel = e.target.closest('#languagesList select');
-          if (!sel) return;
-          sel.size = sel.dataset._prevSize || 1;
-          delete sel.dataset._prevSize;
-        });
-      });
-      // ====== Select size fix: show limited number of options consistently ======
+  document.addEventListener("focusout", function (e) {
+    const sel = e.target.closest("#languagesList select");
+    if (!sel) return;
+    sel.size = sel.dataset._prevSize || 1;
+    delete sel.dataset._prevSize;
+  });
+
+  document.addEventListener("change", function (e) {
+    const sel = e.target.closest("#languagesList select");
+    if (!sel) return;
+    sel.size = sel.dataset._prevSize || 1;
+    delete sel.dataset._prevSize;
+  });
+});
+// ====== Select size fix: show limited number of options consistently ======
 // Drop-in: put at end of your script.js or in a new file included after script.js
 
-(function() {
+(function () {
   const MAX_VISIBLE = 8; // change to how many items you want visible when opened
 
   function enhanceSelect(s) {
@@ -1469,7 +1528,7 @@ document.addEventListener("DOMContentLoaded", () => {
     s.dataset._originalSize = originalSize;
 
     // when user presses mouse down (before native opens), convert to size=listbox
-    s.addEventListener('mousedown', function (ev) {
+    s.addEventListener("mousedown", function (ev) {
       // only for single-selects
       if (s.multiple) return;
       // set size to min(MAX_VISIBLE, options length) so it's limited
@@ -1481,10 +1540,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // when it loses focus or user selects, revert back
-    s.addEventListener('blur', function () {
+    s.addEventListener("blur", function () {
       s.size = s.dataset._originalSize || 1;
     });
-    s.addEventListener('change', function () {
+    s.addEventListener("change", function () {
       // small delay to allow selection to apply then close
       setTimeout(() => {
         s.size = s.dataset._originalSize || 1;
@@ -1493,8 +1552,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // also close on Escape key
-    s.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
+    s.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
         s.size = s.dataset._originalSize || 1;
         s.blur();
       }
@@ -1502,15 +1561,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // enhance all existing selects (or restrict to a selector if desired)
-  function enhanceAll(selectSelector = 'select') {
+  function enhanceAll(selectSelector = "select") {
     document.querySelectorAll(selectSelector).forEach(enhanceSelect);
   }
 
   // run on DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => enhanceAll('select'));
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => enhanceAll("select"));
   } else {
-    enhanceAll('select');
+    enhanceAll("select");
   }
 
   // Watch for dynamically added selects inside languagesList (or whole document)
@@ -1518,15 +1577,12 @@ document.addEventListener("DOMContentLoaded", () => {
     for (const m of mutations) {
       for (const n of m.addedNodes) {
         if (!(n instanceof HTMLElement)) continue;
-        if (n.tagName === 'SELECT') enhanceSelect(n);
+        if (n.tagName === "SELECT") enhanceSelect(n);
         // also if node contains selects
-        const nested = n.querySelectorAll && n.querySelectorAll('select');
+        const nested = n.querySelectorAll && n.querySelectorAll("select");
         if (nested && nested.length) nested.forEach(enhanceSelect);
       }
     }
   });
   observer.observe(document.body, { childList: true, subtree: true });
-
 })();
-
-    
