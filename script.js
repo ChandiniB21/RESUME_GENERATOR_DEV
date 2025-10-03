@@ -474,60 +474,70 @@
   // ... rest of your existing code unchanged ...
 
   // ===== Skills (input first, pills below, cards stay visible) =====
-const SKILL_PILLS = [
-  { name: "JavaScript", category: "Programming Language" },
-  { name: "Python", category: "Programming Language" },
-  { name: "C++", category: "Programming Language" },
-  { name: "Java", category: "Programming Language" },
-  { name: "React", category: "Framework" },
-  { name: "HTML", category: "Web Designing" },
-  { name: "CSS", category: "Style" },
-  { name: "SQL", category: "Database" },
-  { name: "MATLAB", category: "Tool" },
-  { name: "PLC", category: "Electronics" },
-  { name: "VLSI", category: "Electronics" },
-  { name: "AthoCad", category: "Designing" },
-  { name: "Git/Github", category: "Tool" }
-];
+  const SKILL_PILLS = [
+    { name: "JavaScript", category: "Programming Language" },
+    { name: "Python", category: "Programming Language" },
+    { name: "C++", category: "Programming Language" },
+    { name: "Java", category: "Programming Language" },
+    { name: "React", category: "Framework" },
+    { name: "HTML", category: "Web Designing" },
+    { name: "CSS", category: "Style" },
+    { name: "SQL", category: "Database" },
+    { name: "MATLAB", category: "Tool" },
+    { name: "PLC", category: "Electronics" },
+    { name: "VLSI", category: "Electronics" },
+    { name: "AthoCad", category: "Designing" },
+    { name: "Git/Github", category: "Tool" },
+  ];
 
-const CATEGORY_PILLS = [
-  "Programming Language",
-  "Framework",
-  "Tool",
-  "Electronics",
-  "Data Science"
-];
+  const CATEGORY_PILLS = [
+    "Programming Language",
+    "Framework",
+    "Tool",
+    "Electronics",
+    "Data Science",
+  ];
 
-// + Add Skill → add empty card + show pills below
-els.addSkill.addEventListener("click", () => {
-  data.skills.push({ name: "", category: "", level: "Beginner" });
-  renderSkills();
-  saveToStorage();
-});
+  // + Add Skill → add empty card + show pills below
+  els.addSkill.addEventListener("click", () => {
+    data.skills.push({ name: "", category: "", level: "Beginner" });
+    renderSkills();
+    saveToStorage();
+  });
 
-function renderSkills() {
-  els.skillsList.innerHTML = "";
+  function renderSkills() {
+    els.skillsList.innerHTML = "";
 
-  data.skills.forEach((skill, i) => {
-    const div = document.createElement("div");
-    div.className = "list-item";
-    div.innerHTML = `
+    data.skills.forEach((skill, i) => {
+      const div = document.createElement("div");
+      div.className = "list-item";
+      div.innerHTML = `
       <div class="list-item-header">
         <span class="list-item-title">Skill ${i + 1}</span>
         <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
       </div>
       <div class="row row-3">
         <label>Skill Name 
-          <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(skill.name)}">
+          <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(
+        skill.name
+      )}">
         </label>
         <label>Category 
-          <input class="input" data-k="category" data-i="${i}" value="${escapeHtml(skill.category)}">
+          <input class="input" data-k="category" data-i="${i}" value="${escapeHtml(
+        skill.category
+      )}">
         </label>
         <label>Level
           <select class="select" data-k="level" data-i="${i}">
-            <option ${skill.level === "Beginner" ? "selected" : ""}>Beginner</option>
-            <option ${skill.level === "Intermediate" ? "selected" : ""}>Intermediate</option>
-            <option ${skill.level === "Expert" ? "selected" : ""}>Expert</option>
+            <option ${
+              skill.level === "Beginner" ? "selected" : ""
+            }>Beginner</option>
+            <option ${
+              skill.level === "Intermediate" ? "selected" : ""
+            }>Intermediate</option>
+            <option ${
+              skill.level === "Expert" ? "selected" : ""
+            }>Expert</option>
           </select>
         </label>
       </div>
@@ -542,31 +552,31 @@ function renderSkills() {
 
     `;
 
-    // remove card
-    div.querySelector("[data-remove]").addEventListener("click", () => {
-      data.skills.splice(i, 1);
-      renderSkills();
-      saveToStorage();
-    });
-
-    // input change update
-    attachChangeHandlers(div, data.skills, i);
-
-    // pills click → auto-fill inputs
-    div.querySelectorAll(".pill-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const skill = btn.getAttribute("data-skill");
-        const cat = btn.getAttribute("data-cat");
-        if (skill) data.skills[i].name = skill;
-        if (cat) data.skills[i].category = cat;
+      // remove card
+      div.querySelector("[data-remove]").addEventListener("click", () => {
+        data.skills.splice(i, 1);
         renderSkills();
         saveToStorage();
       });
-    });
 
-    els.skillsList.appendChild(div);
-  });
-}
+      // input change update
+      attachChangeHandlers(div, data.skills, i);
+
+      // pills click → auto-fill inputs
+      div.querySelectorAll(".pill-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const skill = btn.getAttribute("data-skill");
+          const cat = btn.getAttribute("data-cat");
+          if (skill) data.skills[i].name = skill;
+          if (cat) data.skills[i].category = cat;
+          renderSkills();
+          saveToStorage();
+        });
+      });
+
+      els.skillsList.appendChild(div);
+    });
+  }
 
   // ===== Projects =====
   els.addProject.addEventListener("click", () => {
@@ -1486,30 +1496,6 @@ document.addEventListener("DOMContentLoaded", () => {
   showStep(currentStep);
 });
 
-// <!-- Fix: Limit Languages dropdown height -->
-
-document.addEventListener("DOMContentLoaded", function () {
-  document.addEventListener("focusin", function (e) {
-    const sel = e.target.closest("#languagesList select");
-    if (!sel) return;
-    sel.dataset._prevSize = sel.size || 1;
-    sel.size = Math.min(5, sel.options.length); // show only up to 5
-  });
-
-  document.addEventListener("focusout", function (e) {
-    const sel = e.target.closest("#languagesList select");
-    if (!sel) return;
-    sel.size = sel.dataset._prevSize || 1;
-    delete sel.dataset._prevSize;
-  });
-
-  document.addEventListener("change", function (e) {
-    const sel = e.target.closest("#languagesList select");
-    if (!sel) return;
-    sel.size = sel.dataset._prevSize || 1;
-    delete sel.dataset._prevSize;
-  });
-});
 // ====== Select size fix: show limited number of options consistently ======
 // Drop-in: put at end of your script.js or in a new file included after script.js
 
