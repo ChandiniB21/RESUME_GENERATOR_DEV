@@ -480,12 +480,14 @@ const SKILL_PILLS = [
   { name: "C++", category: "Programming Language" },
   { name: "Java", category: "Programming Language" },
   { name: "React", category: "Framework" },
-  { name: "HTML", category: "Markup" },
+  { name: "HTML", category: "Web Designing" },
   { name: "CSS", category: "Style" },
   { name: "SQL", category: "Database" },
   { name: "MATLAB", category: "Tool" },
   { name: "PLC", category: "Electronics" },
-  { name: "VLSI", category: "Electronics" }
+  { name: "VLSI", category: "Electronics" },
+  { name: "AthoCad", category: "Designing" },
+  { name: "Git/Github", category: "Tool" }
 ];
 
 const CATEGORY_PILLS = [
@@ -530,19 +532,14 @@ function renderSkills() {
         </label>
       </div>
       <div class="skills-pills" style="margin-top:10px;">
-        ${SKILL_PILLS.map(
-          ({ name, category }) => `
-          <button type="button" class="pill-btn" data-skill="${name}" data-cat="${category}" style="margin:4px;">
-            ${name}
-          </button>`
-        ).join("")}
-        ${CATEGORY_PILLS.map(
-          (cat) => `
-          <button type="button" class="pill-btn" data-skill="" data-cat="${cat}" style="margin:4px;">
-            ${cat}
-          </button>`
-        ).join("")}
-      </div>
+  ${SKILL_PILLS.map(
+    ({ name, category }) => `
+    <button type="button" class="pill-btn" data-skill="${name}" data-cat="${category}" style="margin:4px;">
+      ${name}
+    </button>`
+  ).join("")}
+</div>
+
     `;
 
     // remove card
