@@ -202,21 +202,21 @@
         }
       });
 
-      // custom links — show as Custom 1, Custom 2...
-      if (Array.isArray(pl.custom)) {
-        pl.custom.forEach((c, i) => {
-          const url = c && c.url ? c.url.trim() : "";
-          if (url) {
-            const href = ensureUrl(url);
-            const label = `Custom ${i + 1}`;
-            contactParts.push(
-              `<a href="${safe(
-                href
-              )}" target="_blank" rel="noopener noreferrer">${safe(label)}</a>`
-            );
-          }
-        });
-      }
+     // custom links — use user-entered Link Name instead of "Custom 1"
+if (Array.isArray(pl.custom)) {
+  pl.custom.forEach((c) => {
+    const name = c && c.name ? c.name.trim() : "";
+    const url = c && c.url ? c.url.trim() : "";
+    if (name && url) {
+      const href = ensureUrl(url);
+      contactParts.push(
+        `<a href="${safe(
+          href
+        )}" target="_blank" rel="noopener noreferrer">${safe(name)}</a>`
+      );
+    }
+  });
+}
 
       let contacts = contactParts.join(" | ");
 
