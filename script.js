@@ -505,6 +505,8 @@
     saveToStorage();
   });
 
+  let activeSkillPillState = {}; // keeps track of which pill is active per skill index
+
   function renderSkills() {
     els.skillsList.innerHTML = "";
 
@@ -551,6 +553,20 @@
 </div>
 
     `;
+      // Restore active pill state after re-render
+      const remembered = activeSkillPillState[i];
+      if (remembered) {
+        const allPills = div.querySelectorAll(".pill-btn");
+        allPills.forEach((p) => {
+          const skillName = p.getAttribute("data-skill");
+          if (skillName === remembered) {
+            p.classList.add("active");
+            p.style.display = "inline-block";
+          } else {
+            p.style.display = "none";
+          }
+        });
+      }
 
       // remove card
       div.querySelector("[data-remove]").addEventListener("click", () => {
@@ -571,9 +587,10 @@
           const cat = btn.getAttribute("data-cat");
 
           if (isActive) {
-            // Unselect → show all again
+            // Unselect → show all pills again
             btn.classList.remove("active");
             allPills.forEach((p) => (p.style.display = "inline-block"));
+            activeSkillPillState[i] = null; // clear memory
           } else {
             // Select → hide others
             allPills.forEach((p) => {
@@ -582,7 +599,10 @@
             });
             btn.classList.add("active");
 
-            // Auto-fill existing inputs directly (no full re-render)
+            // Remember which pill is active for this card
+            activeSkillPillState[i] = skill;
+
+            // Auto-fill directly
             const nameInput = div.querySelector('input[data-k="name"]');
             const catInput = div.querySelector('input[data-k="category"]');
             if (nameInput && skill) {
@@ -1031,11 +1051,10 @@
       ? data.publicLinks.custom
       : (data.publicLinks.custom = []);
 
-
-  list.forEach((link, i) => {
-    const div = document.createElement("div");
-    div.className = "list-item";
-    div.innerHTML = `
+    list.forEach((link, i) => {
+      const div = document.createElement("div");
+      div.className = "list-item";
+      div.innerHTML = `
      <div class="list-item-header">
   <span class="list-item-title">Custom Link ${i + 1}</span>
   <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
