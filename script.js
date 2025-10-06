@@ -565,11 +565,36 @@
       // pills click → auto-fill inputs
       div.querySelectorAll(".pill-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
+          const allPills = [...div.querySelectorAll(".pill-btn")];
+          const isActive = btn.classList.contains("active");
           const skill = btn.getAttribute("data-skill");
           const cat = btn.getAttribute("data-cat");
-          if (skill) data.skills[i].name = skill;
-          if (cat) data.skills[i].category = cat;
-          renderSkills();
+
+          if (isActive) {
+            // Unselect → show all again
+            btn.classList.remove("active");
+            allPills.forEach((p) => (p.style.display = "inline-block"));
+          } else {
+            // Select → hide others
+            allPills.forEach((p) => {
+              p.classList.remove("active");
+              p.style.display = p === btn ? "inline-block" : "none";
+            });
+            btn.classList.add("active");
+
+            // Auto-fill existing inputs directly (no full re-render)
+            const nameInput = div.querySelector('input[data-k="name"]');
+            const catInput = div.querySelector('input[data-k="category"]');
+            if (nameInput && skill) {
+              nameInput.value = skill;
+              data.skills[i].name = skill;
+            }
+            if (catInput && cat) {
+              catInput.value = cat;
+              data.skills[i].category = cat;
+            }
+          }
+
           saveToStorage();
         });
       });
@@ -989,27 +1014,27 @@
   // run initial render (initForm already calls renderLanguages, but safe to call)
   renderLanguages();
 
- // ===== Custom Links (only Link Name + URL, no "Custom Link 1") =====
-if (els.addCustomLink) {
-  els.addCustomLink.addEventListener("click", () => {
-    data.publicLinks.custom.push({ name: "", url: "" });
-    renderCustomLinks();
-    saveToStorage();
-  });
-}
+  // ===== Custom Links (only Link Name + URL, no "Custom Link 1") =====
+  if (els.addCustomLink) {
+    els.addCustomLink.addEventListener("click", () => {
+      data.publicLinks.custom.push({ name: "", url: "" });
+      renderCustomLinks();
+      saveToStorage();
+    });
+  }
 
-function renderCustomLinks() {
-  if (!els.customLinksList) return;
-  els.customLinksList.innerHTML = "";
+  function renderCustomLinks() {
+    if (!els.customLinksList) return;
+    els.customLinksList.innerHTML = "";
 
-  const list = Array.isArray(data.publicLinks.custom)
-    ? data.publicLinks.custom
-    : (data.publicLinks.custom = []);
+    const list = Array.isArray(data.publicLinks.custom)
+      ? data.publicLinks.custom
+      : (data.publicLinks.custom = []);
 
-  list.forEach((link, i) => {
-    const div = document.createElement("div");
-    div.className = "list-item";
-    div.innerHTML = `
+    list.forEach((link, i) => {
+      const div = document.createElement("div");
+      div.className = "list-item";
+      div.innerHTML = `
       <div class="row row-2" style="align-items:flex-end;">
         <label>Link Name
           <input class="input" data-k="name" data-i="${i}" 
@@ -1025,19 +1050,17 @@ function renderCustomLinks() {
       </div>
     `;
 
-    attachChangeHandlers(div, list, i);
+      attachChangeHandlers(div, list, i);
 
-    div.querySelector("[data-remove]").addEventListener("click", () => {
-      data.publicLinks.custom.splice(i, 1);
-      renderCustomLinks();
-      saveToStorage();
+      div.querySelector("[data-remove]").addEventListener("click", () => {
+        data.publicLinks.custom.splice(i, 1);
+        renderCustomLinks();
+        saveToStorage();
+      });
+
+      els.customLinksList.appendChild(div);
     });
-
-    els.customLinksList.appendChild(div);
-  });
-}
-
-
+  }
 
   // ===== Helpers =====
   function attachChangeHandlers(scopeEl, arr, idx, onSpecial) {

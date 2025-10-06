@@ -534,4 +534,20 @@ select:focus-visible {
   border-radius: 20px;
 }
 
+.pill-btn {
+  background: #f0f0f0;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
 
+.pill-btn:hover {
+  background: #e0e0e0;
+}
+
+.pill-btn.active {
+  background: #007bff;
+  color: white;
+}
