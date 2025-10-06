@@ -1031,23 +1031,28 @@
       ? data.publicLinks.custom
       : (data.publicLinks.custom = []);
 
-    list.forEach((link, i) => {
-      const div = document.createElement("div");
-      div.className = "list-item";
-      div.innerHTML = `
-      <div class="row row-2" style="align-items:flex-end;">
-        <label>Link Name
-          <input class="input" data-k="name" data-i="${i}" 
-                 placeholder="e.g. YouTube, Portfolio, Instagram"
-                 value="${escapeHtml(link.name || "")}">
-        </label>
-        <label>Link URL
-          <input class="input" type="url" data-k="url" data-i="${i}" 
-                 placeholder="https://example.com"
-                 value="${escapeHtml(link.url || "")}">
-        </label>
-        <button class="btn btn-small btn-danger" data-remove="${i}" style="height:35px;">Remove</button>
-      </div>
+
+  list.forEach((link, i) => {
+    const div = document.createElement("div");
+    div.className = "list-item";
+    div.innerHTML = `
+     <div class="list-item-header">
+  <span class="list-item-title">Custom Link ${i + 1}</span>
+  <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
+</div>
+<div class="row row-2">
+  <label>Link Name
+    <input class="input" data-k="name" data-i="${i}" 
+           placeholder="e.g. YouTube, Portfolio, Instagram"
+           value="${escapeHtml(link.name || "")}">
+  </label>
+  <label>Link URL
+    <input class="input" type="url" data-k="url" data-i="${i}" 
+           placeholder="https://example.com"
+           value="${escapeHtml(link.url || "")}">
+  </label>
+</div>
+ 
     `;
 
       attachChangeHandlers(div, list, i);
