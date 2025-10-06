@@ -481,7 +481,7 @@
     { name: "Java", category: "Programming Language" },
     { name: "React", category: "Framework" },
     { name: "HTML", category: "Web Designing" },
-    { name: "CSS", category: "Style" },
+    { name: "CSS", category: "Web Designing" },
     { name: "SQL", category: "Database" },
     { name: "MATLAB", category: "Tool" },
     { name: "PLC", category: "Electronics" },
@@ -989,58 +989,55 @@
   // run initial render (initForm already calls renderLanguages, but safe to call)
   renderLanguages();
 
-  // ===== Custom Links =====
-  // Add new custom website (only URL)
-  if (els.addCustomLink) {
-    els.addCustomLink.addEventListener("click", () => {
-      // push only url (empty string)
-      data.publicLinks.custom.push({ url: "" });
-      renderCustomLinks();
-      saveToStorage();
-    });
-  }
+ // ===== Custom Links (only Link Name + URL, no "Custom Link 1") =====
+if (els.addCustomLink) {
+  els.addCustomLink.addEventListener("click", () => {
+    data.publicLinks.custom.push({ name: "", url: "" });
+    renderCustomLinks();
+    saveToStorage();
+  });
+}
 
-  // Event delegation for Remove buttons (robust across re-renders)
-  if (els.customLinksList) {
-    els.customLinksList.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-remove]");
-      if (!btn) return;
-      const idx = Number(btn.getAttribute("data-remove"));
-      if (!Number.isFinite(idx)) return;
-      data.publicLinks.custom.splice(idx, 1);
-      renderCustomLinks();
-      saveToStorage();
-    });
-  }
-  function renderCustomLinks() {
-    if (!els.customLinksList) return;
-    els.customLinksList.innerHTML = "";
-    const list = Array.isArray(data.publicLinks.custom)
-      ? data.publicLinks.custom
-      : (data.publicLinks.custom = []);
+function renderCustomLinks() {
+  if (!els.customLinksList) return;
+  els.customLinksList.innerHTML = "";
 
-    list.forEach((link, i) => {
-      const div = document.createElement("div");
-      div.className = "list-item";
-      div.innerHTML = `
-      <div class="list-item-header">
-        <span class="list-item-title">Custom Link ${i + 1}</span>
-        <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
+  const list = Array.isArray(data.publicLinks.custom)
+    ? data.publicLinks.custom
+    : (data.publicLinks.custom = []);
+
+  list.forEach((link, i) => {
+    const div = document.createElement("div");
+    div.className = "list-item";
+    div.innerHTML = `
+      <div class="row row-2" style="align-items:flex-end;">
+        <label>Link Name
+          <input class="input" data-k="name" data-i="${i}" 
+                 placeholder="e.g. YouTube, Portfolio, Instagram"
+                 value="${escapeHtml(link.name || "")}">
+        </label>
+        <label>Link URL
+          <input class="input" type="url" data-k="url" data-i="${i}" 
+                 placeholder="https://example.com"
+                 value="${escapeHtml(link.url || "")}">
+        </label>
+        <button class="btn btn-small btn-danger" data-remove="${i}" style="height:35px;">Remove</button>
       </div>
-      <label>URL
-        <input class="input" type="url" data-k="url" data-i="${i}" 
-          placeholder="https://example.com" value="${escapeHtml(
-            link.url || ""
-          )}">
-      </label>
     `;
 
-      // 👇 this makes sure updates save
-      attachChangeHandlers(div, list, i);
+    attachChangeHandlers(div, list, i);
 
-      els.customLinksList.appendChild(div);
+    div.querySelector("[data-remove]").addEventListener("click", () => {
+      data.publicLinks.custom.splice(i, 1);
+      renderCustomLinks();
+      saveToStorage();
     });
-  }
+
+    els.customLinksList.appendChild(div);
+  });
+}
+
+
 
   // ===== Helpers =====
   function attachChangeHandlers(scopeEl, arr, idx, onSpecial) {
