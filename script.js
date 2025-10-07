@@ -498,130 +498,120 @@
     "Data Science",
   ];
 
-  // + Add Skill → add empty card + show pills below
   els.addSkill.addEventListener("click", () => {
-    data.skills.push({ name: "", category: "", level: "Beginner" });
-    renderSkills();
-    saveToStorage();
-  });
+  // keep collapsed state so UI toggling won’t break others
+  data.skills.push({ name: "", category: "", level: "Beginner", collapsed: false });
+  renderSkills();
+  saveToStorage();
+});
 
-  let activeSkillPillState = {}; // keeps track of which pill is active per skill index
 
-  function renderSkills() {
-    els.skillsList.innerHTML = "";
+  let activeSkillPillState = {}; 
+  // keeps track of which pill is active per skill index
 
-    data.skills.forEach((skill, i) => {
-      const div = document.createElement("div");
-      div.className = "list-item";
-      div.innerHTML = `
+ function renderSkills() {
+  els.skillsList.innerHTML = "";
+
+  data.skills.forEach((skill, i) => {
+    const div = document.createElement("div");
+    div.className = "list-item";
+
+    // check saved pill state
+    const activeName = skill.name;
+    const activeCat = skill.category;
+
+    div.innerHTML = `
       <div class="list-item-header">
         <span class="list-item-title">Skill ${i + 1}</span>
         <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
       </div>
       <div class="row row-3">
         <label>Skill Name 
-          <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(
-        skill.name
-      )}">
+          <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(skill.name)}">
         </label>
         <label>Category 
-          <input class="input" data-k="category" data-i="${i}" value="${escapeHtml(
-        skill.category
-      )}">
+          <input class="input" data-k="category" data-i="${i}" value="${escapeHtml(skill.category)}">
         </label>
         <label>Level
           <select class="select" data-k="level" data-i="${i}">
-            <option ${
-              skill.level === "Beginner" ? "selected" : ""
-            }>Beginner</option>
-            <option ${
-              skill.level === "Intermediate" ? "selected" : ""
-            }>Intermediate</option>
-            <option ${
-              skill.level === "Expert" ? "selected" : ""
-            }>Expert</option>
+            <option ${skill.level === "Beginner" ? "selected" : ""}>Beginner</option>
+            <option ${skill.level === "Intermediate" ? "selected" : ""}>Intermediate</option>
+            <option ${skill.level === "Expert" ? "selected" : ""}>Expert</option>
           </select>
         </label>
       </div>
       <div class="skills-pills" style="margin-top:10px;">
-  ${SKILL_PILLS.map(
-    ({ name, category }) => `
-    <button type="button" class="pill-btn" data-skill="${name}" data-cat="${category}" style="margin:4px;">
-      ${name}
-    </button>`
-  ).join("")}
-</div>
-
+        ${SKILL_PILLS.map(
+          ({ name, category }) => `
+            <button type="button" class="pill-btn ${name === activeName ? "active" : ""}" 
+              data-skill="${name}" data-cat="${category}" style="margin:4px;">
+              ${name}
+            </button>`
+        ).join("")}
+      </div>
     `;
-      // Restore active pill state after re-render
-      const remembered = activeSkillPillState[i];
-      if (remembered) {
-        const allPills = div.querySelectorAll(".pill-btn");
-        allPills.forEach((p) => {
-          const skillName = p.getAttribute("data-skill");
-          if (skillName === remembered) {
-            p.classList.add("active");
-            p.style.display = "inline-block";
-          } else {
-            p.style.display = "none";
-          }
-        });
-      }
 
-      // remove card
-      div.querySelector("[data-remove]").addEventListener("click", () => {
-        data.skills.splice(i, 1);
-        renderSkills();
+    // remove skill
+    div.querySelector("[data-remove]").addEventListener("click", () => {
+      data.skills.splice(i, 1);
+      renderSkills();
+      saveToStorage();
+    });
+
+    attachChangeHandlers(div, data.skills, i);
+
+    // handle pill clicks
+    div.querySelectorAll(".pill-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const allPills = [...div.querySelectorAll(".pill-btn")];
+        const isActive = btn.classList.contains("active");
+        const skillName = btn.dataset.skill;
+        const cat = btn.dataset.cat;
+
+        const nameInput = div.querySelector('input[data-k="name"]');
+        const catInput = div.querySelector('input[data-k="category"]');
+
+        if (isActive) {
+          // unselect
+          btn.classList.remove("active");
+          allPills.forEach((p) => (p.style.display = "inline-block"));
+          nameInput.value = "";
+          catInput.value = "";
+          data.skills[i].name = "";
+          data.skills[i].category = "";
+        } else {
+          // select → autofill
+          allPills.forEach((p) => {
+            p.classList.remove("active");
+            p.style.display = p === btn ? "inline-block" : "none";
+          });
+          btn.classList.add("active");
+          nameInput.value = skillName;
+          catInput.value = cat;
+          data.skills[i].name = skillName;
+          data.skills[i].category = cat;
+        }
         saveToStorage();
       });
-
-      // input change update
-      attachChangeHandlers(div, data.skills, i);
-
-      // pills click → auto-fill inputs
-      div.querySelectorAll(".pill-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const allPills = [...div.querySelectorAll(".pill-btn")];
-          const isActive = btn.classList.contains("active");
-          const skill = btn.getAttribute("data-skill");
-          const cat = btn.getAttribute("data-cat");
-
-          if (isActive) {
-            // Unselect → show all pills again
-            btn.classList.remove("active");
-            allPills.forEach((p) => (p.style.display = "inline-block"));
-            activeSkillPillState[i] = null; // clear memory
-          } else {
-            // Select → hide others
-            allPills.forEach((p) => {
-              p.classList.remove("active");
-              p.style.display = p === btn ? "inline-block" : "none";
-            });
-            btn.classList.add("active");
-
-            // Remember which pill is active for this card
-            activeSkillPillState[i] = skill;
-
-            // Auto-fill directly
-            const nameInput = div.querySelector('input[data-k="name"]');
-            const catInput = div.querySelector('input[data-k="category"]');
-            if (nameInput && skill) {
-              nameInput.value = skill;
-              data.skills[i].name = skill;
-            }
-            if (catInput && cat) {
-              catInput.value = cat;
-              data.skills[i].category = cat;
-            }
-          }
-
-          saveToStorage();
-        });
-      });
-
-      els.skillsList.appendChild(div);
     });
-  }
+
+    // maintain state when reopened
+    if (activeName) {
+      div.querySelectorAll(".pill-btn").forEach((p) => {
+        if (p.dataset.skill === activeName) {
+          p.classList.add("active");
+          p.style.display = "inline-block";
+        } else {
+          p.style.display = "none";
+        }
+      });
+    }
+
+    els.skillsList.appendChild(div);
+  });
+}
+
+
 
   // ===== Projects =====
   els.addProject.addEventListener("click", () => {
