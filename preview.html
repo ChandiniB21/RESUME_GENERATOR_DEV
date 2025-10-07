@@ -56,13 +56,15 @@
         padding: 10px 14px;
       }
       @media print {
-        .actions {
-          display: none;
+        .actions,
+        #fontSizeControls {
+          display: none !important;
         }
         body {
           background: #fff;
         }
       }
+
       .resume-content,
       .resume-content * {
         overflow-wrap: anywhere;
@@ -114,9 +116,50 @@
         object-fit: cover;
         margin-left: 20px;
       }
+
+      .resume-wrapper {
+        transition: font-size 0.25s ease-in-out;
+        line-height: 1.6;
+      }
+
+      #fontSizeControls input[type="range"] {
+        width: 120px;
+        accent-color: #007bff;
+      }
+
+      .preview-content {
+        transition: font-size 0.2s ease-in-out;
+        line-height: 1.5;
+      }
     </style>
   </head>
   <body>
+    <!-- Font Size Adjustment Toolbar -->
+    <div
+      id="fontSizeControls"
+      style="
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 15px;
+        padding: 5px 10px;
+        background: #f8f8f8;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      "
+    >
+      <label for="fontSizeRange" style="font-size: 14px">Font Size:</label>
+      <input
+        type="range"
+        id="fontSizeRange"
+        min="12"
+        max="24"
+        value="16"
+        step="1"
+      />
+      <span id="fontSizeValue" style="font-size: 14px">16px</span>
+    </div>
     <div class="actions">
       <button onclick="window.print()">Download PDF</button>
       <button onclick="downloadTxt()">Download TXT</button>
@@ -202,21 +245,21 @@
         }
       });
 
-     // custom links — use user-entered Link Name instead of "Custom 1"
-if (Array.isArray(pl.custom)) {
-  pl.custom.forEach((c) => {
-    const name = c && c.name ? c.name.trim() : "";
-    const url = c && c.url ? c.url.trim() : "";
-    if (name && url) {
-      const href = ensureUrl(url);
-      contactParts.push(
-        `<a href="${safe(
-          href
-        )}" target="_blank" rel="noopener noreferrer">${safe(name)}</a>`
-      );
-    }
-  });
-}
+      // custom links — use user-entered Link Name instead of "Custom 1"
+      if (Array.isArray(pl.custom)) {
+        pl.custom.forEach((c) => {
+          const name = c && c.name ? c.name.trim() : "";
+          const url = c && c.url ? c.url.trim() : "";
+          if (name && url) {
+            const href = ensureUrl(url);
+            contactParts.push(
+              `<a href="${safe(
+                href
+              )}" target="_blank" rel="noopener noreferrer">${safe(name)}</a>`
+            );
+          }
+        });
+      }
 
       let contacts = contactParts.join(" | ");
 
@@ -418,6 +461,32 @@ if (Array.isArray(pl.custom)) {
         document.body.appendChild(a);
         a.click();
         a.remove();
+      }
+
+      // === Font Size Adjustment ===
+      document.addEventListener("input", function (e) {
+        if (e.target.id === "fontSizeRange") {
+          const size = e.target.value + "px";
+          const previewContent = document.querySelector(".resume-wrapper"); // adjust selector if needed
+          if (previewContent) {
+            previewContent.style.fontSize = size;
+            document.getElementById("fontSizeValue").textContent = size;
+            localStorage.setItem("previewFontSize", size); // remember choice
+          }
+        }
+      });
+
+      // Apply saved font size when preview opens
+      function applySavedFontSize() {
+        const saved = localStorage.getItem("previewFontSize");
+        const previewContent = document.querySelector(".resume-wrapper");
+        const range = document.getElementById("fontSizeRange");
+        const value = document.getElementById("fontSizeValue");
+        if (saved && previewContent && range && value) {
+          previewContent.style.fontSize = saved;
+          range.value = parseInt(saved);
+          value.textContent = saved;
+        }
       }
     </script>
   </body>

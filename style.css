@@ -552,3 +552,12 @@ select:focus-visible {
   color: white;
 }
 
+#fontSizeControls input[type="range"] {
+  width: 120px;
+  accent-color: #007bff;
+}
+
+.preview-content {
+  transition: font-size 0.2s ease-in-out;
+  line-height: 1.5;
+}
