@@ -610,9 +610,6 @@
     els.skillsList.appendChild(div);
   });
 }
-
-
-
   // ===== Projects =====
   els.addProject.addEventListener("click", () => {
     data.projects.push({
@@ -905,98 +902,116 @@
     "Latin",
   ];
 
-  function createLanguageRow(index, selectedValue = "") {
-    const div = document.createElement("div");
-    div.className = "list-item";
+ function createLanguageRow(index, selectedValue = "", levelValue = "Beginner") {
+  const div = document.createElement("div");
+  div.className = "list-item";
 
-    const options = LANGUAGES.map(
-      (L) => `<option value="${L}">${L}</option>`
-    ).join("\n");
+  const options = LANGUAGES.map(
+    (L) => `<option value="${L}">${L}</option>`
+  ).join("\n");
 
-    div.innerHTML = `
-    <div class="list-item-header">
-      <span class="list-item-title">Language ${index + 1}</span>
-      <button class="btn btn-small btn-danger" data-remove="${index}">Remove</button>
-    </div>
-    <label>
-      Language
+  div.innerHTML = `
+  <div class="list-item-header">
+    <span class="list-item-title">Language ${index + 1}</span>
+    <button class="btn btn-small btn-danger" data-remove="${index}">Remove</button>
+  </div>
+  <div class="row row-2">
+    <label>Language
       <select class="input compact-select" data-k="name" data-i="${index}">
-      
-        
-      <option value="">-- Select language --</option>
+        <option value="">-- Select language --</option>
         <option value="__custom__">Custom...</option>
-         ${options}
+        ${options}
       </select>
-      <input class="input custom-lang-input" type="text" placeholder="Enter custom language" style="display:none;" />
+      <input class="input custom-lang-input" type="text"
+             placeholder="Enter custom language" style="display:none;" />
     </label>
+
+   <label>Level
+  <select class="select" data-k="level" data-i="${index}">
+    <option ${levelValue === "Native" ? "selected" : ""}>Native</option>
+    <option ${levelValue === "Beginner" ? "selected" : ""}>Beginner</option>
+    <option ${levelValue === "Intermediate" ? "selected" : ""}>Intermediate</option>
+    <option ${levelValue === "Expert" ? "selected" : ""}>Expert</option>
+    <option ${levelValue === "Proficient" ? "selected" : ""}>Proficient</option>
+  </select>
+</label>
+
+  </div>
   `;
 
-    const sel = div.querySelector("select[data-k='name']");
-    const customInput = div.querySelector(".custom-lang-input");
+  const sel = div.querySelector("select[data-k='name']");
+  const customInput = div.querySelector(".custom-lang-input");
 
-    // Restore saved value
-    if (selectedValue && LANGUAGES.includes(selectedValue)) {
-      sel.value = selectedValue;
-    } else if (selectedValue) {
-      sel.value = "__custom__";
-      customInput.style.display = "inline-block";
-      customInput.value = selectedValue;
-    }
-
-    // Remove handler
-    div.querySelector("[data-remove]").addEventListener("click", () => {
-      data.languages.splice(index, 1);
-      renderLanguages();
-      saveToStorage();
-    });
-
-    // When dropdown changes
-    sel.addEventListener("change", (e) => {
-      if (e.target.value === "__custom__") {
-        customInput.style.display = "inline-block";
-        data.languages[index].name = customInput.value;
-        customInput.focus(); // auto-focus for user typing
-      } else {
-        customInput.style.display = "none";
-        data.languages[index].name = e.target.value;
-      }
-      saveToStorage();
-      updatePreviewLanguages();
-    });
-
-    // When typing custom language
-    customInput.addEventListener("input", (e) => {
-      data.languages[index].name = e.target.value;
-      saveToStorage();
-      updatePreviewLanguages();
-    });
-
-    return div;
+  // Restore saved language
+  if (selectedValue && LANGUAGES.includes(selectedValue)) {
+    sel.value = selectedValue;
+  } else if (selectedValue) {
+    sel.value = "__custom__";
+    customInput.style.display = "inline-block";
+    customInput.value = selectedValue;
   }
 
-  function renderLanguages() {
-    els.languagesList.innerHTML = "";
-    const list = Array.isArray(data.languages)
-      ? data.languages
-      : (data.languages = []);
-
-    list.forEach((lang, i) => {
-      // ensure object shape
-      if (typeof lang !== "object" || lang === null)
-        data.languages[i] = { name: "" };
-      const row = createLanguageRow(i, data.languages[i].name || "");
-      els.languagesList.appendChild(row);
-    });
-
-    // update inline preview (if present)
-    updatePreviewLanguages();
-  }
-
-  els.addLanguage.addEventListener("click", () => {
-    data.languages.push({ name: "" });
+  // Remove button
+  div.querySelector("[data-remove]").addEventListener("click", () => {
+    data.languages.splice(index, 1);
     renderLanguages();
     saveToStorage();
   });
+
+  // Language dropdown change
+  sel.addEventListener("change", (e) => {
+    if (e.target.value === "__custom__") {
+      customInput.style.display = "inline-block";
+      data.languages[index].name = customInput.value;
+      customInput.focus();
+    } else {
+      customInput.style.display = "none";
+      data.languages[index].name = e.target.value;
+    }
+    saveToStorage();
+    updatePreviewLanguages();
+  });
+
+  // Custom input
+  customInput.addEventListener("input", (e) => {
+    data.languages[index].name = e.target.value;
+    saveToStorage();
+    updatePreviewLanguages();
+  });
+
+  // ✅ Level dropdown handler
+  const levelSelect = div.querySelector("select[data-k='level']");
+  levelSelect.addEventListener("change", (e) => {
+    data.languages[index].level = e.target.value;
+    saveToStorage();
+  });
+
+  return div;
+}
+
+ function renderLanguages() {
+  els.languagesList.innerHTML = "";
+  const list = Array.isArray(data.languages)
+    ? data.languages
+    : (data.languages = []);
+
+  list.forEach((lang, i) => {
+    if (typeof lang !== "object" || lang === null)
+      data.languages[i] = { name: "", level: "Beginner" };
+    const row = createLanguageRow(i, lang.name || "", lang.level || "Beginner");
+    els.languagesList.appendChild(row);
+  });
+
+  updatePreviewLanguages();
+}
+
+
+ els.addLanguage.addEventListener("click", () => {
+  data.languages.push({ name: "", level: "Beginner" }); // ✅ added level
+  renderLanguages();
+  saveToStorage();
+});
+
 
   // read languages from data
   function getLanguagesFromData() {
