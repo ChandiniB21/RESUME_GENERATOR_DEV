@@ -423,13 +423,19 @@
         addSection("Skills", html);
       }
 
-      // Languages
-      if (Array.isArray(data.languages) && data.languages.length) {
-        const html = `<ul>${data.languages
-          .map((l) => `<li>${safe(l.name || "")}</li>`)
-          .join("")}</ul>`;
-        addSection("Languages", html);
-      }
+     // Languages (Native → Expert, with full level display)
+if (Array.isArray(data.languages) && data.languages.length) {
+  const html = `<ul>${data.languages
+    .map(
+      (l) =>
+        `<li>${safe(l.name || "")}${
+          l.level ? ` (${safe(l.level)})` : ""
+        }</li>`
+    )
+    .join("")}</ul>`;
+  addSection("Languages", html);
+}
+
 
       // Hobbies
       if (Array.isArray(data.hobbies) && data.hobbies.length) {
