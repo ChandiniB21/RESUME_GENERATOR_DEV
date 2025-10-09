@@ -62,6 +62,32 @@
         }
         body {
           background: #fff;
+          margin: 0;
+          padding: 0;
+        }
+        @page {
+          size: A4;
+          margin: 20mm 1mm 18mm 1mm; /* Top Right Bottom Left */
+        }
+
+        .preview-page,
+        .container {
+          page-break-after: always;
+          padding: 30mm 25mm 30mm 25mm; /*Adjust here for more margin */
+          box-sizing: border-box;
+        }
+
+        /* Optional: ensure each card doesn't get split awkwardly */
+        .card {
+          page-break-inside: avoid;
+        }
+        /* 6️⃣ Customize first vs remaining pages */
+        @page :first {
+          margin: 2mm 1mm 16mm 1mm; /* smaller for first page */
+        }
+
+        @page {
+          margin: 20mm 1mm 18mm 1mm; /* larger for 2nd+ pages */
         }
       }
 
@@ -423,19 +449,18 @@
         addSection("Skills", html);
       }
 
-     // Languages (Native → Expert, with full level display)
-if (Array.isArray(data.languages) && data.languages.length) {
-  const html = `<ul>${data.languages
-    .map(
-      (l) =>
-        `<li>${safe(l.name || "")}${
-          l.level ? ` (${safe(l.level)})` : ""
-        }</li>`
-    )
-    .join("")}</ul>`;
-  addSection("Languages", html);
-}
-
+      // Languages (Native → Expert, with full level display)
+      if (Array.isArray(data.languages) && data.languages.length) {
+        const html = `<ul>${data.languages
+          .map(
+            (l) =>
+              `<li>${safe(l.name || "")}${
+                l.level ? ` (${safe(l.level)})` : ""
+              }</li>`
+          )
+          .join("")}</ul>`;
+        addSection("Languages", html);
+      }
 
       // Hobbies
       if (Array.isArray(data.hobbies) && data.hobbies.length) {
