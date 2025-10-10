@@ -499,51 +499,67 @@
   ];
 
   els.addSkill.addEventListener("click", () => {
-  // keep collapsed state so UI toggling won’t break others
-  data.skills.push({ name: "", category: "", level: "Beginner", collapsed: false });
-  renderSkills();
-  saveToStorage();
-});
+    // keep collapsed state so UI toggling won’t break others
+    data.skills.push({
+      name: "",
+      category: "",
+      level: "Beginner",
+      collapsed: false,
+    });
+    renderSkills();
+    saveToStorage();
+  });
 
-
-  let activeSkillPillState = {}; 
+  let activeSkillPillState = {};
   // keeps track of which pill is active per skill index
 
- function renderSkills() {
-  els.skillsList.innerHTML = "";
+  function renderSkills() {
+    els.skillsList.innerHTML = "";
 
-  data.skills.forEach((skill, i) => {
-    const div = document.createElement("div");
-    div.className = "list-item";
+    data.skills.forEach((skill, i) => {
+      const div = document.createElement("div");
+      div.className = "list-item";
 
-    // check saved pill state
-    const activeName = skill.name;
-    const activeCat = skill.category;
+      // check saved pill state
+      const activeName = skill.name;
+      const activeCat = skill.category;
 
-    div.innerHTML = `
+      div.innerHTML = `
       <div class="list-item-header">
         <span class="list-item-title">Skill ${i + 1}</span>
         <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
       </div>
       <div class="row row-3">
         <label>Skill Name 
-          <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(skill.name)}">
+          <input class="input" data-k="name" data-i="${i}" value="${escapeHtml(
+        skill.name
+      )}">
         </label>
         <label>Category 
-          <input class="input" data-k="category" data-i="${i}" value="${escapeHtml(skill.category)}">
+          <input class="input" data-k="category" data-i="${i}" value="${escapeHtml(
+        skill.category
+      )}">
         </label>
         <label>Level
           <select class="select" data-k="level" data-i="${i}">
-            <option ${skill.level === "Beginner" ? "selected" : ""}>Beginner</option>
-            <option ${skill.level === "Intermediate" ? "selected" : ""}>Intermediate</option>
-            <option ${skill.level === "Expert" ? "selected" : ""}>Expert</option>
+            <option ${
+              skill.level === "Beginner" ? "selected" : ""
+            }>Beginner</option>
+            <option ${
+              skill.level === "Intermediate" ? "selected" : ""
+            }>Intermediate</option>
+            <option ${
+              skill.level === "Expert" ? "selected" : ""
+            }>Expert</option>
           </select>
         </label>
       </div>
       <div class="skills-pills" style="margin-top:10px;">
         ${SKILL_PILLS.map(
           ({ name, category }) => `
-            <button type="button" class="pill-btn ${name === activeName ? "active" : ""}" 
+            <button type="button" class="pill-btn ${
+              name === activeName ? "active" : ""
+            }" 
               data-skill="${name}" data-cat="${category}" style="margin:4px;">
               ${name}
             </button>`
@@ -551,65 +567,65 @@
       </div>
     `;
 
-    // remove skill
-    div.querySelector("[data-remove]").addEventListener("click", () => {
-      data.skills.splice(i, 1);
-      renderSkills();
-      saveToStorage();
-    });
-
-    attachChangeHandlers(div, data.skills, i);
-
-    // handle pill clicks
-    div.querySelectorAll(".pill-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const allPills = [...div.querySelectorAll(".pill-btn")];
-        const isActive = btn.classList.contains("active");
-        const skillName = btn.dataset.skill;
-        const cat = btn.dataset.cat;
-
-        const nameInput = div.querySelector('input[data-k="name"]');
-        const catInput = div.querySelector('input[data-k="category"]');
-
-        if (isActive) {
-          // unselect
-          btn.classList.remove("active");
-          allPills.forEach((p) => (p.style.display = "inline-block"));
-          nameInput.value = "";
-          catInput.value = "";
-          data.skills[i].name = "";
-          data.skills[i].category = "";
-        } else {
-          // select → autofill
-          allPills.forEach((p) => {
-            p.classList.remove("active");
-            p.style.display = p === btn ? "inline-block" : "none";
-          });
-          btn.classList.add("active");
-          nameInput.value = skillName;
-          catInput.value = cat;
-          data.skills[i].name = skillName;
-          data.skills[i].category = cat;
-        }
+      // remove skill
+      div.querySelector("[data-remove]").addEventListener("click", () => {
+        data.skills.splice(i, 1);
+        renderSkills();
         saveToStorage();
       });
-    });
 
-    // maintain state when reopened
-    if (activeName) {
-      div.querySelectorAll(".pill-btn").forEach((p) => {
-        if (p.dataset.skill === activeName) {
-          p.classList.add("active");
-          p.style.display = "inline-block";
-        } else {
-          p.style.display = "none";
-        }
+      attachChangeHandlers(div, data.skills, i);
+
+      // handle pill clicks
+      div.querySelectorAll(".pill-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const allPills = [...div.querySelectorAll(".pill-btn")];
+          const isActive = btn.classList.contains("active");
+          const skillName = btn.dataset.skill;
+          const cat = btn.dataset.cat;
+
+          const nameInput = div.querySelector('input[data-k="name"]');
+          const catInput = div.querySelector('input[data-k="category"]');
+
+          if (isActive) {
+            // unselect
+            btn.classList.remove("active");
+            allPills.forEach((p) => (p.style.display = "inline-block"));
+            nameInput.value = "";
+            catInput.value = "";
+            data.skills[i].name = "";
+            data.skills[i].category = "";
+          } else {
+            // select → autofill
+            allPills.forEach((p) => {
+              p.classList.remove("active");
+              p.style.display = p === btn ? "inline-block" : "none";
+            });
+            btn.classList.add("active");
+            nameInput.value = skillName;
+            catInput.value = cat;
+            data.skills[i].name = skillName;
+            data.skills[i].category = cat;
+          }
+          saveToStorage();
+        });
       });
-    }
 
-    els.skillsList.appendChild(div);
-  });
-}
+      // maintain state when reopened
+      if (activeName) {
+        div.querySelectorAll(".pill-btn").forEach((p) => {
+          if (p.dataset.skill === activeName) {
+            p.classList.add("active");
+            p.style.display = "inline-block";
+          } else {
+            p.style.display = "none";
+          }
+        });
+      }
+
+      els.skillsList.appendChild(div);
+    });
+  }
   // ===== Projects =====
   els.addProject.addEventListener("click", () => {
     data.projects.push({
@@ -902,15 +918,19 @@
     "Latin",
   ];
 
- function createLanguageRow(index, selectedValue = "", levelValue = "Beginner") {
-  const div = document.createElement("div");
-  div.className = "list-item";
+  function createLanguageRow(
+    index,
+    selectedValue = "",
+    levelValue = "Beginner"
+  ) {
+    const div = document.createElement("div");
+    div.className = "list-item";
 
-  const options = LANGUAGES.map(
-    (L) => `<option value="${L}">${L}</option>`
-  ).join("\n");
+    const options = LANGUAGES.map(
+      (L) => `<option value="${L}">${L}</option>`
+    ).join("\n");
 
-  div.innerHTML = `
+    div.innerHTML = `
   <div class="list-item-header">
     <span class="list-item-title">Language ${index + 1}</span>
     <button class="btn btn-small btn-danger" data-remove="${index}">Remove</button>
@@ -930,7 +950,9 @@
   <select class="select" data-k="level" data-i="${index}">
     <option ${levelValue === "Native" ? "selected" : ""}>Native</option>
     <option ${levelValue === "Beginner" ? "selected" : ""}>Beginner</option>
-    <option ${levelValue === "Intermediate" ? "selected" : ""}>Intermediate</option>
+    <option ${
+      levelValue === "Intermediate" ? "selected" : ""
+    }>Intermediate</option>
     <option ${levelValue === "Expert" ? "selected" : ""}>Expert</option>
     <option ${levelValue === "Proficient" ? "selected" : ""}>Proficient</option>
   </select>
@@ -939,79 +961,81 @@
   </div>
   `;
 
-  const sel = div.querySelector("select[data-k='name']");
-  const customInput = div.querySelector(".custom-lang-input");
+    const sel = div.querySelector("select[data-k='name']");
+    const customInput = div.querySelector(".custom-lang-input");
 
-  // Restore saved language
-  if (selectedValue && LANGUAGES.includes(selectedValue)) {
-    sel.value = selectedValue;
-  } else if (selectedValue) {
-    sel.value = "__custom__";
-    customInput.style.display = "inline-block";
-    customInput.value = selectedValue;
+    // Restore saved language
+    if (selectedValue && LANGUAGES.includes(selectedValue)) {
+      sel.value = selectedValue;
+    } else if (selectedValue) {
+      sel.value = "__custom__";
+      customInput.style.display = "inline-block";
+      customInput.value = selectedValue;
+    }
+
+    // Remove button
+    div.querySelector("[data-remove]").addEventListener("click", () => {
+      data.languages.splice(index, 1);
+      renderLanguages();
+      saveToStorage();
+    });
+
+    // Language dropdown change
+    sel.addEventListener("change", (e) => {
+      if (e.target.value === "__custom__") {
+        customInput.style.display = "inline-block";
+        data.languages[index].name = customInput.value;
+        customInput.focus();
+      } else {
+        customInput.style.display = "none";
+        data.languages[index].name = e.target.value;
+      }
+      saveToStorage();
+      updatePreviewLanguages();
+    });
+
+    // Custom input
+    customInput.addEventListener("input", (e) => {
+      data.languages[index].name = e.target.value;
+      saveToStorage();
+      updatePreviewLanguages();
+    });
+
+    // ✅ Level dropdown handler
+    const levelSelect = div.querySelector("select[data-k='level']");
+    levelSelect.addEventListener("change", (e) => {
+      data.languages[index].level = e.target.value;
+      saveToStorage();
+    });
+
+    return div;
   }
 
-  // Remove button
-  div.querySelector("[data-remove]").addEventListener("click", () => {
-    data.languages.splice(index, 1);
+  function renderLanguages() {
+    els.languagesList.innerHTML = "";
+    const list = Array.isArray(data.languages)
+      ? data.languages
+      : (data.languages = []);
+
+    list.forEach((lang, i) => {
+      if (typeof lang !== "object" || lang === null)
+        data.languages[i] = { name: "", level: "Beginner" };
+      const row = createLanguageRow(
+        i,
+        lang.name || "",
+        lang.level || "Beginner"
+      );
+      els.languagesList.appendChild(row);
+    });
+
+    updatePreviewLanguages();
+  }
+
+  els.addLanguage.addEventListener("click", () => {
+    data.languages.push({ name: "", level: "Beginner" }); // ✅ added level
     renderLanguages();
     saveToStorage();
   });
-
-  // Language dropdown change
-  sel.addEventListener("change", (e) => {
-    if (e.target.value === "__custom__") {
-      customInput.style.display = "inline-block";
-      data.languages[index].name = customInput.value;
-      customInput.focus();
-    } else {
-      customInput.style.display = "none";
-      data.languages[index].name = e.target.value;
-    }
-    saveToStorage();
-    updatePreviewLanguages();
-  });
-
-  // Custom input
-  customInput.addEventListener("input", (e) => {
-    data.languages[index].name = e.target.value;
-    saveToStorage();
-    updatePreviewLanguages();
-  });
-
-  // ✅ Level dropdown handler
-  const levelSelect = div.querySelector("select[data-k='level']");
-  levelSelect.addEventListener("change", (e) => {
-    data.languages[index].level = e.target.value;
-    saveToStorage();
-  });
-
-  return div;
-}
-
- function renderLanguages() {
-  els.languagesList.innerHTML = "";
-  const list = Array.isArray(data.languages)
-    ? data.languages
-    : (data.languages = []);
-
-  list.forEach((lang, i) => {
-    if (typeof lang !== "object" || lang === null)
-      data.languages[i] = { name: "", level: "Beginner" };
-    const row = createLanguageRow(i, lang.name || "", lang.level || "Beginner");
-    els.languagesList.appendChild(row);
-  });
-
-  updatePreviewLanguages();
-}
-
-
- els.addLanguage.addEventListener("click", () => {
-  data.languages.push({ name: "", level: "Beginner" }); // ✅ added level
-  renderLanguages();
-  saveToStorage();
-});
-
 
   // read languages from data
   function getLanguagesFromData() {
@@ -1164,9 +1188,67 @@
   // ===== Preview (new window) =====
   function openPreview() {
     if (!validate()) return;
-    saveToStorage();
+
+    // --- Load existing saved data ---
+    let data = JSON.parse(localStorage.getItem("resumeData") || "{}");
+
+    // --- 🔹 Fix: Update Declaration field ---
+    const declarationField = document.getElementById("declaration");
+    const declarationContainer = document.getElementById(
+      "declarationContainer"
+    );
+
+    if (
+      declarationContainer &&
+      (declarationContainer.style.display === "none" ||
+        declarationContainer.style.display === "")
+    ) {
+      data.declaration = "";
+    } else if (declarationField) {
+      data.declaration = declarationField.value.trim();
+    }
+
+    // --- 🔹 Fix: Update Public Links fields ---
+    const linkFields = ["github", "linkedin", "portfolio", "website"];
+    data.publicLinks = data.publicLinks || {};
+
+    linkFields.forEach((key) => {
+      const input = document.getElementById(key);
+      if (input) {
+        const val = input.value.trim();
+        // Save only if not empty
+        if (val) {
+          data.publicLinks[key] = val;
+        } else {
+          delete data.publicLinks[key]; // 🧽 remove empty link
+        }
+      }
+    });
+
+    // --- Handle custom links (if you have dynamic inputs) ---
+    const customLinksContainer = document.querySelectorAll(
+      "#customLinksContainer .custom-link"
+    );
+    if (customLinksContainer && customLinksContainer.length > 0) {
+      data.publicLinks.custom = Array.from(customLinksContainer)
+        .map((el) => {
+          const name = el.querySelector(".custom-name")?.value.trim();
+          const url = el.querySelector(".custom-url")?.value.trim();
+          return name && url ? { name, url } : null;
+        })
+        .filter(Boolean);
+    } else {
+      data.publicLinks.custom = [];
+    }
+
+    // --- Save updated data to localStorage ---
+    localStorage.setItem("resumeData", JSON.stringify(data));
+
+    // Debugging (optional)
+    console.log("Saved before preview:", data.publicLinks);
+
+    // --- Finally open preview ---
     const w = window.open("preview.html", "_blank");
-    if (!w) alert("Please allow popups to see preview.");
   }
 
   // ===== Bind header/footer buttons =====
@@ -1618,3 +1700,67 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   observer.observe(document.body, { childList: true, subtree: true });
 })();
+
+// ===== Declaration Toggle Logic (Final Fixed Version) =====
+document
+  .getElementById("toggleDeclaration")
+  .addEventListener("click", function () {
+    const btn = this;
+    const container = document.getElementById("declarationContainer");
+    const declarationField = document.getElementById("declaration");
+
+    const defaultDeclaration =
+      "I hereby declare that the information provided above is true and correct to the best of my knowledge and belief.";
+
+    // Load saved data
+    const saved = JSON.parse(localStorage.getItem("resumeData") || "{}");
+    const isHidden =
+      container.style.display === "none" || container.style.display === "";
+
+    if (isHidden) {
+      // --- Show and fill declaration ---
+      container.style.display = "block";
+
+      // use saved text if available, else default
+      declarationField.value =
+        saved.declaration && saved.declaration.trim()
+          ? saved.declaration
+          : defaultDeclaration;
+
+      // update button
+      btn.textContent = " Remove";
+      btn.classList.add("btn-danger");
+
+      // ✅ Save to localStorage
+      saved.declaration = declarationField.value;
+      localStorage.setItem("resumeData", JSON.stringify(saved));
+    } else {
+      // --- Hide and clear declaration ---
+      container.style.display = "none";
+      declarationField.value = "";
+
+      btn.textContent = "+ Add Declaration";
+      btn.classList.remove("btn-danger");
+
+      // ✅ Remove from localStorage
+      if (localStorage.getItem("resumeData")) {
+        const data = JSON.parse(localStorage.getItem("resumeData"));
+        data.declaration = "";
+        localStorage.setItem("resumeData", JSON.stringify(data));
+      }
+
+      // ✅ Remove from preview immediately if it's open
+      const previewDeclaration = document.querySelector("#preview-declaration");
+      if (previewDeclaration) {
+        previewDeclaration.textContent = "";
+        previewDeclaration.style.display = "none";
+      }
+    }
+  });
+
+// ===== Keep declaration in sync with typing =====
+document.getElementById("declaration").addEventListener("input", function () {
+  const saved = JSON.parse(localStorage.getItem("resumeData") || "{}");
+  saved.declaration = this.value;
+  localStorage.setItem("resumeData", JSON.stringify(saved));
+});

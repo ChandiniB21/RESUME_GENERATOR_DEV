@@ -275,21 +275,28 @@
         </div>
       </section>
 
-      <!-- ===== declaration section ===== -->
-      <div class="card wizard-step" id="step-12" data-step="12">
-        <div class="card-header">
-          <h2>Declaration</h2>
-        </div>
-        <div class="card-body">
-          <label>
-            <textarea
-              id="declaration"
-              class="textarea full"
-              placeholder="Write your declaration here..."
-            ></textarea>
-          </label>
-        </div>
-      </div>
+      <!-- ===== Declaration Section ===== -->
+<section class="card wizard-step" id="step-12" data-step="12">
+  <div class="card-header between">
+    <h2>Declaration</h2>
+    <button type="button" class="btn btn-small" id="toggleDeclaration">
+      + Add Declaration
+    </button>
+  </div>
+ 
+  <!-- Hidden by default -->
+  <div class="card-body" id="declarationContainer" style="display: none;">
+    <label class="full">
+      <textarea
+        id="declaration"
+        class="textarea full"
+        placeholder="Write your declaration here..."
+        rows="4"
+      ></textarea>
+    </label>
+  </div>
+</section>
+
       
 
       <!--  ===== Wizard Navigation ===== -->
