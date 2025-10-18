@@ -184,6 +184,16 @@
       document.querySelectorAll(".error-msg").forEach((msg) => {
         msg.remove();
       });
+
+      // small debounce helper (insert right after saveToStorage function)
+      function debounce(fn, wait = 500) {
+        let t = null;
+        return function (...args) {
+          clearTimeout(t);
+          t = setTimeout(() => fn.apply(this, args), wait);
+        };
+      }
+      const debouncedSaveToStorage = debounce(() => saveToStorage(false), 600);
     }
   }
 
@@ -254,10 +264,16 @@
       }
     });
 
-    els.additionalInfo.addEventListener(
-      evt,
-      (e) => (data.additionalInfo = e.target.value)
-    );
+    els.additionalInfo.addEventListener(evt, (e) => {
+      data.additionalInfo = e.target.value;
+      // autosave (debounced) while typing
+      debouncedSaveToStorage();
+    });
+
+    // also save immediately when user leaves the field (optional but recommended)
+    els.additionalInfo.addEventListener("blur", () => {
+      saveToStorage(false);
+    });
 
     els.declaration.addEventListener(
       evt,
