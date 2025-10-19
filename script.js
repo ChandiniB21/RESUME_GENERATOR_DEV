@@ -98,6 +98,7 @@
       projects: [],
       certifications: [],
       internships: [],
+      achievements: [],
       hobbies: [],
       languages: [],
       additionalInfo: "", // ✅ new field
@@ -840,6 +841,43 @@
       els.internshipsList.appendChild(div);
     });
   }
+ // ===== Achievements Section (Update) =====
+document.getElementById("addAchievement")?.addEventListener("click", () => {
+  const list = document.getElementById("achievementsList");
+  if (!list) return;
+
+  // Create container for each new achievement entry
+  const item = document.createElement("div");
+  item.className = "input-group";
+  item.style.display = "flex";
+  item.style.alignItems = "center";
+  item.style.gap = "10px";
+  item.style.marginBottom = "10px";
+
+  // Input field
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "input";
+  input.placeholder = "Enter an achievement...";
+  input.required = true;
+
+  // Remove button
+  const removeBtn = document.createElement("button");
+  removeBtn.type = "button";
+  removeBtn.className = "btn btn-small btn-danger";
+  removeBtn.textContent = "Remove";
+  removeBtn.addEventListener("click", () => item.remove());
+
+  // Add input + remove button to list
+  item.appendChild(input);
+  item.appendChild(removeBtn);
+  list.appendChild(item);
+
+  // Focus new input automatically
+  input.focus();
+});
+
+
   // ===== Hobbies =====
   els.addHobby.addEventListener("click", () => {
     data.hobbies.push({ hobby: "" });
@@ -1256,6 +1294,18 @@
     } else {
       data.publicLinks.custom = [];
     }
+      // ===== 🔹 Update: Add Achievements Data Before Saving to Preview =====
+  const achievementsInputs = document.querySelectorAll("#achievementsList input");
+  if (achievementsInputs && achievementsInputs.length > 0) {
+    data.achievements = Array.from(achievementsInputs)
+      .map((input) => input.value.trim())
+      .filter((v) => v !== "")
+      .map((v) => ({ achievement: v }));
+  } else {
+    data.achievements = [];
+  }
+  
+
 
     // --- Save updated data to localStorage ---
     localStorage.setItem("resumeData", JSON.stringify(data));
@@ -1746,6 +1796,7 @@ document
       // update button
       btn.textContent = " Remove";
       btn.classList.add("btn-danger");
+
 
       // ✅ Save to localStorage
       saved.declaration = declarationField.value;
