@@ -379,6 +379,9 @@
           .join("");
         addSection("Internships", html);
       }
+      
+
+
 
       // Projects
       if (Array.isArray(data.projects) && data.projects.length) {
@@ -461,7 +464,7 @@
           .join("")}</ul>`;
         addSection("Languages", html);
       }
-
+      
       // Hobbies
       if (Array.isArray(data.hobbies) && data.hobbies.length) {
         const html = `<ul>${data.hobbies
@@ -469,6 +472,13 @@
           .join("")}</ul>`;
         addSection("Hobbies", html);
       }
+      // ===== Achievements (NEW) =====
+if (Array.isArray(data.achievements) && data.achievements.length) {
+  const html = `<ul>${data.achievements
+    .map((a) => `<li>${safe(a.achievement || a)}</li>`)
+    .join("")}</ul>`;
+  addSection("Achievements", html);
+}
 
       // Additional Info
       if (data.additionalInfo && data.additionalInfo.trim()) {
@@ -519,6 +529,7 @@
           value.textContent = saved;
         }
       }
+      
     </script>
   </body>
 </html>
