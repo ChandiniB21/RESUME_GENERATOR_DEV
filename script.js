@@ -135,6 +135,7 @@
     renderHobbies();
     renderCustomLinks();
     renderLanguages();
+    renderAchievements();
   }
 
   // ===== Storage =====
@@ -148,6 +149,15 @@
       alert("Unable to save to localStorage. Check browser settings.");
     }
   }
+  // ---- Debounced save helper (make available globally) ----
+  function debounce(fn, wait = 500) {
+    let t = null;
+    return function (...args) {
+      clearTimeout(t);
+      t = setTimeout(() => fn.apply(this, args), wait);
+    };
+  }
+  const debouncedSaveToStorage = debounce(() => saveToStorage(false), 600);
 
   function loadFromStorage() {
     try {
@@ -170,13 +180,16 @@
       data.certifications = [];
       data.internships = [];
       data.hobbies = [];
+      data.achievements = [];
       data.additionalInfo = "";
       data.declaration = "";
 
       data.languages = [];
+      // explicitly clear profile photo (base64 string)
+      if (data.personalInfo) data.personalInfo.profilePhoto = "";
 
       initForm();
-      saveToStorage();
+      saveToStorage(true);
       // 🧹 FIX: remove red highlight and error messages after clear
       document.querySelectorAll(".invalid-highlight").forEach((el) => {
         el.classList.remove("invalid-highlight");
@@ -185,16 +198,6 @@
       document.querySelectorAll(".error-msg").forEach((msg) => {
         msg.remove();
       });
-
-      // small debounce helper (insert right after saveToStorage function)
-      function debounce(fn, wait = 500) {
-        let t = null;
-        return function (...args) {
-          clearTimeout(t);
-          t = setTimeout(() => fn.apply(this, args), wait);
-        };
-      }
-      const debouncedSaveToStorage = debounce(() => saveToStorage(false), 600);
     }
   }
 
@@ -841,42 +844,132 @@
       els.internshipsList.appendChild(div);
     });
   }
- // ===== Achievements Section (Update) =====
-document.getElementById("addAchievement")?.addEventListener("click", () => {
-  const list = document.getElementById("achievementsList");
-  if (!list) return;
+  // ===== Achievements: toggle-style (like Declaration) =====
+  function renderAchievements() {
+    const list = document.getElementById("achievementsList");
+    const toggleBtn = document.getElementById("addAchievement");
+    if (!list) return;
+    list.innerHTML = "";
 
-  // Create container for each new achievement entry
-  const item = document.createElement("div");
-  item.className = "input-group";
-  item.style.display = "flex";
-  item.style.alignItems = "center";
-  item.style.gap = "10px";
-  item.style.marginBottom = "10px";
+    const ach =
+      Array.isArray(data.achievements) && data.achievements.length > 0
+        ? data.achievements[0].achievement || ""
+        : "";
 
-  // Input field
-  const input = document.createElement("input");
-  input.type = "text";
-  input.className = "input";
-  input.placeholder = "Enter an achievement...";
-  input.required = true;
+    if (ach) {
+      const item = createAchievementItem(ach);
+      list.appendChild(item);
+      // set toggle button to "remove" state
+      if (toggleBtn) {
+        toggleBtn.textContent = " Remove";
+        toggleBtn.classList.add("btn-danger");
+      }
+    } else {
+      // no achievement saved → ensure toggle button shows "Add"
+      if (toggleBtn) {
+        toggleBtn.textContent = "+ Add Achievement";
+        toggleBtn.classList.remove("btn-danger");
+      }
+    }
+  }
 
-  // Remove button
-  const removeBtn = document.createElement("button");
-  removeBtn.type = "button";
-  removeBtn.className = "btn btn-small btn-danger";
-  removeBtn.textContent = "Remove";
-  removeBtn.addEventListener("click", () => item.remove());
+  function createAchievementItem(initialText = "") {
+    const item = document.createElement("div");
+    item.className = "input-group achievement-item";
+    item.style.display = "flex";
+    item.style.alignItems = "center";
+    item.style.gap = "10px";
+    item.style.marginBottom = "10px";
 
-  // Add input + remove button to list
-  item.appendChild(input);
-  item.appendChild(removeBtn);
-  list.appendChild(item);
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "input";
+    input.placeholder = "Enter an achievement...";
+    input.value = initialText;
+    input.setAttribute("data-k", "achievement");
+    input.required = true;
+    input.style.flex = "1 1 auto";
 
-  // Focus new input automatically
-  input.focus();
-});
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "btn btn-small btn-danger";
+    removeBtn.textContent = "Remove";
 
+    // On remove, use the same hide logic so it's consistent with the toggle button
+    removeBtn.addEventListener("click", () => {
+      hideAchievementItem();
+    });
+
+    // keep data in-sync
+    input.addEventListener("input", (e) => {
+      const v = e.target.value.trim();
+      data.achievements = v ? [{ achievement: v }] : [];
+      saveToStorage();
+    });
+
+    item.appendChild(input);
+    item.appendChild(removeBtn);
+    return item;
+  }
+
+  function showAchievementItem(initialText = "") {
+    const list = document.getElementById("achievementsList");
+    const toggleBtn = document.getElementById("addAchievement");
+    if (!list) return;
+    // prevent duplicates
+    if (list.querySelector(".achievement-item")) {
+      const exInput = list.querySelector(".achievement-item input");
+      if (exInput) exInput.focus();
+      return;
+    }
+    const item = createAchievementItem(initialText);
+    list.appendChild(item);
+    if (toggleBtn) {
+      toggleBtn.textContent = " Remove";
+      toggleBtn.classList.add("btn-danger");
+    }
+    // ensure data has a placeholder item (so preview/read sees it)
+    if (!Array.isArray(data.achievements) || data.achievements.length === 0) {
+      data.achievements = [{ achievement: initialText || "" }];
+      saveToStorage();
+    }
+    item.querySelector("input")?.focus();
+  }
+
+  function hideAchievementItem() {
+    const list = document.getElementById("achievementsList");
+    const toggleBtn = document.getElementById("addAchievement");
+    if (list) list.innerHTML = "";
+    data.achievements = [];
+    saveToStorage();
+    if (toggleBtn) {
+      toggleBtn.textContent = "+ Add Achievement";
+      toggleBtn.classList.remove("btn-danger");
+    }
+  }
+
+  // Toggle button behavior (like Declaration)
+  const addAchBtn = document.getElementById("addAchievement");
+  if (addAchBtn) {
+    addAchBtn.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      const list = document.getElementById("achievementsList");
+      if (!list) return;
+      const existing = list.querySelector(".achievement-item");
+      if (existing) {
+        // hide (acts like Remove)
+        hideAchievementItem();
+        return;
+      }
+      // show (acts like Add)
+      // prefill with saved achievement if exists
+      const savedText =
+        Array.isArray(data.achievements) && data.achievements.length > 0
+          ? data.achievements[0].achievement || ""
+          : "";
+      showAchievementItem(savedText);
+    });
+  }
 
   // ===== Hobbies =====
   els.addHobby.addEventListener("click", () => {
@@ -1294,18 +1387,18 @@ document.getElementById("addAchievement")?.addEventListener("click", () => {
     } else {
       data.publicLinks.custom = [];
     }
-      // ===== 🔹 Update: Add Achievements Data Before Saving to Preview =====
-  const achievementsInputs = document.querySelectorAll("#achievementsList input");
-  if (achievementsInputs && achievementsInputs.length > 0) {
-    data.achievements = Array.from(achievementsInputs)
-      .map((input) => input.value.trim())
-      .filter((v) => v !== "")
-      .map((v) => ({ achievement: v }));
-  } else {
-    data.achievements = [];
-  }
-  
-
+    // ===== 🔹 Update: Add Achievements Data Before Saving to Preview =====
+    const achievementsInputs = document.querySelectorAll(
+      "#achievementsList input"
+    );
+    if (achievementsInputs && achievementsInputs.length > 0) {
+      data.achievements = Array.from(achievementsInputs)
+        .map((input) => input.value.trim())
+        .filter((v) => v !== "")
+        .map((v) => ({ achievement: v }));
+    } else {
+      data.achievements = [];
+    }
 
     // --- Save updated data to localStorage ---
     localStorage.setItem("resumeData", JSON.stringify(data));
@@ -1796,7 +1889,6 @@ document
       // update button
       btn.textContent = " Remove";
       btn.classList.add("btn-danger");
-
 
       // ✅ Save to localStorage
       saved.declaration = declarationField.value;
