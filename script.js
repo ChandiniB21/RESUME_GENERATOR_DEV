@@ -876,39 +876,33 @@
   function createAchievementItem(initialText = "") {
     const item = document.createElement("div");
     item.className = "input-group achievement-item";
+    // layout styles (preserve your look)
     item.style.display = "flex";
-    item.style.alignItems = "center";
+    item.style.alignItems = "flex-start";
     item.style.gap = "10px";
     item.style.marginBottom = "10px";
 
-    const input = document.createElement("input");
-    input.type = "text";
-    input.className = "input";
-    input.placeholder = "Enter an achievement...";
-    input.value = initialText;
-    input.setAttribute("data-k", "achievement");
-    input.required = true;
-    input.style.flex = "1 1 auto";
+    // Create textarea instead of input
+    const textarea = document.createElement("textarea");
+    textarea.className = "input achievement-textarea";
+    textarea.placeholder =
+      "Describe an achievement (e.g. 'Won 1st prize in XYZ competition')";
+    textarea.rows = 4;
+    textarea.value = initialText;
+    textarea.setAttribute("data-k", "achievement");
+    textarea.required = true;
+    textarea.style.flex = "1 1 auto";
+    textarea.style.resize = "vertical";
 
-    const removeBtn = document.createElement("button");
-    removeBtn.type = "button";
-    removeBtn.className = "btn btn-small btn-danger";
-    removeBtn.textContent = "Remove";
-
-    // On remove, use the same hide logic so it's consistent with the toggle button
-    removeBtn.addEventListener("click", () => {
-      hideAchievementItem();
-    });
-
-    // keep data in-sync
-    input.addEventListener("input", (e) => {
+    // keep data in-sync when user types
+    textarea.addEventListener("input", (e) => {
       const v = e.target.value.trim();
       data.achievements = v ? [{ achievement: v }] : [];
       saveToStorage();
     });
 
-    item.appendChild(input);
-    item.appendChild(removeBtn);
+    // Append only the textarea — no Remove button
+    item.appendChild(textarea);
     return item;
   }
 
@@ -918,8 +912,8 @@
     if (!list) return;
     // prevent duplicates
     if (list.querySelector(".achievement-item")) {
-      const exInput = list.querySelector(".achievement-item input");
-      if (exInput) exInput.focus();
+      const exTextarea = list.querySelector(".achievement-item textarea");
+      if (exTextarea) exTextarea.focus();
       return;
     }
     const item = createAchievementItem(initialText);
@@ -933,7 +927,7 @@
       data.achievements = [{ achievement: initialText || "" }];
       saveToStorage();
     }
-    item.querySelector("input")?.focus();
+    item.querySelector("textarea")?.focus();
   }
 
   function hideAchievementItem() {
@@ -1388,12 +1382,13 @@
       data.publicLinks.custom = [];
     }
     // ===== 🔹 Update: Add Achievements Data Before Saving to Preview =====
-    const achievementsInputs = document.querySelectorAll(
-      "#achievementsList input"
+    // Read textarea values (we switched from <input> to <textarea>)
+    const achievementsTextareas = document.querySelectorAll(
+      "#achievementsList textarea"
     );
-    if (achievementsInputs && achievementsInputs.length > 0) {
-      data.achievements = Array.from(achievementsInputs)
-        .map((input) => input.value.trim())
+    if (achievementsTextareas && achievementsTextareas.length > 0) {
+      data.achievements = Array.from(achievementsTextareas)
+        .map((ta) => ta.value.trim())
         .filter((v) => v !== "")
         .map((v) => ({ achievement: v }));
     } else {
