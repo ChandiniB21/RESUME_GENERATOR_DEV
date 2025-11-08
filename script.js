@@ -1402,7 +1402,12 @@
     console.log("Saved before preview:", data.publicLinks);
 
     // --- Finally open preview ---
-    const w = window.open("preview.html", "_blank");
+    // const w = window.open("preview.html", "_blank");
+
+    // Open the selected preview page dynamically
+    const selectedDesign =
+      localStorage.getItem("selectedDesign") || "preview.html";
+    window.open(selectedDesign, "_blank"); // opens in a new tab/window
   }
 
   // ===== Bind header/footer buttons =====
