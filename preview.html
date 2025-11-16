@@ -292,7 +292,7 @@
       resume.innerHTML += `
   <div class="resume-header ${pi.profilePhoto ? "with-photo" : "no-photo"}">
     <div class="resume-details">
-      <h1>${safe(pi.fullName || "")}</h1>
+      <h1>${safe(pi.fullName || "").toUpperCase()}</h1>
       <div class="contact-line">
         ${contacts}
         ${pi.location ? ` | ${safe(pi.location)}` : ""}
@@ -379,9 +379,6 @@
           .join("");
         addSection("Internships", html);
       }
-      
-
-
 
       // Projects
       if (Array.isArray(data.projects) && data.projects.length) {
@@ -464,7 +461,7 @@
           .join("")}</ul>`;
         addSection("Languages", html);
       }
-      
+
       // Hobbies
       if (Array.isArray(data.hobbies) && data.hobbies.length) {
         const html = `<ul>${data.hobbies
@@ -473,12 +470,12 @@
         addSection("Hobbies", html);
       }
       // ===== Achievements (NEW) =====
-if (Array.isArray(data.achievements) && data.achievements.length) {
-  const html = `<ul>${data.achievements
-    .map((a) => `<li>${safe(a.achievement || a)}</li>`)
-    .join("")}</ul>`;
-  addSection("Achievements", html);
-}
+      if (Array.isArray(data.achievements) && data.achievements.length) {
+        const html = `<ul>${data.achievements
+          .map((a) => `<li>${safe(a.achievement || a)}</li>`)
+          .join("")}</ul>`;
+        addSection("Achievements", html);
+      }
 
       // Additional Info
       if (data.additionalInfo && data.additionalInfo.trim()) {
@@ -529,7 +526,6 @@ if (Array.isArray(data.achievements) && data.achievements.length) {
           value.textContent = saved;
         }
       }
-      
     </script>
   </body>
 </html>
