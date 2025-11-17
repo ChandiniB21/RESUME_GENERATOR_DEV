@@ -50,6 +50,8 @@
     projectsList: qs("#projectsList"),
     certificationsList: qs("#certificationsList"),
     internshipsList: qs("#internshipsList"),
+    addAchievement: qs("#addAchievement"),
+  achievementsList: qs("#achievementsList"),
     hobbiesList: qs("#hobbiesList"),
     additionalInfo: qs("#additionalInfo"),
     declaration: qs("#declaration"),
@@ -318,20 +320,35 @@
         exp.company
       )}"></label>
         </div>
-        <div class="row row-3">
-          <label>Start Date <input class="input" type="date" data-k="startDate" data-i="${i}" value="${
-        exp.startDate || ""
-      }"></label>
-          <label>End Date <input class="input" type="date" data-k="endDate" data-i="${i}" ${
-        exp.current ? "disabled" : ""
-      } value="${exp.endDate || ""}"></label>
-          <label class="full" style="display:flex;align-items:center;gap:10px;grid-column:auto/auto">
-            <input type="checkbox" data-k="current" data-i="${i}" ${
-        exp.current ? "checked" : ""
-      }/>
-            Currently working here
-          </label>
-        </div>
+       <div class="row row-2">
+  <label>Start Year
+    <input class="input"
+      type="number"
+     
+      data-k="startDate"
+      data-i="${i}"
+      placeholder="e.g. 2020"
+      value="${exp.startDate || ""}">
+  </label>
+
+  <label>End Year
+    <input class="input"
+      type="number"
+     
+      data-k="endDate"
+      data-i="${i}"
+      placeholder="e.g. 2024"
+      ${exp.current ? "disabled" : ""}
+      value="${exp.endDate || ""}">
+  </label>
+</div>
+
+<label class="full" style="display:flex;align-items:center;gap:8px;">
+  <input type="checkbox" data-k="current" data-i="${i}" ${exp.current ? "checked" : ""}/>
+  Currently working here
+</label>
+
+
         <label>Description
           <textarea class="textarea" data-k="description" data-i="${i}" rows="3">${escapeHtml(
         exp.description || ""
@@ -408,14 +425,23 @@
         edu.institution
       )}"></label>
       </div>
-      <div class="row row-2">
-        <label>Start Date <input class="input" type="date" data-k="startDate" data-i="${i}" value="${
-        edu.startDate || ""
-      }"></label>
-        <label>End Date <input class="input" type="date" data-k="endDate" data-i="${i}" ${
-        edu.current ? "disabled" : ""
-      } value="${edu.endDate || ""}"></label>
-      </div>
+    <div class="row row-2">
+  <label>
+    Start Year
+    <input class="input" type="number" 
+    data-k="startDate" data-i="${i}" placeholder="e.g. 2022"
+    value="${edu.startDate || ''}">
+  </label>
+
+  <label>
+    End Year
+    <input class="input" type="number" 
+    data-k="endDate" data-i="${i}" placeholder="e.g. 2024"
+    ${edu.current ? "disabled" : ""}
+    value="${edu.endDate || ''}">
+  </label>
+</div>
+
       <div class="row row-2">
         <label class="full" style="display:flex;align-items:center;gap:10px;">
           <input type="checkbox" data-k="current" data-i="${i}" ${
@@ -677,14 +703,16 @@
         project.projectUrl || ""
       )}"></label>
       </div>
-      <div class="row row-2">
-        <label>Start Date <input class="input" type="date" data-k="startDate" data-i="${i}" value="${
-        project.startDate || ""
-      }"></label>
-        <label>End Date <input class="input" type="date" data-k="endDate" data-i="${i}" value="${
-        project.endDate || ""
-      }"></label>
-      </div>
+     <div class="row row-2">
+  <label>Start Year
+    <input class="input"type="number"placeholder="e.g. 2021"data-k="startDate"data-i="${i}"value="${project.startDate || ""}">
+  </label>
+
+  <label>End Year
+    <input class="input"type="number"placeholder="e.g. 2023"data-k="endDate" data-i="${i}"value="${project.endDate || ""}">
+  </label>
+</div>
+
       <label>Description 
         <textarea class="textarea" rows="3" data-k="description" data-i="${i}">${escapeHtml(
         project.description || ""
@@ -792,19 +820,26 @@
         intern.organization
       )}"></label>
         </div>
-        <div class="row row-2">
-          <label>Start Date <input type="date" class="input" data-k="startDate" data-i="${i}" value="${
-        intern.startDate || ""
-      }"></label>
-          <label>End Date <input type="date" class="input" data-k="endDate" data-i="${i}" value="${
-        intern.endDate || ""
-      }"></label>
-       <label class="full" style="display:flex;align-items:center;gap:10px">
-          <input type="checkbox" data-k="current" data-i="${i}" ${
-        intern.current ? "checked" : ""
-      }/> Currently working here
-        </label>
-        </div>
+       <div class="row row-2">
+
+  <label>Start Year
+    <input class="input"type="number"data-k="startDate"data-i="${i}"placeholder="e.g. 2021"value="${intern.startDate || ''}">
+  </label>
+
+  <label>End Year
+    <input class="input"type="number"data-k="endDate"data-i="${i}"placeholder="e.g. 2023"${intern.current ? "disabled" : ""}value="${intern.endDate || ''}">
+  </label>
+
+</div>
+
+<label class="full" style="display:flex;align-items:center;gap:10px;margin-top:5px;">
+  <input type="checkbox"
+         data-k="current"
+         data-i="${i}"
+         ${intern.current ? "checked" : ""} />
+  Currently working here
+</label>
+
         <label>Description
           <textarea class="textarea" rows="3" data-k="description" data-i="${i}">${escapeHtml(
         intern.description || ""
@@ -844,126 +879,50 @@
       els.internshipsList.appendChild(div);
     });
   }
-  // ===== Achievements: toggle-style (like Declaration) =====
-  function renderAchievements() {
-    const list = document.getElementById("achievementsList");
-    const toggleBtn = document.getElementById("addAchievement");
-    if (!list) return;
-    list.innerHTML = "";
-
-    const ach =
-      Array.isArray(data.achievements) && data.achievements.length > 0
-        ? data.achievements[0].achievement || ""
-        : "";
-
-    if (ach) {
-      const item = createAchievementItem(ach);
-      list.appendChild(item);
-      // set toggle button to "remove" state
-      if (toggleBtn) {
-        toggleBtn.textContent = " Remove";
-        toggleBtn.classList.add("btn-danger");
-      }
-    } else {
-      // no achievement saved → ensure toggle button shows "Add"
-      if (toggleBtn) {
-        toggleBtn.textContent = "+ Add Achievement";
-        toggleBtn.classList.remove("btn-danger");
-      }
-    }
-  }
-
-  function createAchievementItem(initialText = "") {
-    const item = document.createElement("div");
-    item.className = "input-group achievement-item";
-    // layout styles (preserve your look)
-    item.style.display = "flex";
-    item.style.alignItems = "flex-start";
-    item.style.gap = "10px";
-    item.style.marginBottom = "10px";
-
-    // Create textarea instead of input
-    const textarea = document.createElement("textarea");
-    textarea.className = "input achievement-textarea";
-    textarea.placeholder =
-      "Describe an achievement (e.g. 'Won 1st prize in XYZ competition')";
-    textarea.rows = 4;
-    textarea.value = initialText;
-    textarea.setAttribute("data-k", "achievement");
-    textarea.required = true;
-    textarea.style.flex = "1 1 auto";
-    textarea.style.resize = "vertical";
-
-    // keep data in-sync when user types
-    textarea.addEventListener("input", (e) => {
-      const v = e.target.value.trim();
-      data.achievements = v ? [{ achievement: v }] : [];
-      saveToStorage();
-    });
-
-    // Append only the textarea — no Remove button
-    item.appendChild(textarea);
-    return item;
-  }
-
-  function showAchievementItem(initialText = "") {
-    const list = document.getElementById("achievementsList");
-    const toggleBtn = document.getElementById("addAchievement");
-    if (!list) return;
-    // prevent duplicates
-    if (list.querySelector(".achievement-item")) {
-      const exTextarea = list.querySelector(".achievement-item textarea");
-      if (exTextarea) exTextarea.focus();
-      return;
-    }
-    const item = createAchievementItem(initialText);
-    list.appendChild(item);
-    if (toggleBtn) {
-      toggleBtn.textContent = " Remove";
-      toggleBtn.classList.add("btn-danger");
-    }
-    // ensure data has a placeholder item (so preview/read sees it)
-    if (!Array.isArray(data.achievements) || data.achievements.length === 0) {
-      data.achievements = [{ achievement: initialText || "" }];
-      saveToStorage();
-    }
-    item.querySelector("textarea")?.focus();
-  }
-
-  function hideAchievementItem() {
-    const list = document.getElementById("achievementsList");
-    const toggleBtn = document.getElementById("addAchievement");
-    if (list) list.innerHTML = "";
-    data.achievements = [];
+  // ===== Achievements (MULTI TEXTAREA VERSION) =====
+if (els.addAchievement) {
+  els.addAchievement.addEventListener("click", () => {
+    data.achievements.push({ text: "" });
+    renderAchievements();
     saveToStorage();
-    if (toggleBtn) {
-      toggleBtn.textContent = "+ Add Achievement";
-      toggleBtn.classList.remove("btn-danger");
-    }
-  }
+  });
+}
 
-  // Toggle button behavior (like Declaration)
-  const addAchBtn = document.getElementById("addAchievement");
-  if (addAchBtn) {
-    addAchBtn.addEventListener("click", (ev) => {
-      ev.preventDefault();
-      const list = document.getElementById("achievementsList");
-      if (!list) return;
-      const existing = list.querySelector(".achievement-item");
-      if (existing) {
-        // hide (acts like Remove)
-        hideAchievementItem();
-        return;
-      }
-      // show (acts like Add)
-      // prefill with saved achievement if exists
-      const savedText =
-        Array.isArray(data.achievements) && data.achievements.length > 0
-          ? data.achievements[0].achievement || ""
-          : "";
-      showAchievementItem(savedText);
+function renderAchievements() {
+  if (!els.achievementsList) return;
+  els.achievementsList.innerHTML = "";
+
+  if (!Array.isArray(data.achievements)) data.achievements = [];
+
+  data.achievements.forEach((ach, i) => {
+    if (!ach || typeof ach !== "object") data.achievements[i] = { text: "" };
+
+    const div = document.createElement("div");
+    div.className = "list-item";
+    div.innerHTML = `
+      <div class="list-item-header">
+        <span class="list-item-title">Achievement ${i + 1}</span>
+        <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
+      </div>
+
+      <label class="full">
+        <textarea class="textarea" rows="3" data-k="text" data-i="${i}" placeholder="Write your achievement...">${escapeHtml(ach.text || "")}</textarea>
+      </label>
+    `;
+
+    // remove
+    div.querySelector("[data-remove]").addEventListener("click", () => {
+      data.achievements.splice(i, 1);
+      renderAchievements();
+      saveToStorage();
     });
-  }
+
+    // autosave
+    attachChangeHandlers(div, data.achievements, i);
+
+    els.achievementsList.appendChild(div);
+  });
+}
 
   // ===== Hobbies =====
   els.addHobby.addEventListener("click", () => {

@@ -561,3 +561,14 @@ select:focus-visible {
   transition: font-size 0.2s ease-in-out;
   line-height: 1.5;
 }
+.row-3 {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+.row-3 label {
+
+  flex: 1;
+}
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
