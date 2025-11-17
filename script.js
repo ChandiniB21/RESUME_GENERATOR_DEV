@@ -318,20 +318,35 @@
         exp.company
       )}"></label>
         </div>
-        <div class="row row-3">
-          <label>Start Date <input class="input" type="date" data-k="startDate" data-i="${i}" value="${
-        exp.startDate || ""
-      }"></label>
-          <label>End Date <input class="input" type="date" data-k="endDate" data-i="${i}" ${
-        exp.current ? "disabled" : ""
-      } value="${exp.endDate || ""}"></label>
-          <label class="full" style="display:flex;align-items:center;gap:10px;grid-column:auto/auto">
-            <input type="checkbox" data-k="current" data-i="${i}" ${
-        exp.current ? "checked" : ""
-      }/>
-            Currently working here
-          </label>
-        </div>
+       <div class="row row-2">
+  <label>Start Year
+    <input class="input"
+      type="number"
+     
+      data-k="startDate"
+      data-i="${i}"
+      placeholder="e.g. 2020"
+      value="${exp.startDate || ""}">
+  </label>
+
+  <label>End Year
+    <input class="input"
+      type="number"
+     
+      data-k="endDate"
+      data-i="${i}"
+      placeholder="e.g. 2024"
+      ${exp.current ? "disabled" : ""}
+      value="${exp.endDate || ""}">
+  </label>
+</div>
+
+<label class="full" style="display:flex;align-items:center;gap:8px;">
+  <input type="checkbox" data-k="current" data-i="${i}" ${exp.current ? "checked" : ""}/>
+  Currently working here
+</label>
+
+
         <label>Description
           <textarea class="textarea" data-k="description" data-i="${i}" rows="3">${escapeHtml(
         exp.description || ""
@@ -408,14 +423,23 @@
         edu.institution
       )}"></label>
       </div>
-      <div class="row row-2">
-        <label>Start Date <input class="input" type="date" data-k="startDate" data-i="${i}" value="${
-        edu.startDate || ""
-      }"></label>
-        <label>End Date <input class="input" type="date" data-k="endDate" data-i="${i}" ${
-        edu.current ? "disabled" : ""
-      } value="${edu.endDate || ""}"></label>
-      </div>
+    <div class="row row-2">
+  <label>
+    Start Year
+    <input class="input" type="number" 
+    data-k="startDate" data-i="${i}" placeholder="e.g. 2022"
+    value="${edu.startDate || ''}">
+  </label>
+
+  <label>
+    End Year
+    <input class="input" type="number" 
+    data-k="endDate" data-i="${i}" placeholder="e.g. 2024"
+    ${edu.current ? "disabled" : ""}
+    value="${edu.endDate || ''}">
+  </label>
+</div>
+
       <div class="row row-2">
         <label class="full" style="display:flex;align-items:center;gap:10px;">
           <input type="checkbox" data-k="current" data-i="${i}" ${
@@ -677,14 +701,16 @@
         project.projectUrl || ""
       )}"></label>
       </div>
-      <div class="row row-2">
-        <label>Start Date <input class="input" type="date" data-k="startDate" data-i="${i}" value="${
-        project.startDate || ""
-      }"></label>
-        <label>End Date <input class="input" type="date" data-k="endDate" data-i="${i}" value="${
-        project.endDate || ""
-      }"></label>
-      </div>
+     <div class="row row-2">
+  <label>Start Year
+    <input class="input"type="number"placeholder="e.g. 2021"data-k="startDate"data-i="${i}"value="${project.startDate || ""}">
+  </label>
+
+  <label>End Year
+    <input class="input"type="number"placeholder="e.g. 2023"data-k="endDate" data-i="${i}"value="${project.endDate || ""}">
+  </label>
+</div>
+
       <label>Description 
         <textarea class="textarea" rows="3" data-k="description" data-i="${i}">${escapeHtml(
         project.description || ""
@@ -792,19 +818,26 @@
         intern.organization
       )}"></label>
         </div>
-        <div class="row row-2">
-          <label>Start Date <input type="date" class="input" data-k="startDate" data-i="${i}" value="${
-        intern.startDate || ""
-      }"></label>
-          <label>End Date <input type="date" class="input" data-k="endDate" data-i="${i}" value="${
-        intern.endDate || ""
-      }"></label>
-       <label class="full" style="display:flex;align-items:center;gap:10px">
-          <input type="checkbox" data-k="current" data-i="${i}" ${
-        intern.current ? "checked" : ""
-      }/> Currently working here
-        </label>
-        </div>
+       <div class="row row-2">
+
+  <label>Start Year
+    <input class="input"type="number"data-k="startDate"data-i="${i}"placeholder="e.g. 2021"value="${intern.startDate || ''}">
+  </label>
+
+  <label>End Year
+    <input class="input"type="number"data-k="endDate"data-i="${i}"placeholder="e.g. 2023"${intern.current ? "disabled" : ""}value="${intern.endDate || ''}">
+  </label>
+
+</div>
+
+<label class="full" style="display:flex;align-items:center;gap:10px;margin-top:5px;">
+  <input type="checkbox"
+         data-k="current"
+         data-i="${i}"
+         ${intern.current ? "checked" : ""} />
+  Currently working here
+</label>
+
         <label>Description
           <textarea class="textarea" rows="3" data-k="description" data-i="${i}">${escapeHtml(
         intern.description || ""
