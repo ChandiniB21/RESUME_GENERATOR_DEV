@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Choose Resume Design</title>
+    <style>
+      /* ---------- Background & Layout ---------- */
+      body {
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        background-attachment: fixed;
+        background-size: cover;
+        min-height: 100vh;
+        margin: 0;
+        font-family: "Poppins", system-ui, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      h1.choose-heading {
+        font-size: 2.5rem;
+        text-align: center;
+        color: #ffffff;
+        margin: 40px 0 30px;
+        letter-spacing: 0.07em;
+        text-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      /* ---------- Resume Gallery ---------- */
+      .resume-gallery {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 30px;
+        padding-bottom: 60px;
+        width: 90%;
+        max-width: 1200px;
+      }
+
+      /* ---------- Glassmorphic Card ---------- */
+      .resume-card {
+        width: 380px;
+        height: 480px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(16px) saturate(160%);
+        -webkit-backdrop-filter: blur(16px) saturate(160%);
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        overflow: hidden;
+        transition: all 0.35s ease;
+        cursor: pointer;
+        text-decoration: none;
+        color: #fff;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+      }
+
+      .resume-card:hover {
+        transform: translateY(-12px) scale(1.03);
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+      }
+
+      .resume-img {
+        width: 100%;
+        height: 360px;
+        object-fit: cover;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      }
+
+      .resume-caption {
+        text-align: center;
+        padding: 14px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #e0f7fa;
+        background: linear-gradient(
+          90deg,
+          rgba(0, 255, 204, 0.15),
+          rgba(0, 119, 255, 0.15)
+        );
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      footer {
+        text-align: center;
+        color: #b3e5fc;
+        font-size: 16px;
+        margin: 30px 0 10px;
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 class="choose-heading">CHOOSE YOUR RESUME DESIGN</h1>
+
+    <div class="resume-gallery">
+      <!-- Classic Layout -->
+      <a href="#" class="resume-card" onclick="chooseDesign('preview.html')">
+        <img
+          src="defaulresume.png"
+          class="resume-img"
+          alt="Classic Resume Layout"
+        />
+        <div class="resume-caption">Classic Layout (Default)</div>
+      </a>
+
+      <!-- Modern Blue-Green Sidebar -->
+      <a href="#" class="resume-card" onclick="chooseDesign('preview2.html')">
+        <img
+          src="preview2.png"
+          class="resume-img"
+          alt="Modern Blue-Green Sidebar"
+        />
+        <div class="resume-caption">Modern Blue-Green Sidebar</div>
+      </a>
+
+      <!-- Creative Timeline Layout -->
+      <a href="#" class="resume-card" onclick="chooseDesign('preview3.html')">
+        <img
+          src="resumeimage.jpg"
+          class="resume-img"
+          alt="Creative Timeline Layout"
+        />
+        <div class="resume-caption">Creative Timeline Layout</div>
+      </a>
+    </div>
+
+    <footer>© 2025 Resume Builder by Murty</footer>
+
+    <script>
+      function chooseDesign(previewPage) {
+        localStorage.setItem("selectedDesign", previewPage);
+        window.open("index.html", "_blank");
+      }
+    </script>
+  </body>
+</html>
