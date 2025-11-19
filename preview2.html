@@ -6,12 +6,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <style>
+      .actions {
+        margin: 20px auto;
+        text-align: center;
+      }
+      .actions button {
+        margin: 0 6px;
+        padding: 10px 14px;
+      }
+      @media print {
+        .actions,
+        #fontSizeControls {
+          display: none !important;
+        }
+        body {
+          background: #fff;
+          margin: 0;
+          padding: 0;
+        }
+        @page {
+          size: A4;
+          margin: 20mm 1mm 18mm 1mm; /* Top Right Bottom Left */
+        }
+
+        .preview-page,
+        .container {
+          page-break-after: always;
+          padding: 30mm 25mm 30mm 25mm; /*Adjust here for more margin */
+          box-sizing: border-box;
+        }
+
+        /* Optional: ensure each card doesn't get split awkwardly */
+        .card {
+          page-break-inside: avoid;
+        }
+        /* 6️⃣ Customize first vs remaining pages */
+        @page :first {
+          margin: 2mm 1mm 16mm 1mm; /* smaller for first page */
+        }
+
+        @page {
+          margin: 20mm 1mm 18mm 1mm; /* larger for 2nd+ pages */
+        }
+      }
       /* Main layout */
       .resume-wrapper {
         display: flex;
         align-items: stretch;
         max-width: 1100px;
         margin: 30px auto;
+        padding-left: 0px;
         background: #fff;
         border-radius: 12px;
         overflow: hidden;
@@ -100,7 +144,7 @@
   </head>
   <body>
     <!-- Font Size Toolbar -->
-    <div id="topControls">
+    <!-- <div id="topControls">
       <div id="fontSizeControls">
         <label for="fontSizeRange" style="font-size: 14px">Font Size:</label>
         <input type="range" id="fontSizeRange" min="12" max="24" value="16" />
@@ -111,6 +155,35 @@
         <button onclick="downloadPDF()">Download PDF</button>
         <button onclick="downloadTxt()">Download TXT</button>
       </div>
+    </div> -->
+    <div
+      id="fontSizeControls"
+      style="
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 15px;
+        padding: 12px 14px;
+        background: #f8f8f8;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      "
+    >
+      <label for="fontSizeRange" style="font-size: 15px">Font Size:</label>
+      <input
+        type="range"
+        id="fontSizeRange"
+        min="12"
+        max="24"
+        value="16"
+        step="1"
+      />
+      <span id="fontSizeValue" style="font-size: 14px">16px</span>
+    </div>
+    <div class="actions">
+      <button onclick="window.print()">Download PDF</button>
+      <button onclick="downloadTxt()">Download TXT</button>
     </div>
 
     <div id="resumeContainer"></div>
@@ -341,7 +414,7 @@
         align-items: center;
         gap: 10px;
         z-index: 9999;
-        font-family: "Segoe UI", Roboto, sans-serif;
+        font-family: Arial, sans-serif;
         width: auto;
         max-width: 90%;
         box-sizing: border-box;
@@ -377,10 +450,6 @@
           flex-wrap: wrap;
           gap: 5px;
           justify-content: flex-start;
-        }
-
-        .actions button {
-          flex: 1 1 auto;
         }
       }
 
@@ -431,37 +500,20 @@
       }
 
       .content-body {
-        padding: 40px 50px;
+        padding: 10px;
         color: #333;
       }
 
       /* Font size and buttons */
-      #fontSizeControls {
-        display: flex;
-        align-items: center;
-        gap: 6px;
+      #fontSizeControls input[type="range"] {
+        width: 120px;
+        accent-color: #007bff;
       }
 
       #fontSizeRange {
         width: 100px;
         accent-color: #007bff;
         cursor: pointer;
-      }
-
-      .actions button {
-        background: linear-gradient(90deg, #007bff, #20c997);
-        color: white;
-        border: none;
-        border-radius: 6px;
-        padding: 6px 12px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .actions button:hover {
-        background: linear-gradient(90deg, #0069d9, #17a589);
-        transform: translateY(-1px);
       }
 
       /* Medium screens — normalize window size */
@@ -551,7 +603,7 @@
           overflow: hidden;
         }
         .sidebar {
-          width: 100px !important;
+          width: 180px !important;
           flex-shrink: 0;
         }
         .resume-content {
@@ -560,6 +612,17 @@
         .resume-wrapper,
         .resume-wrapper * {
           font-size: inherit !important;
+        }
+      }
+      /* FIX: Keep sidebar gradient color in print */
+      @media print {
+        .sidebar {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          background: linear-gradient(180deg, #007bff, #20c997) !important;
+        }
+        .content {
+          margin-left: 300px !important; /* Keep main content aligned */
         }
       }
     </style>
