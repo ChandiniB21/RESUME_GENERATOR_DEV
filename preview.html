@@ -515,7 +515,7 @@ if (Array.isArray(data.achievements) && data.achievements.length) {
       function downloadTxt() {
         const text = resume.innerText;
         const blob = new Blob([text], { type: "text/plain" });
-        const a = document.createElement("a");
+        const a = document.createElement("a") ;
         a.href = URL.createObjectURL(blob);
         a.download = "resume.txt";
         document.body.appendChild(a);
