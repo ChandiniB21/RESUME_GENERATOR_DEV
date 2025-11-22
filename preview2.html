@@ -183,7 +183,6 @@
     </div>
     <div class="actions">
       <button onclick="window.print()">Download PDF</button>
-      <button onclick="downloadTxt()">Download TXT</button>
     </div>
 
     <div id="resumeContainer"></div>
@@ -279,14 +278,23 @@
         const html = data.experience
           .map(
             (e) => `
-          <p><strong>${safe(e.jobTitle || "")}</strong> at ${safe(
-              e.company || ""
-            )}
-          (${safe(e.startDate || "")} - ${safe(e.endDate || "Present")})</p>
-          ${e.description ? `<p>${safe(e.description)}</p>` : ""}
-        `
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+      <p style="margin:0; font-weight:600;">
+        ${safe(e.jobTitle || "")} at ${safe(e.company || "")}
+      </p>
+      <p style="margin:0; font-size:14px; color:#555;">
+        ${safe(e.startDate || "")} - ${safe(e.endDate || "Present")}
+      </p>
+    </div>
+    ${
+      e.description
+        ? `<p style="margin:4px 0 12px 0;">${safe(e.description)}</p>`
+        : ""
+    }
+    `
           )
           .join("");
+
         addSection("Experience", html);
       }
 
