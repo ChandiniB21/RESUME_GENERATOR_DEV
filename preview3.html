@@ -14,7 +14,7 @@
 
       .resume-wrapper {
         max-width: 950px;
-        margin: 30px auto;
+        margin: 0px auto;
         background: white;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         border-radius: 12px;
@@ -24,7 +24,7 @@
 
       .header {
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 10px;
       }
 
       .header h1 {
@@ -115,23 +115,12 @@
       }
 
       .actions {
-        text-align: center;
         margin: 20px auto;
+        text-align: center;
       }
-
       .actions button {
         margin: 0 6px;
         padding: 10px 14px;
-        border-radius: 6px;
-        border: none;
-        cursor: pointer;
-        background: #007bff;
-        color: white;
-        transition: 0.2s;
-      }
-
-      .actions button:hover {
-        background: #20c997;
       }
 
       #fontSizeControls {
@@ -153,33 +142,117 @@
       }
 
       @media print {
+        /* Hide buttons & controls */
+        .actions,
         #fontSizeControls,
-        .actions {
+        #topControls {
           display: none !important;
         }
 
+        /* Remove browser default margins */
         @page {
           size: A4;
-          margin: 15mm;
+          margin: 0;
         }
 
+        /* Full white background */
         body {
-          background: white;
+          background: white !important;
+          margin: 0;
+          padding: 0;
+        }
+
+        /* Perfect print margins */
+        .resume-wrapper {
+          margin: 8mm !important; /* Clean and balanced margins */
+          padding: 0 !important; /* Remove extra internal padding */
+          box-shadow: none !important;
+          border-radius: 0 !important;
+          width: auto !important;
+        }
+      }
+
+      /* Toolbar styling (Preview2 style) */
+      #topControls {
+        position: fixed;
+        top: 10px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        border-radius: 10px;
+        padding: 10px 15px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        z-index: 9999;
+        font-family: Arial, sans-serif;
+      }
+
+      #fontSizeControls input[type="range"] {
+        width: 120px;
+        accent-color: #007bff;
+        cursor: pointer;
+      }
+
+      /* Responsive mobile view */
+      @media (max-width: 600px) {
+        #topControls {
+          flex-direction: column;
+          width: 90%;
+          right: 10px;
+          top: 10px;
+          gap: 10px;
+        }
+
+        #fontSizeControls input[type="range"] {
+          width: 100%;
+        }
+
+        .actions {
+          width: 100%;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 5px;
+          justify-content: flex-start;
+        }
+
+        #topSpacer {
+          height: 120px; /* extra space for stacked toolbar */
         }
       }
     </style>
   </head>
   <body>
-    <!-- Font Size Toolbar -->
-    <div id="fontSizeControls">
-      <label for="fontSizeRange" style="font-size: 14px">Font Size:</label>
-      <input type="range" id="fontSizeRange" min="12" max="24" value="16" />
+    <!-- Top Toolbar (Preview2 style) -->
+    <div
+      id="fontSizeControls"
+      style="
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 15px;
+        padding: 12px 14px;
+        background: #f8f8f8;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      "
+    >
+      <label for="fontSizeRange" style="font-size: 15px">Font Size:</label>
+      <input
+        type="range"
+        id="fontSizeRange"
+        min="12"
+        max="24"
+        value="16"
+        step="1"
+      />
       <span id="fontSizeValue" style="font-size: 14px">16px</span>
     </div>
-
     <div class="actions">
       <button onclick="window.print()">Download PDF</button>
-      <button onclick="downloadTxt()">Download TXT</button>
     </div>
 
     <div class="resume-wrapper" id="resume"></div>
@@ -343,9 +416,13 @@
       }
 
       // Hobbies
-      if (Array.isArray(data.hobbies)) {
+      if (
+        Array.isArray(data.hobbies) &&
+        data.hobbies.some((h) => h.hobby && h.hobby.trim() !== "")
+      ) {
         const html = `<ul>${data.hobbies
-          .map((h) => `<li>${safe(h.hobby || "")}</li>`)
+          .filter((h) => h.hobby && h.hobby.trim() !== "")
+          .map((h) => `<li>${safe(h.hobby)}</li>`)
           .join("")}</ul>`;
         addSection("Hobbies", html);
       }
