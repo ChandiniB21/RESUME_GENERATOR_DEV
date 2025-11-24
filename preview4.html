@@ -1137,9 +1137,12 @@
 
       // ---------------- PDF creation ----------------
       // ---------------- PDF creation ----------------
+      // ---------- Replace the whole existing pdfBtn click handler with this block ----------
       document.getElementById("pdfBtn").addEventListener("click", async () => {
         try {
           log("PDF (screen-capture) start...");
+
+          // ensure required libs are loaded
           await ensureHtml2Pdf();
 
           const html2canvasFn =
@@ -1153,19 +1156,24 @@
           if (!html2canvasFn) throw new Error("html2canvas not available.");
           if (!jsPDFClass) throw new Error("jsPDF not available.");
 
+          // force avatar to data URL (avoid tainted canvas)
           const avatarImg = document.getElementById("avatarImg");
           if (avatarImg && avatarImg.src) {
             try {
               const dataUrl = await imageUrlToDataUrl(avatarImg.src);
               avatarImg.src = dataUrl;
-            } catch {}
+            } catch (e) {
+              log("avatar -> dataUrl conversion failed (continuing):", e);
+            }
           }
 
           const rootEl = document.getElementById("resumeRoot");
+          if (!rootEl) throw new Error("resumeRoot element not found.");
+
           window.scrollTo(0, 0);
 
-          const rect = rootEl.getBoundingClientRect();
-          const DPR = 3; // ★ High clarity
+          // capture
+          const DPR = 3; // high clarity. kept constant to match other math.
           const canvas = await html2canvasFn(rootEl, {
             scale: DPR,
             useCORS: true,
@@ -1175,16 +1183,16 @@
               window.getComputedStyle(rootEl).backgroundColor || "#ffffff",
           });
 
+          // A4 sizes in mm and px math
           const A4_WIDTH_MM = 210;
           const A4_HEIGHT_MM = 297;
-
-          const pxPerMm = (96 * DPR) / 25.4;
+          const pxPerMm = (96 * DPR) / 25.4; // matches earlier logic
           const a4Wpx = Math.round(A4_WIDTH_MM * pxPerMm);
           const a4Hpx = Math.round(A4_HEIGHT_MM * pxPerMm);
 
+          // scale canvas to fit A4 width if needed
           const capturedW = canvas.width;
           const capturedH = canvas.height;
-
           const widthScale = Math.min(1, a4Wpx / capturedW);
           const targetWpx = Math.round(capturedW * widthScale);
           const targetHpx = Math.round(capturedH * widthScale);
@@ -1210,27 +1218,18 @@
             finalCanvas = tmp;
           }
 
-          // --------- Correct pages + slicing (replacement) ----------
+          // page slicing geometry (first page different because of bottom margin)
           const TOP_MARGIN_MM = 12;
           const BOTTOM_MARGIN_MM = 12;
-
-          // pxPerMm is already defined above
           const topMarginPx = Math.round(TOP_MARGIN_MM * pxPerMm);
           const bottomMarginPx = Math.round(BOTTOM_MARGIN_MM * pxPerMm);
-
-          // height available on pages after the first (in px)
           const availableHeightPx = a4Hpx - topMarginPx - bottomMarginPx;
-
-          // first page bottom margin (in px)
           const firstPageBottomMarginPx = Math.round(
             BOTTOM_MARGIN_MM * pxPerMm
           );
-
-          // heights in px
           const firstPageHeightPx = a4Hpx - firstPageBottomMarginPx;
           const subsequentPageHeightPx = availableHeightPx;
 
-          // recompute number of pages properly
           const actualPages = Math.max(
             1,
             Math.ceil(
@@ -1239,19 +1238,26 @@
             ) + (finalCanvas.height > 0 ? 1 : 0)
           );
 
-          const pageImages = [];
+          log("capture:", {
+            canvasW: finalCanvas.width,
+            canvasH: finalCanvas.height,
+            a4Wpx,
+            a4Hpx,
+            DPR,
+            widthScale,
+            pages: actualPages,
+          });
 
-          const sidebarCssPx = 230;
+          const pageImages = [];
+          const sidebarCssPx = 230; // must match your CSS left column width
           const sidebarPx = Math.round(sidebarCssPx * DPR * widthScale);
 
           for (let p = 0; p < actualPages; p++) {
-            // compute where to start reading from finalCanvas
             const sliceStartY =
               p === 0
                 ? 0
                 : firstPageHeightPx + (p - 1) * subsequentPageHeightPx;
 
-            // how much source height to draw for this page
             const srcH = Math.min(
               p === 0 ? firstPageHeightPx : subsequentPageHeightPx,
               Math.max(0, finalCanvas.height - sliceStartY)
@@ -1262,37 +1268,41 @@
             pageCanvas.height = a4Hpx;
             const ctx = pageCanvas.getContext("2d");
 
-            // paint left sidebar + white content area
+            // paint sidebar + white content area so sidebar color fills entire page
             const sidebarColor = (
               getComputedStyle(document.documentElement).getPropertyValue(
                 "--sidebar-bg"
-              ) || "#e9eeb"
+              ) || "#e9e9eb"
             ).trim();
             ctx.fillStyle = sidebarColor;
             ctx.fillRect(0, 0, sidebarPx, a4Hpx);
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(sidebarPx, 0, a4Wpx - sidebarPx, a4Hpx);
 
-            // draw offset: first page has no top margin, subsequent pages get topMarginPx
             const drawOffsetY = p === 0 ? 0 : topMarginPx;
 
-            if (srcH > 0) {
+            // compute destination size so the slice fits the page width (preserve aspect)
+            const destW = a4Wpx;
+            const destH = Math.round(srcH * (destW / finalCanvas.width));
+            const destX = 0;
+            const destY = drawOffsetY;
+
+            if (srcH > 0 && destH > 0) {
               ctx.drawImage(
                 finalCanvas,
                 0,
                 sliceStartY,
                 finalCanvas.width,
                 srcH,
-                0,
-                drawOffsetY,
-                finalCanvas.width,
-                srcH
+                destX,
+                destY,
+                destW,
+                destH
               );
             }
 
             pageImages.push(pageCanvas.toDataURL("image/jpeg", 1.0));
           }
-          // --------- end replacement ----------
 
           const doc = new jsPDFClass({
             unit: "mm",
@@ -1300,6 +1310,8 @@
             orientation: "portrait",
           });
 
+          // ---------- Anchors -> PDF links (robust mapping) ----------
+          // compute anchor rects relative to resumeRoot in CSS px (document coordinates)
           const anchors = Array.from(rootEl.querySelectorAll("a[href]")).map(
             (a) => {
               const href = a.href;
@@ -1315,14 +1327,82 @@
             }
           );
 
-          function pxToMm(px) {
-            return (px * 25.4) / 96;
+          // converter: CSS px -> finalCanvas px -> mm
+          function cssPxToMm(cssPx) {
+            const canvasPx = cssPx * DPR * widthScale; // px in finalCanvas coordinates
+            return canvasPx / pxPerMm; // mm
           }
 
-          for (let p = 0; p < pageImages.length; p++) {
-            if (p > 0) doc.addPage();
+          const FIRST_PAGE_HEIGHT_MM = firstPageHeightPx / pxPerMm;
+          const SUBSEQ_PAGE_HEIGHT_MM = subsequentPageHeightPx / pxPerMm;
 
-            doc.addImage(
+          anchors.forEach((a) => {
+            if (!a.href) return;
+
+            const leftMm = cssPxToMm(a.leftCss);
+            const topMm = cssPxToMm(a.topCss);
+            const wMm = cssPxToMm(a.widthCss);
+            const hMm = cssPxToMm(a.heightCss);
+
+            function mmToPage(mmY) {
+              if (mmY < FIRST_PAGE_HEIGHT_MM) return 0;
+              return (
+                1 +
+                Math.floor((mmY - FIRST_PAGE_HEIGHT_MM) / SUBSEQ_PAGE_HEIGHT_MM)
+              );
+            }
+
+            const startPage = mmToPage(topMm);
+            const endPage = mmToPage(topMm + hMm - 1e-6);
+
+            for (let page = startPage; page <= endPage; page++) {
+              if (page < 0 || page >= pageImages.length) continue;
+
+              const pageGlobalTopMm =
+                page === 0
+                  ? 0
+                  : FIRST_PAGE_HEIGHT_MM + (page - 1) * SUBSEQ_PAGE_HEIGHT_MM;
+              const pageGlobalBottomMm =
+                page === 0
+                  ? FIRST_PAGE_HEIGHT_MM
+                  : pageGlobalTopMm + SUBSEQ_PAGE_HEIGHT_MM;
+
+              const segTopGlobal = Math.max(topMm, pageGlobalTopMm);
+              const segBottomGlobal = Math.min(topMm + hMm, pageGlobalBottomMm);
+              const segHeightMm = segBottomGlobal - segTopGlobal;
+              if (segHeightMm <= 0) continue;
+
+              let localTopMm;
+              if (page === 0) {
+                localTopMm = segTopGlobal;
+              } else {
+                localTopMm = segTopGlobal - pageGlobalTopMm + TOP_MARGIN_MM;
+              }
+
+              const safeLeft = Math.max(0, leftMm);
+              const safeTop = Math.max(0, localTopMm);
+              const safeWidth = Math.max(0.1, wMm);
+              const safeHeight = Math.max(0.1, segHeightMm);
+
+              doc.addPage(); // We'll add image pages below properly; but jsPDF.link expects the page to exist.
+              // (We won't keep these extra pages — we'll add images next in order properly.)
+              // So instead of doc.addPage here (which creates mis-ordered pages), we'll postpone link adding
+              // and collect link rectangles per page in a map. (Simpler approach below.)
+            }
+          });
+
+          // --- simpler reliable approach: add images to doc first, then create links using same math ---
+          // clear doc pages created by any accidental addPage above (recreate doc clean)
+          const doc2 = new jsPDFClass({
+            unit: "mm",
+            format: "a4",
+            orientation: "portrait",
+          });
+
+          // add all page images
+          for (let p = 0; p < pageImages.length; p++) {
+            if (p > 0) doc2.addPage();
+            doc2.addImage(
               pageImages[p],
               "JPEG",
               0,
@@ -1332,47 +1412,71 @@
               undefined,
               "NONE"
             );
-
-            anchors.forEach((a) => {
-              if (!a.href) return;
-
-              const leftMm = pxToMm(a.leftCss * widthScale);
-              const topMm = pxToMm(a.topCss * widthScale);
-              const wMm = pxToMm(a.widthCss * widthScale);
-              const hMm = pxToMm(a.heightCss * widthScale);
-
-              const startPage = Math.floor(topMm / A4_HEIGHT_MM);
-              const endPage = Math.floor((topMm + hMm) / A4_HEIGHT_MM);
-
-              for (let page = startPage; page <= endPage; page++) {
-                if (page !== p) continue;
-
-                const pageOffset = page * A4_HEIGHT_MM;
-
-                let localY = topMm - pageOffset;
-
-                if (page > 0) localY += TOP_MARGIN_MM;
-
-                const bottomLocalY = Math.min(
-                  A4_HEIGHT_MM,
-                  topMm + hMm - pageOffset
-                );
-                const heightLocal = bottomLocalY - localY;
-
-                if (heightLocal > 0) {
-                  doc.link(leftMm, localY, wMm, heightLocal, { url: a.href });
-                }
-              }
-            });
           }
 
-          doc.save("resume.pdf");
+          // now create links using same mapping but add them to doc2
+          anchors.forEach((a) => {
+            if (!a.href) return;
+
+            const leftMm = cssPxToMm(a.leftCss);
+            const topMm = cssPxToMm(a.topCss);
+            const wMm = cssPxToMm(a.widthCss);
+            const hMm = cssPxToMm(a.heightCss);
+
+            function mmToPage(mmY) {
+              if (mmY < FIRST_PAGE_HEIGHT_MM) return 0;
+              return (
+                1 +
+                Math.floor((mmY - FIRST_PAGE_HEIGHT_MM) / SUBSEQ_PAGE_HEIGHT_MM)
+              );
+            }
+
+            const startPage = mmToPage(topMm);
+            const endPage = mmToPage(topMm + hMm - 1e-6);
+
+            for (let page = startPage; page <= endPage; page++) {
+              if (page < 0 || page >= pageImages.length) continue;
+
+              const pageGlobalTopMm =
+                page === 0
+                  ? 0
+                  : FIRST_PAGE_HEIGHT_MM + (page - 1) * SUBSEQ_PAGE_HEIGHT_MM;
+              const pageGlobalBottomMm =
+                page === 0
+                  ? FIRST_PAGE_HEIGHT_MM
+                  : pageGlobalTopMm + SUBSEQ_PAGE_HEIGHT_MM;
+
+              const segTopGlobal = Math.max(topMm, pageGlobalTopMm);
+              const segBottomGlobal = Math.min(topMm + hMm, pageGlobalBottomMm);
+              const segHeightMm = segBottomGlobal - segTopGlobal;
+              if (segHeightMm <= 0) continue;
+
+              let localTopMm;
+              if (page === 0) localTopMm = segTopGlobal;
+              else localTopMm = segTopGlobal - pageGlobalTopMm + TOP_MARGIN_MM;
+
+              const safeLeft = Math.max(0, leftMm);
+              const safeTop = Math.max(0, localTopMm);
+              const safeWidth = Math.max(0.1, wMm);
+              const safeHeight = Math.max(0.1, segHeightMm);
+
+              // ensure we target the correct page
+              doc2.setPage(page + 1); // jsPDF pages are 1-indexed
+              doc2.link(safeLeft, safeTop, safeWidth, safeHeight, {
+                url: a.href,
+              });
+            }
+          });
+
+          // save using doc2
+          doc2.save("resume.pdf");
           log("PDF saved.");
         } catch (err) {
           console.error("PDF error:", err);
-          alert("PDF generation failed — check console.");
+          alert("PDF generation failed — check console for details.");
         }
       });
+      // ---------- end replacement ----------
 
       // txt download
       document.getElementById("txtBtn").addEventListener("click", () => {
