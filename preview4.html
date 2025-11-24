@@ -259,66 +259,40 @@
         -moz-column-break-inside: avoid;
       }
       /* ------------------ Print / PDF fixes (append this) ------------------ */
-      /* Ensure the printed PDF uses no default page margins and exact paper size */
+      /* ------------------ Print / PDF fixes (stronger) ------------------ */
+      /* --- Minimal print rules: do NOT alter layout; keep preview appearance --- */
       @page {
         size: A4;
         margin: 0;
       }
 
-      /* Print-only overrides */
       @media print {
-        /* Remove any outer margins */
-        html,
-        body {
-          margin: 0 !important;
-          padding: 0 !important;
-        }
-
-        /* Remove wrapper spacing */
-        .wrap {
-          margin: 0 !important;
-          padding: 0 !important;
-          background: transparent !important;
-        }
-
-        /* Make resume EXACT full A4 width & height with NO inner padding */
-        .resume {
-          width: 210mm !important;
-          min-height: 297mm !important;
-          margin: 0 !important;
-          padding: 0 !important; /* <-- MAIN FIX */
-          box-sizing: border-box !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-          background: #ffffff !important;
-        }
-
-        /* Keep avatar clean */
-        .avatar {
-          box-shadow: none !important;
-          border-radius: 50% !important;
-        }
-
-        /* Force background colors inside PDF */
+        /* keep colors visible but don't change layout */
         * {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
         }
 
-        /* Hide UI buttons */
+        /* hide UI buttons in print */
         .controls,
         #pdfBtn,
         #txtBtn {
           display: none !important;
         }
 
-        /* Prevent breaking blocks weirdly */
+        /* keep page-break rules but don't force widths/positions */
         .tl-item,
         .timeline,
         .edu-item,
         .block {
           break-inside: avoid !important;
           page-break-inside: avoid !important;
+        }
+
+        /* make sure resume element is visible for screen-capture style rendering */
+        .resume {
+          background-clip: padding-box !important;
+          overflow: visible !important;
         }
       }
 
@@ -581,20 +555,138 @@
       }
 
       function ensureHtml2Pdf() {
+        // Loads html2canvas, jspdf and html2pdf.bundle in sequence and resolves when available on window.
         return new Promise((resolve, reject) => {
-          if (window.html2pdf) return resolve(window.html2pdf);
-          const s = document.createElement("script");
-          s.src =
-            "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
-          s.async = true;
-          s.onload = () => {
-            log("html2pdf loaded");
-            resolve(window.html2pdf);
-          };
-          s.onerror = (e) => {
-            reject(new Error("Failed to load html2pdf from CDN"));
-          };
-          document.head.appendChild(s);
+          // already loaded?
+          if (
+            window.html2pdf &&
+            (window.html2canvas || window.html2pdf.html2canvas) &&
+            (window.jspdf ||
+              window.jsPDF ||
+              (window.html2pdf && window.html2pdf.jsPDF))
+          ) {
+            // normalize references
+            if (
+              !window.html2canvas &&
+              window.html2pdf &&
+              window.html2pdf.html2canvas
+            ) {
+              window.html2canvas = window.html2pdf.html2canvas;
+            }
+            if (!window.jsPDF && window.jspdf && window.jspdf.jsPDF) {
+              window.jsPDF = window.jspdf.jsPDF;
+            }
+            if (!window.jsPDF && window.html2pdf && window.html2pdf.jsPDF) {
+              window.jsPDF = window.html2pdf.jsPDF;
+            }
+            return resolve(window.html2pdf);
+          }
+
+          // helper to inject script and wait
+          function loadScript(src, globalCheckFn) {
+            return new Promise((res, rej) => {
+              // if already present, resolve
+              try {
+                if (globalCheckFn && globalCheckFn()) return res();
+              } catch (e) {
+                /* ignore */
+              }
+
+              const s = document.createElement("script");
+              s.src = src;
+              s.async = true;
+              s.onload = () => {
+                // small delay to let UMD attach to window
+                setTimeout(() => {
+                  if (globalCheckFn && !globalCheckFn()) {
+                    // even though loaded, the expected global didn't attach
+                    console.warn(
+                      "script loaded but global check failed for",
+                      src
+                    );
+                  }
+                  res();
+                }, 30);
+              };
+              s.onerror = () => rej(new Error("Failed to load " + src));
+              document.head.appendChild(s);
+            });
+          }
+
+          (async () => {
+            try {
+              // 1) html2canvas (explicit)
+              if (!window.html2canvas) {
+                await loadScript(
+                  "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
+                  () => !!window.html2canvas
+                );
+              }
+
+              // 2) jsPDF (UMD build)
+              if (
+                !window.jsPDF &&
+                !(window.jspdf && window.jspdf.jsPDF) &&
+                !window.jsPDF
+              ) {
+                await loadScript(
+                  "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+                  () => !!(window.jspdf && window.jspdf.jsPDF) || !!window.jsPDF
+                );
+                // Normalise export (UMD attaches window.jspdf)
+                if (window.jspdf && window.jspdf.jsPDF && !window.jsPDF) {
+                  window.jsPDF = window.jspdf.jsPDF;
+                  // also set legacy alias
+                  window.jspdf = window.jspdf;
+                  window.jsPDF = window.jspdf.jsPDF;
+                }
+                if (
+                  !window.jsPDF &&
+                  window.jsPDF === undefined &&
+                  window.jspdf &&
+                  window.jspdf.jsPDF
+                ) {
+                  window.jsPDF = window.jspdf.jsPDF;
+                }
+              }
+
+              // 3) html2pdf bundle (last)
+              if (!window.html2pdf) {
+                await loadScript(
+                  "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js",
+                  () => !!window.html2pdf
+                );
+              }
+
+              // Post-load normalization: make sure html2canvas and jsPDF are reachable at expected names
+              if (
+                !window.html2canvas &&
+                window.html2pdf &&
+                window.html2pdf.html2canvas
+              ) {
+                window.html2canvas = window.html2pdf.html2canvas;
+              }
+              if (!window.jsPDF) {
+                if (window.jspdf && window.jspdf.jsPDF)
+                  window.jsPDF = window.jspdf.jsPDF;
+                if (window.html2pdf && window.html2pdf.jsPDF)
+                  window.jsPDF = window.html2pdf.jsPDF;
+              }
+
+              // Final check
+              if (!window.html2pdf)
+                return reject(new Error("html2pdf failed to load"));
+              if (!window.html2canvas && !window.html2pdf.html2canvas) {
+                console.warn(
+                  "html2canvas not found on window after load; trying to continue."
+                );
+              }
+              // resolve with window.html2pdf (most handlers expect that)
+              resolve(window.html2pdf);
+            } catch (err) {
+              reject(err);
+            }
+          })();
         });
       }
 
@@ -1044,70 +1136,241 @@
       })();
 
       // ---------------- PDF creation ----------------
+      // ---------------- PDF creation ----------------
       document.getElementById("pdfBtn").addEventListener("click", async () => {
         try {
-          log("starting PDF generation...");
-
-          // 1) ensure html2pdf is available
+          log("PDF (screen-capture) start...");
           await ensureHtml2Pdf();
 
-          // 2) convert avatar image to dataURL (best-effort)
+          const html2canvasFn =
+            window.html2canvas ||
+            (window.html2pdf && window.html2pdf.html2canvas);
+          const jsPDFClass =
+            window.jsPDF ||
+            (window.jspdf && window.jspdf.jsPDF) ||
+            (window.html2pdf && window.html2pdf.jsPDF);
+
+          if (!html2canvasFn) throw new Error("html2canvas not available.");
+          if (!jsPDFClass) throw new Error("jsPDF not available.");
+
           const avatarImg = document.getElementById("avatarImg");
           if (avatarImg && avatarImg.src) {
-            log(
-              "attempting to convert avatar to dataURL to avoid CORS issues..."
-            );
-            const dataUrl = await imageUrlToDataUrl(avatarImg.src);
-            avatarImg.src = dataUrl;
-            log("avatar src set to dataURL (or fallback).");
+            try {
+              const dataUrl = await imageUrlToDataUrl(avatarImg.src);
+              avatarImg.src = dataUrl;
+            } catch {}
           }
 
-          // 3) wait for all images in the resumeRoot to load
           const rootEl = document.getElementById("resumeRoot");
-          const imgs = Array.from(rootEl.querySelectorAll("img"));
-          await Promise.all(
-            imgs.map(
-              (img) =>
-                new Promise((res) => {
-                  if (img.complete) return res();
-                  img.addEventListener("load", res);
-                  img.addEventListener("error", res); // resolve anyway on error
-                })
-            )
-          );
+          window.scrollTo(0, 0);
 
-          // 4) wait for fonts (if supported)
-          try {
-            if (document.fonts && document.fonts.ready)
-              await document.fonts.ready;
-          } catch (e) {
-            /*ignore*/
+          const rect = rootEl.getBoundingClientRect();
+          const DPR = 3; // ★ High clarity
+          const canvas = await html2canvasFn(rootEl, {
+            scale: DPR,
+            useCORS: true,
+            allowTaint: false,
+            logging: false,
+            backgroundColor:
+              window.getComputedStyle(rootEl).backgroundColor || "#ffffff",
+          });
+
+          const A4_WIDTH_MM = 210;
+          const A4_HEIGHT_MM = 297;
+
+          const pxPerMm = (96 * DPR) / 25.4;
+          const a4Wpx = Math.round(A4_WIDTH_MM * pxPerMm);
+          const a4Hpx = Math.round(A4_HEIGHT_MM * pxPerMm);
+
+          const capturedW = canvas.width;
+          const capturedH = canvas.height;
+
+          const widthScale = Math.min(1, a4Wpx / capturedW);
+          const targetWpx = Math.round(capturedW * widthScale);
+          const targetHpx = Math.round(capturedH * widthScale);
+
+          let finalCanvas = canvas;
+          if (widthScale !== 1) {
+            const tmp = document.createElement("canvas");
+            tmp.width = targetWpx;
+            tmp.height = targetHpx;
+            const ctx = tmp.getContext("2d");
+            ctx.imageSmoothingQuality = "high";
+            ctx.drawImage(
+              canvas,
+              0,
+              0,
+              canvas.width,
+              canvas.height,
+              0,
+              0,
+              tmp.width,
+              tmp.height
+            );
+            finalCanvas = tmp;
           }
 
-          // 5) html2pdf options — use mm units & margin in mm
-          const opt = {
-            margin: 0, // mm  <-- IMPORTANT: remove extra PDF margins
-            filename: "resume.pdf",
-            image: { type: "jpeg", quality: 0.98 },
-            html2canvas: {
-              scale: Math.min(2, window.devicePixelRatio || 2),
-              useCORS: true,
-              allowTaint: true, // allowTaint true helps if we converted images to dataURL earlier
-              logging: false,
-              backgroundColor: "#ffffff", // ensure canvas background is white for PDF
-            },
-            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-            pagebreak: { mode: ["css", "legacy"] }, // help html2pdf use CSS rules for page breaks
-          };
+          // --------- Correct pages + slicing (replacement) ----------
+          const TOP_MARGIN_MM = 12;
+          const BOTTOM_MARGIN_MM = 12;
 
-          // 6) Generate and save (direct download)
-          await html2pdf().set(opt).from(rootEl).save();
-          log("PDF generation finished.");
-        } catch (err) {
-          console.error("PDF generation error:", err);
-          alert(
-            "PDF generation failed — open console to see details. Common causes: blocked CDN, image CORS, or very large content."
+          // pxPerMm is already defined above
+          const topMarginPx = Math.round(TOP_MARGIN_MM * pxPerMm);
+          const bottomMarginPx = Math.round(BOTTOM_MARGIN_MM * pxPerMm);
+
+          // height available on pages after the first (in px)
+          const availableHeightPx = a4Hpx - topMarginPx - bottomMarginPx;
+
+          // first page bottom margin (in px)
+          const firstPageBottomMarginPx = Math.round(
+            BOTTOM_MARGIN_MM * pxPerMm
           );
+
+          // heights in px
+          const firstPageHeightPx = a4Hpx - firstPageBottomMarginPx;
+          const subsequentPageHeightPx = availableHeightPx;
+
+          // recompute number of pages properly
+          const actualPages = Math.max(
+            1,
+            Math.ceil(
+              Math.max(0, finalCanvas.height - firstPageHeightPx) /
+                subsequentPageHeightPx
+            ) + (finalCanvas.height > 0 ? 1 : 0)
+          );
+
+          const pageImages = [];
+
+          const sidebarCssPx = 230;
+          const sidebarPx = Math.round(sidebarCssPx * DPR * widthScale);
+
+          for (let p = 0; p < actualPages; p++) {
+            // compute where to start reading from finalCanvas
+            const sliceStartY =
+              p === 0
+                ? 0
+                : firstPageHeightPx + (p - 1) * subsequentPageHeightPx;
+
+            // how much source height to draw for this page
+            const srcH = Math.min(
+              p === 0 ? firstPageHeightPx : subsequentPageHeightPx,
+              Math.max(0, finalCanvas.height - sliceStartY)
+            );
+
+            const pageCanvas = document.createElement("canvas");
+            pageCanvas.width = a4Wpx;
+            pageCanvas.height = a4Hpx;
+            const ctx = pageCanvas.getContext("2d");
+
+            // paint left sidebar + white content area
+            const sidebarColor = (
+              getComputedStyle(document.documentElement).getPropertyValue(
+                "--sidebar-bg"
+              ) || "#e9eeb"
+            ).trim();
+            ctx.fillStyle = sidebarColor;
+            ctx.fillRect(0, 0, sidebarPx, a4Hpx);
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(sidebarPx, 0, a4Wpx - sidebarPx, a4Hpx);
+
+            // draw offset: first page has no top margin, subsequent pages get topMarginPx
+            const drawOffsetY = p === 0 ? 0 : topMarginPx;
+
+            if (srcH > 0) {
+              ctx.drawImage(
+                finalCanvas,
+                0,
+                sliceStartY,
+                finalCanvas.width,
+                srcH,
+                0,
+                drawOffsetY,
+                finalCanvas.width,
+                srcH
+              );
+            }
+
+            pageImages.push(pageCanvas.toDataURL("image/jpeg", 1.0));
+          }
+          // --------- end replacement ----------
+
+          const doc = new jsPDFClass({
+            unit: "mm",
+            format: "a4",
+            orientation: "portrait",
+          });
+
+          const anchors = Array.from(rootEl.querySelectorAll("a[href]")).map(
+            (a) => {
+              const href = a.href;
+              const r = a.getBoundingClientRect();
+              const rr = rootEl.getBoundingClientRect();
+              return {
+                href,
+                leftCss: r.left - rr.left,
+                topCss: r.top - rr.top,
+                widthCss: r.width,
+                heightCss: r.height,
+              };
+            }
+          );
+
+          function pxToMm(px) {
+            return (px * 25.4) / 96;
+          }
+
+          for (let p = 0; p < pageImages.length; p++) {
+            if (p > 0) doc.addPage();
+
+            doc.addImage(
+              pageImages[p],
+              "JPEG",
+              0,
+              0,
+              A4_WIDTH_MM,
+              A4_HEIGHT_MM,
+              undefined,
+              "NONE"
+            );
+
+            anchors.forEach((a) => {
+              if (!a.href) return;
+
+              const leftMm = pxToMm(a.leftCss * widthScale);
+              const topMm = pxToMm(a.topCss * widthScale);
+              const wMm = pxToMm(a.widthCss * widthScale);
+              const hMm = pxToMm(a.heightCss * widthScale);
+
+              const startPage = Math.floor(topMm / A4_HEIGHT_MM);
+              const endPage = Math.floor((topMm + hMm) / A4_HEIGHT_MM);
+
+              for (let page = startPage; page <= endPage; page++) {
+                if (page !== p) continue;
+
+                const pageOffset = page * A4_HEIGHT_MM;
+
+                let localY = topMm - pageOffset;
+
+                if (page > 0) localY += TOP_MARGIN_MM;
+
+                const bottomLocalY = Math.min(
+                  A4_HEIGHT_MM,
+                  topMm + hMm - pageOffset
+                );
+                const heightLocal = bottomLocalY - localY;
+
+                if (heightLocal > 0) {
+                  doc.link(leftMm, localY, wMm, heightLocal, { url: a.href });
+                }
+              }
+            });
+          }
+
+          doc.save("resume.pdf");
+          log("PDF saved.");
+        } catch (err) {
+          console.error("PDF error:", err);
+          alert("PDF generation failed — check console.");
         }
       });
 
