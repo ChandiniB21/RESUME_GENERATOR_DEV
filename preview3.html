@@ -326,6 +326,31 @@
         return `<div class="timeline">${arr.map(formatter).join("")}</div>`;
       }
 
+      // ===== Education Section (Preview3 Timeline Style) =====
+      if (Array.isArray(data.education) && data.education.length) {
+        const html = buildTimeline(data.education, (e) => {
+          const start = safe(e.startDate || "");
+          const end = safe(e.endDate || "Present");
+
+          // Make sure score and type are read correctly
+          const score = e.score ? safe(e.score) : "";
+          const type = e.type ? safe(e.type) : "";
+          const scoreType =
+            score && type ? `${score} ${type}` : score || type || "";
+
+          return `
+      <div class="timeline-item">
+        <small>${start} - ${end}</small>
+        <h3>${safe(e.degree || "")}${scoreType ? ` | ${scoreType}` : ""}</h3>
+        <p>${safe(e.institution || "")}</p>
+        ${e.description ? `<p>${safe(e.description)}</p>` : ""}
+      </div>
+    `;
+        });
+
+        addSection("Education", html);
+      }
+
       // Experience
       if (Array.isArray(data.experience) && data.experience.length) {
         const html = buildTimeline(
@@ -398,11 +423,42 @@
           .join("");
         addSection("Projects", html);
       }
+      // Certifications (Timeline Style)
+      // Certifications (Same Timeline Style as Internships)
+      if (Array.isArray(data.certifications) && data.certifications.length) {
+        const html = buildTimeline(
+          data.certifications,
+          (c) => `
+      <div class="timeline-item">
+        <small>${safe(c.date || "")}</small>
+        <h3>${safe(c.name || c.title || "")}</h3>
+        <p>
+          ${safe(c.issuer || "")}
+          ${
+            c.url
+              ? ` | <a href="${safe(
+                  c.url
+                )}" target="_blank">Certificate Link</a>`
+              : ""
+          }
+        </p>
+        ${c.description ? `<p>${safe(c.description)}</p>` : ""}
+      </div>
+    `
+        );
+
+        addSection("Certifications", html);
+      }
 
       // Skills
       if (Array.isArray(data.skills)) {
         const html = `<ul>${data.skills
-          .map((s) => `<li>${safe(s.name || "")}</li>`)
+          .map(
+            (s) =>
+              `<li>${safe(s.name || "")}${
+                s.level ? ` - ${safe(s.level)}` : ""
+              }</li>`
+          )
           .join("")}</ul>`;
         addSection("Skills", html);
       }
@@ -425,6 +481,14 @@
           .map((h) => `<li>${safe(h.hobby)}</li>`)
           .join("")}</ul>`;
         addSection("Hobbies", html);
+      }
+
+      // Achievements
+      if (Array.isArray(data.achievements) && data.achievements.length) {
+        const html = `<ul>${data.achievements
+          .map((a) => `<li>${safe(a.title || a.achievement || "")}</li>`)
+          .join("")}</ul>`;
+        addSection("Achievements", html);
       }
 
       // Additional Info + Declaration
