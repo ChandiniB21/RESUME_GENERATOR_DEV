@@ -594,35 +594,40 @@
       }
 
       // ---------------- render resume preview ----------------
+      // ---------------- render resume preview (REPLACEMENT: only render non-empty fields) ----------------
       (function renderPreview() {
         const data = JSON.parse(
           localStorage.getItem(LOCAL_STORAGE_KEY) || "{}"
         );
         const pi = data.personalInfo || {};
         const pl = data.publicLinks || {};
+        // If no photo → keep empty (do not show avatar)
         const photo =
           pi.profilePhoto && pi.profilePhoto.trim()
-            ? pi.profilePhoto
-            : DEFAULT_PHOTO;
+            ? pi.profilePhoto.trim()
+            : "";
 
-        function emptyNodeHtml(msg = "") {
-          return `<div style="color:var(--muted)">${msg || "—"}</div>`;
+        // helper: return empty string when nothing to show
+        function emptyNodeHtml() {
+          return ""; // <-- important: show nothing when empty
         }
 
+        // Contact builder: returns '' if no contact items
         function buildContact(pi, pl) {
           const items = [];
-          if (pi.email)
+          if (pi && pi.email)
             items.push(
               `<li><strong>EMAIL</strong><div>${safe(pi.email)}</div></li>`
             );
-          if (pi.phone)
+          if (pi && pi.phone)
             items.push(
               `<li><strong>PHONE</strong><div>${safe(pi.phone)}</div></li>`
             );
-          if (pi.location)
+          if (pi && pi.location)
             items.push(
               `<li><strong>ADDRESS</strong><div>${safe(pi.location)}</div></li>`
             );
+
           ["website", "portfolio", "github", "linkedin"].forEach((k) => {
             if (pl && pl[k]) {
               const url = normalizeUrl(pl[k]);
@@ -635,7 +640,8 @@
               );
             }
           });
-          if (Array.isArray(pl.custom) && pl.custom.length) {
+
+          if (Array.isArray(pl && pl.custom) && pl.custom.length) {
             pl.custom.forEach((c) => {
               if (c && (c.name || c.url)) {
                 const label = safe(c.name || c.title || "Link");
@@ -652,16 +658,14 @@
               }
             });
           }
-          if (!items.length)
-            return '<ul class="contact-list"><li class="small">No contact info</li></ul>';
+
+          if (!items.length) return ""; // nothing to show
           return '<ul class="contact-list">' + items.join("") + "</ul>";
         }
 
+        // generic list renderer — returns '' when empty
         function listify(arr, opts = {}) {
-          if (!Array.isArray(arr) || !arr.length)
-            return `<ul class="${
-              opts.cls || "skills-list"
-            }"><li class="small">—</li></ul>`;
+          if (!Array.isArray(arr) || !arr.length) return ""; // nothing
           return (
             `<ul class="${opts.cls || "skills-list"}">` +
             arr
@@ -695,9 +699,9 @@
           );
         }
 
+        // Experience / project / education builders: return '' when empty
         function buildExperience(arr) {
-          if (!Array.isArray(arr) || !arr.length)
-            return emptyNodeHtml("No experience added");
+          if (!Array.isArray(arr) || !arr.length) return "";
           return arr
             .map((e) => {
               const title = safe(e.jobTitle || e.title || "");
@@ -717,8 +721,7 @@
         }
 
         function buildEducation(arr) {
-          if (!Array.isArray(arr) || !arr.length)
-            return emptyNodeHtml("No education added");
+          if (!Array.isArray(arr) || !arr.length) return "";
           return arr
             .map((e) => {
               const degree = safe(e.degree || "");
@@ -743,8 +746,7 @@
         }
 
         function buildProjects(arr) {
-          if (!Array.isArray(arr) || !arr.length)
-            return emptyNodeHtml("No projects added");
+          if (!Array.isArray(arr) || !arr.length) return "";
           return arr
             .map((p) => {
               const title = safe(p.name || p.title || "");
@@ -770,8 +772,7 @@
         }
 
         function buildCertifications(arr) {
-          if (!Array.isArray(arr) || !arr.length)
-            return emptyNodeHtml("No certifications added");
+          if (!Array.isArray(arr) || !arr.length) return "";
           return arr
             .map((c) => {
               const title = safe(c.name || "");
@@ -795,8 +796,7 @@
         }
 
         function buildInternships(arr) {
-          if (!Array.isArray(arr) || !arr.length)
-            return emptyNodeHtml("No internships added");
+          if (!Array.isArray(arr) || !arr.length) return "";
           return arr
             .map((it) => {
               const title = safe(it.name || "");
@@ -816,8 +816,7 @@
         }
 
         function buildAchievements(arr) {
-          if (!Array.isArray(arr) || !arr.length)
-            return emptyNodeHtml("No achievements added");
+          if (!Array.isArray(arr) || !arr.length) return "";
           return (
             `<ul class="skills-list">` +
             arr
@@ -833,8 +832,86 @@
           );
         }
 
-        // Compose final HTML
+        // Compose final HTML: include a section only when it has content
         const root = document.getElementById("resumeRoot");
+        const contactHtml = buildContact(pi, pl);
+        const skillsHtml = listify(data.skills, {
+          type: "skills",
+          cls: "skills-list",
+        });
+        const languagesHtml = listify(data.languages, {
+          type: "languages",
+          cls: "skills-list",
+        });
+        const hobbiesHtml = listify(data.hobbies, { cls: "skills-list" });
+
+        const profileHtml = pi.summary
+          ? `<div class="block"><h2>PROFILE</h2><div class="profile-text">${safe(
+              pi.summary
+            ).replace(/\n/g, "<br>")}</div></div>`
+          : "";
+
+        const experienceHtml = buildExperience(data.experience);
+        const experienceBlock = experienceHtml
+          ? `<div class="block"><h2>WORK EXPERIENCE</h2><div class="timeline">${experienceHtml}</div></div>`
+          : "";
+
+        const educationHtml = buildEducation(data.education);
+        const educationBlock = educationHtml
+          ? `<div class="block"><h2>EDUCATION</h2>${educationHtml}</div>`
+          : "";
+
+        const internshipsHtml = buildInternships(data.internships);
+        const internshipsBlock = internshipsHtml
+          ? `<div class="block"><h2>INTERNSHIPS</h2>${internshipsHtml}</div>`
+          : "";
+
+        const projectsHtml = buildProjects(data.projects);
+        const projectsBlock = projectsHtml
+          ? `<div class="block"><h2>PROJECTS</h2>${projectsHtml}</div>`
+          : "";
+
+        const certsHtml = buildCertifications(data.certifications);
+        const certsBlock = certsHtml
+          ? `<div class="block"><h2>CERTIFICATIONS</h2>${certsHtml}</div>`
+          : "";
+
+        const achievementsHtml = buildAchievements(data.achievements);
+        const achievementsBlock = achievementsHtml
+          ? `<div class="block"><h2>ACHIEVEMENTS</h2>${achievementsHtml}</div>`
+          : "";
+
+        const additionalHtml = data.additionalInfo
+          ? `<div class="block"><h2>ADDITIONAL INFORMATION</h2><div>${safe(
+              data.additionalInfo
+            ).replace(/\n/g, "<br>")}</div></div>`
+          : "";
+
+        const declarationHtml = data.declaration
+          ? `<div class="block"><h2>DECLARATION</h2><div id="preview-declaration">${safe(
+              data.declaration
+            ).replace(/\n/g, "<br>")}</div></div>`
+          : "";
+
+        // Left column: only render section headers when their content exists
+        const leftSections = [];
+        if (contactHtml)
+          leftSections.push(
+            `<div class="section-title">CONTACT</div>${contactHtml}`
+          );
+        if (skillsHtml)
+          leftSections.push(
+            `<div class="section-title">SKILLS</div>${skillsHtml}`
+          );
+        if (languagesHtml)
+          leftSections.push(
+            `<div class="section-title">LANGUAGES</div>${languagesHtml}`
+          );
+        if (hobbiesHtml)
+          leftSections.push(
+            `<div class="section-title">HOBBIES</div>${hobbiesHtml}`
+          );
+
         root.innerHTML = `
     <div class="resume-header">
       <div class="name">${safe(pi.fullName || "PHANINDRA")}</div>
@@ -842,77 +919,34 @@
     </div>
 
     <div class="resume-body">
-      <div class="left-col">
-        <div class="avatar" aria-hidden="true"><img id="avatarImg" src="${safe(
-          photo
-        )}" alt="Photo"></div>
+     <!-- left column: avatar only if photo exists -->
+<div class="left-col" ${photo ? "" : 'style="padding-top:24px"'} >
+  
+  ${
+    photo
+      ? `<div class="avatar" aria-hidden="true">
+         <img id="avatarImg" src="${safe(photo)}" alt="Photo">
+       </div>`
+      : ""
+  }
 
-        <div class="section-title">CONTACT</div>
-        ${buildContact(pi, pl)}
+  ${leftSections.join("")}
+</div>
 
-        <div class="section-title">SKILLS</div>
-        ${listify(data.skills, { type: "skills", cls: "skills-list" })}
-
-        <div class="section-title">LANGUAGES</div>
-        ${listify(data.languages, { type: "languages", cls: "skills-list" })}
-
-        <div class="section-title">HOBBIES</div>
-        ${listify(data.hobbies, { cls: "skills-list" })}
-      </div>
 
       <div class="right-col">
-        <div class="block"><h2>PROFILE</h2>
-          ${
-            pi.summary
-              ? `<div class="profile-text">${safe(pi.summary).replace(
-                  /\n/g,
-                  "<br>"
-                )}</div>`
-              : '<div style="color:var(--muted)">No profile summary provided</div>'
-          }
-        </div>
-
-        <div class="block"><h2>WORK EXPERIENCE</h2><div class="timeline">${buildExperience(
-          data.experience
-        )}</div></div>
-
-        <div class="block"><h2>EDUCATION</h2>${buildEducation(
-          data.education
-        )}</div>
-
-        <div class="block"><h2>INTERNSHIPS</h2>${buildInternships(
-          data.internships
-        )}</div>
-
-        <div class="block"><h2>PROJECTS</h2>${buildProjects(
-          data.projects
-        )}</div>
-
-        <div class="block"><h2>CERTIFICATIONS</h2>${buildCertifications(
-          data.certifications
-        )}</div>
-
-        <div class="block"><h2>ACHIEVEMENTS</h2>${buildAchievements(
-          data.achievements
-        )}</div>
-
-        <div class="block"><h2>ADDITIONAL INFORMATION</h2>${
-          data.additionalInfo
-            ? `<div>${safe(data.additionalInfo).replace(/\n/g, "<br>")}</div>`
-            : '<div style="color:var(--muted)">No additional information</div>'
-        }</div>
-
-        <div class="block"><h2>DECLARATION</h2>${
-          data.declaration
-            ? `<div id="preview-declaration">${safe(data.declaration).replace(
-                /\n/g,
-                "<br>"
-              )}</div>`
-            : '<div style="color:var(--muted)">No declaration provided</div>'
-        }</div>
+        ${profileHtml}
+        ${experienceBlock}
+        ${educationBlock}
+        ${internshipsBlock}
+        ${projectsBlock}
+        ${certsBlock}
+        ${achievementsBlock}
+        ${additionalHtml}
+        ${declarationHtml}
       </div>
     </div>
-    `;
+  `;
       })();
 
       // ---------------- PDF creation (unchanged logic) ----------------
