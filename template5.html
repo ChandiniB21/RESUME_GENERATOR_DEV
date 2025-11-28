@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Template 5 Resume</title>
+<style>
+    body {
+    margin: 0;
+    padding: 0;
+    background: #fdeeee !important; /* same preview background */
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+/* 🔥 TRUE A4 FRAME */
+.page-wrapper {
+    width: 794px;              /* A4 width in px */
+    min-height: 1123px;        /* A4 height */
+    margin: 0 auto;
+    padding: 0;
+    background: #fdeeee !important;
+}
+
+.pdf-page {
+    background: #ffffff;
+    width: 760px;               /* inner content width */
+    min-height: 1040px;
+    margin: 40px auto;          /* ⭐ perfect top & bottom margin */
+    padding: 0;
+    display: block;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Main resume content */
+.resume-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+/* PDF PRINT RULES */
+@media print {
+    body, html {
+        background: #fdeeee !important;
+    }
+    .page-wrapper {
+        background: #fdeeee !important;
+    }
+    .pdf-page {
+        margin: 0 !important;
+        width: 794px !important;
+        min-height: 1123px !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+
+  
+
+
+
+html, body {
+    width: 100%;
+    height: 100%;
+    background: #fdeeee !important;   /* 🔥 FULL PAGE BACKGROUND */
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+/* ===== PAGE WRAPPER (A4 PRECISE) ===== */
+.page-wrapper {
+    width: 794px;
+    min-height: 1123px;
+    margin: 20px auto;
+    background: #fdeeee !important;   /* 🔥 SAME BACKGROUND IN PDF */
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* ===== INNER CONTENT ===== */
+.resume-container {
+    width: 760px;
+    min-height: 1080px;
+    background: #ffffff;
+    display: flex;
+    overflow: hidden;
+}
+
+/* LEFT PANEL */
+.left {
+    width: 32%;
+    background: #f8c6cc;
+    padding: 25px 10px 40px;
+}
+
+/* RIGHT PANEL */
+.right {
+    width: 65%;
+    padding: 30px 35px;
+}
+
+/* PDF PRINT FIX */
+@media print {
+    body {
+        background: #fdeeee !important;
+    }
+    .page-wrapper {
+        background: #fdeeee !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+
+    body {
+    background: #ffffff; /* Full white A4 background */
+}
+
+.page-wrapper {
+    width: 794px;               /* exact A4 width */
+    min-height: 1123px;         /* exact A4 height */
+    margin: 20px auto;          /* perfect top & bottom margin */
+    padding: 0;
+    background: #ffffff;        /* MUST be white */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Poppins", Arial;
+        background: #fdeeee;
+    }
+
+    /* ⭐ FIXED ALIGNMENT FOR PDF + PAGE */
+    .resume-container {
+    width: 760px;                 /* inside A4 frame */
+    min-height: 1080px;
+    margin: 0 auto;
+    padding: 0;
+    background: #ffffff;
+    display: flex;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+
+   .left {
+    width: 32%;
+    background: #f8c6cc;          /* your pink shade */
+    padding: 25px 10px 40px;
+    min-height: 1080px;
+    box-sizing: border-box;
+}
+* {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+
+
+.left ul li {
+    position: relative;
+    padding-left: 18px;
+    margin-bottom: 6px;
+}
+
+.left ul li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 18px;
+    color: #333;
+    font-weight: bold;
+}
+
+    .profile-pic {
+        width: 180px;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 6px solid #fff;
+        margin-top: 15px;
+    }
+
+    .name {
+        font-size: 24px;
+        font-weight: 700;
+        margin-top: 20px;
+    }
+
+    .role {
+        color: #444;
+        font-size: 14px;
+    }
+
+    .section-title {
+        background: #f4a8b3;
+        padding: 6px 14px;
+        font-size: 14px;
+        font-weight: 600;
+        width: fit-content;
+        margin: 25px auto 10px;
+        border-radius: 20px;
+    }
+
+    .left ul {
+        list-style: none;
+        text-align: left;
+        padding-left: 20px;
+        margin-top: 10px;
+        font-size: 14px;
+    }
+
+    .skill-item {
+        margin: 8px 0;
+        font-weight: 600;
+    }
+
+    .skill-cat {
+        font-size: 12px;
+        color: #333;
+    }
+
+    .skill-level {
+        display: block;
+        font-size: 12px;
+        color: #666;
+    }
+
+    .right {
+        width: 65%;
+        padding: 30px 35px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .right a, 
+    .left a {
+        word-break: break-all;
+    }
+
+    .block-title {
+        background: #f4a8b3;
+        width: fit-content;
+        padding: 6px 18px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .block {
+        margin-bottom: 30px;
+    }
+
+    .bold {
+        font-weight: 700;
+    }
+</style>
+</head>
+<body style="background:#fdeeee !important;">
+
+
+<!-- ⭐ MODEL STYLE DOWNLOAD BUTTONS -->
+<div style="
+    width: 900px; 
+    margin: 20px auto 10px auto; 
+    display: flex; 
+    justify-content: flex-end; 
+    gap: 12px;
+">
+    <button onclick="downloadPDF()" 
+        style="padding:10px 18px;
+        background:#2b3444;
+        color:white;
+        border:2px solid #1a202c;
+        border-radius:8px;
+        font-size:14px;
+        font-weight:600;
+        cursor:pointer;">
+        Download PDF (exact)
+    </button>
+
+    <button onclick="downloadTXT()" 
+        style="padding:10px 18px;
+        background:#2b3444;
+        color:white;
+        border:2px solid #1a202c;
+        border-radius:8px;
+        font-size:14px;
+        font-weight:600;
+        cursor:pointer;">
+        Download TXT
+    </button>
+</div>
+
+<div class="page-wrapper">
+    <div class="pdf-page">
+        <div class="resume-container">
+            <!-- your LEFT + RIGHT content AS IS -->
+
+
+
+    <!-- LEFT -->
+    <div class="left">
+        <img id="photo" class="profile-pic">
+
+        <div class="name" id="fullName"></div>
+        <div class="role" id="jobTitle"></div>
+
+        <div class="section-title">CONTACT</div>
+        <ul id="contactList"></ul>
+
+        <div class="section-title">SKILLS</div>
+        <ul id="skillsList"></ul>
+
+        <div class="section-title">LANGUAGES</div>
+        <ul id="langList"></ul>
+
+        <div class="section-title" id="hobbyTitle">HOBBIES</div>
+        <ul id="hobbyList"></ul>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+
+        <div class="block">
+            <div class="block-title">SUMMARY</div>
+            <div id="summary"></div>
+        </div>
+
+        <div class="block">
+            <div class="block-title">EDUCATION</div>
+            <div id="education"></div>
+        </div>
+
+        <div class="block">
+            <div class="block-title">EXPERIENCE</div>
+            <div id="experience"></div>
+        </div>
+
+        <div class="block">
+            <div class="block-title">PROJECTS</div>
+            <div id="projects"></div>
+        </div>
+
+        <div class="block">
+            <div class="block-title">CERTIFICATIONS</div>
+            <div id="certifications"></div>
+        </div>
+
+        <div class="block">
+            <div class="block-title">INTERNSHIPS</div>
+            <div id="internships"></div>
+        </div>
+
+        <div class="block" id="achievementsBlock" style="display:none;">
+            <div class="block-title">ACHIEVEMENTS</div>
+            <div id="achievements"></div>
+        </div>
+
+        <div class="block" id="additionalInfoBlock" style="display:none;">
+            <div class="block-title">ADDITIONAL INFORMATION</div>
+            <div id="additionalInfo"></div>
+        </div>
+
+        <div class="block" id="declarationBlock">
+            <div class="block-title">DECLARATION</div>
+            <div id="declaration"></div>
+        </div>
+
+    </div>
+</div>
+
+<!-- PDF LIBRARY -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+function renderTemplate5() {
+
+    const data = JSON.parse(localStorage.getItem("resumeData") || "{}");
+
+    document.getElementById("photo").src = data.personalInfo?.profilePhoto || "";
+    document.getElementById("fullName").textContent = data.personalInfo?.fullName || "";
+    document.getElementById("jobTitle").textContent = data.personalInfo?.jobTitle || "";
+    document.getElementById("summary").textContent = data.personalInfo?.summary || "";
+
+    let c = "";
+    if (data.personalInfo?.phone) c += `<li><a href="tel:${data.personalInfo.phone}">${data.personalInfo.phone}</a></li>`;
+    if (data.personalInfo?.email) c += `<li><a href="mailto:${data.personalInfo.email}">${data.personalInfo.email}</a></li>`;
+    if (data.personalInfo?.location) c += `<li>${data.personalInfo.location}</li>`;
+
+   // ⭐ PUBLIC LINKS (dynamic & unlimited)
+if (data.publicLinks && Array.isArray(data.publicLinks)) {
+    data.publicLinks.forEach(link => {
+        if (link.url && link.label) {
+            c += `<li>
+                    <a href="${link.url}" target="_blank">
+                        ${link.label} - ${link.url}
+                    </a>
+                  </li>`;
+        }
+    });
+} 
+// ⭐ If older object format exists (backward compatibility)
+else if (data.publicLinks) {
+    Object.entries(data.publicLinks).forEach(([key, val]) => {
+        if (val && typeof val === "string") {
+            c += `<li>
+                    <a href="${val}" target="_blank">${val}</a>
+                  </li>`;
+        }
+    });
+}
+
+    document.getElementById("contactList").innerHTML = c;
+
+    let sk = "";
+    (data.skills || []).forEach(s => {
+        sk += `<li>
+                <div class="skill-item">${s.name}</div>
+                <div class="skill-cat">${s.category}</div>
+                <div class="skill-level">${s.level}</div>
+               </li>`;
+    });
+    document.getElementById("skillsList").innerHTML = sk;
+
+    let lg = "";
+    (data.languages || []).forEach(l => {
+        lg += `<li><span class="bold">${l.name}</span> - ${l.level}</li>`;
+    });
+    document.getElementById("langList").innerHTML = lg;
+
+    let hb = "";
+    (data.hobbies || []).forEach(h => {
+        hb += `<li>${typeof h === "string" ? h : Object.values(h)[0]}</li>`;
+    });
+    document.getElementById("hobbyList").innerHTML = hb;
+
+    if (!hb.trim()) {
+        document.getElementById("hobbyTitle").style.display = "none";
+        document.getElementById("hobbyList").style.display = "none";
+    }
+
+    let ed = "";
+    (data.education || []).forEach(e => {
+        ed += `
+        <div class="edu-item">
+            <div class="bold">${e.degree}</div>
+            <div>${e.institution}</div>
+            <div>${e.startDate} - ${e.endDate || "present"}</div>
+            <div class="bold">${e.scoreType || "Score"}: ${e.score || ""}</div>
+            <div>${e.description || ""}</div>
+        </div>`;
+    });
+    document.getElementById("education").innerHTML = ed;
+
+    let ex = "";
+    (data.experience || []).forEach(x => {
+        ex += `
+        <div class="exp-item">
+            <div class="bold">${x.jobTitle}</div>
+            <div>${x.company}</div>
+            <div>${x.startDate} - ${x.endDate || "present"}</div>
+            <div>${x.description}</div>
+        </div>`;
+    });
+    document.getElementById("experience").innerHTML = ex;
+
+    let pr = "";
+    (data.projects || []).forEach(p => {
+        pr += `
+        <div class="project-item">
+            <div class="bold">${p.name}</div>
+            ${p.projectUrl ? `<div><a href="${p.projectUrl}" target="_blank">${p.projectUrl}</a></div>` : ""}
+            <div>${p.startDate} - ${p.endDate}</div>
+            <div>${p.description}</div>
+        </div>`;
+    });
+    document.getElementById("projects").innerHTML = pr;
+
+    let ct = "";
+    (data.certifications || []).forEach(c => {
+        ct += `
+        <div class="cert-item">
+            <div class="bold">${c.name}</div>
+            <div>${c.issuer}</div>
+            ${c.url ? `<div><a href="${c.url}" target="_blank">${c.url}</a></div>` : ""}
+            <div>${c.date}</div>
+        </div>`;
+    });
+    document.getElementById("certifications").innerHTML = ct;
+
+    let inn = "";
+    (data.internships || []).forEach(i => {
+        inn += `
+        <div class="intern-item">
+            <div class="bold">${i.name}</div>
+            <div>${i.organization}</div>
+            <div>${i.startDate} - ${i.endDate || "present"}</div>
+            <div>${i.description}</div>
+        </div>`;
+    });
+    document.getElementById("internships").innerHTML = inn;
+
+    let ach = "";
+    (data.achievements || []).forEach(a => {
+        let text = typeof a === "string" ? a : a.achievement || Object.values(a)[0] || "";
+        ach += `<div class="ach-item"><div>${text}</div></div>`;
+    });
+
+    document.getElementById("achievements").innerHTML = ach;
+    document.getElementById("achievementsBlock").style.display =
+        ach.trim() !== "" ? "block" : "none";
+
+    if (data.additionalInfo?.trim()) {
+        document.getElementById("additionalInfo").innerText = data.additionalInfo;
+        document.getElementById("additionalInfoBlock").style.display = "block";
+    } else {
+        document.getElementById("additionalInfoBlock").style.display = "none";
+    }
+
+    const declaration = (data.declaration || "").trim();
+    if (declaration.length > 0) {
+        document.getElementById("declaration").textContent = declaration;
+        document.getElementById("declarationBlock").style.display = "block";
+    } else {
+        document.getElementById("declarationBlock").style.display = "none";
+    }
+}
+
+renderTemplate5();
+window.addEventListener("storage", renderTemplate5);
+
+<!-- ⭐ PERFECT PDF ALIGNMENT -->
+function downloadPDF() {
+    const element = document.querySelector(".pdf-page");
+
+    html2pdf()
+        .set({
+            margin: [0, 0, 0, 0],      // 🔥 no extra margin added
+            filename: 'resume_template5.pdf',
+            html2canvas: {
+                scale: 3,
+                useCORS: true,
+                backgroundColor: null   // keep background
+            },
+            jsPDF: {
+                unit: 'pt',
+                format: 'a4',
+                orientation: 'portrait'
+            },
+            pagebreak: {
+                mode: ['avoid-all', 'css', 'legacy']
+            }
+        })
+        .from(element)
+        .save();
+}
+
+function downloadTXT() {
+    let resumeText = document.querySelector(".resume-container").innerText;
+    const blob = new Blob([resumeText], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "resume_template5.txt";
+    link.click();
+}
+
+</script>
+
+</body>
+</html>
+
