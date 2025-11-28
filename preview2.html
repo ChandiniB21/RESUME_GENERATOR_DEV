@@ -141,6 +141,44 @@
           padding: 0px 10px;
         }
       }
+      /* ===== Minimal overflow fixes (paste into your existing <style>) ===== */
+
+      /* 1) Make flex children allowed to shrink — prevents a child from forcing page width */
+      .resume-content,
+      .content-body {
+        min-width: 0; /* IMPORTANT for flex items to avoid overflow */
+      }
+
+      /* 2) Ensure long words / URLs wrap instead of expanding the container */
+      a,
+      .sidebar .links a,
+      .sidebar .links p,
+      .content-body,
+      .resume-wrapper {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+
+      /* 3) Prevent images from becoming wider than their container */
+      .sidebar img,
+      .content-body img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      /* 4) Keep resume-wrapper responsive so it cannot exceed viewport width */
+      .resume-wrapper {
+        width: calc(
+          100% - 40px
+        ); /* keeps wrapper inside viewport with some gutter */
+        box-sizing: border-box;
+      }
+
+      /* Optional: hide tiny horizontal scrollbars caused by fixed controls (safe) */
+      body {
+        overflow-x: hidden;
+      }
     </style>
   </head>
   <body>

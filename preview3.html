@@ -5,21 +5,43 @@
     <title>Resume Preview 3 – Timeline Layout</title>
     <link rel="stylesheet" href="style.css" />
     <style>
+      /* === Global fixes === */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box; /* prevent padding/margins from causing overflow */
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
       body {
         font-family: "Segoe UI", Roboto, sans-serif;
         background: #f6f5f2;
-        margin: 0;
         color: #222;
+        /* prevent tiny horizontal scroll from fixed toolbar on small screens */
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
 
       .resume-wrapper {
         max-width: 950px;
-        margin: 0px auto;
+        width: calc(100% - 40px); /* responsive width */
+        margin: 0 auto;
         background: white;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         border-radius: 12px;
-        padding: 40px;
+        padding: 32px;
         transition: font-size 0.2s ease-in-out;
+        overflow: visible;
+        word-wrap: break-word; /* ensure long words/urls wrap */
+        -webkit-hyphens: auto;
+        hyphens: auto;
       }
 
       .header {
@@ -36,6 +58,7 @@
         margin-top: 8px;
         font-size: 14px;
         color: #555;
+        word-break: break-word; /* break long links/emails */
       }
 
       .section {
@@ -47,19 +70,20 @@
         padding-bottom: 4px;
         color: #007bff;
         margin-bottom: 20px;
+        font-size: 18px;
       }
 
-      /* --- TIMELINE STYLE --- */
+      /* --- TIMELINE STYLE (fixed to avoid overflow) --- */
       .timeline {
         position: relative;
-        margin: 20px 0 0 20px;
-        padding-left: 20px;
+        margin: 20px 0 0 0;
+        padding-left: 48px; /* enough space to keep markers inside the container */
       }
 
       .timeline::before {
         content: "";
         position: absolute;
-        left: 0;
+        left: 24px; /* move line inside the visible area */
         top: 0;
         bottom: 0;
         width: 3px;
@@ -70,19 +94,21 @@
       .timeline-item {
         position: relative;
         margin-bottom: 25px;
+        padding-left: 6px; /* small inner padding for text */
       }
 
       .timeline-item::before {
         content: "";
         position: absolute;
-        left: -30px;
-        top: 5px;
+        left: 16px; /* relative to timeline padding; kept inside */
+        top: 6px;
         width: 14px;
         height: 14px;
         background: white;
         border: 3px solid #007bff;
         border-radius: 50%;
         box-shadow: 0 0 0 3px #e5f1ff;
+        box-sizing: border-box;
       }
 
       .timeline-item h3 {
@@ -123,6 +149,7 @@
         padding: 10px 14px;
       }
 
+      /* Font size control toolbar */
       #fontSizeControls {
         display: flex;
         justify-content: flex-end;
@@ -130,7 +157,7 @@
         gap: 8px;
         margin: 15px auto;
         max-width: 950px;
-        padding: 5px 10px;
+        padding: 12px 14px;
         background: #f8f8f8;
         border-radius: 8px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -139,37 +166,19 @@
       #fontSizeControls input[type="range"] {
         width: 120px;
         accent-color: #007bff;
+        cursor: pointer;
       }
 
-      @media print {
-        /* Hide buttons & controls */
-        .actions,
-        #fontSizeControls,
-        #topControls {
-          display: none !important;
-        }
+      /* Make images and links responsive and prevent overflow */
+      .resume-wrapper img {
+        max-width: 100%;
+        height: auto;
+        display: inline-block;
+      }
 
-        /* Remove browser default margins */
-        @page {
-          size: A4;
-          margin: 0;
-        }
-
-        /* Full white background */
-        body {
-          background: white !important;
-          margin: 0;
-          padding: 0;
-        }
-
-        /* Perfect print margins */
-        .resume-wrapper {
-          margin: 8mm !important; /* Clean and balanced margins */
-          padding: 0 !important; /* Remove extra internal padding */
-          box-shadow: none !important;
-          border-radius: 0 !important;
-          width: auto !important;
-        }
+      a {
+        word-break: break-word;
+        overflow-wrap: anywhere;
       }
 
       /* Toolbar styling (Preview2 style) */
@@ -188,12 +197,9 @@
         gap: 10px;
         z-index: 9999;
         font-family: Arial, sans-serif;
-      }
-
-      #fontSizeControls input[type="range"] {
-        width: 120px;
-        accent-color: #007bff;
-        cursor: pointer;
+        /* keep toolbar within viewport on small screens */
+        max-width: calc(100% - 40px);
+        right: 10px;
       }
 
       /* Responsive mobile view */
@@ -221,25 +227,54 @@
         #topSpacer {
           height: 120px; /* extra space for stacked toolbar */
         }
+
+        .resume-wrapper {
+          padding: 20px;
+          width: calc(100% - 24px);
+        }
+      }
+
+      /* Printing rules — keep margins stable and avoid content bleed */
+      @media print {
+        /* Hide buttons & controls */
+        .actions,
+        #fontSizeControls,
+        #topControls {
+          display: none !important;
+        }
+
+        /* Remove browser default margins */
+        @page {
+          size: A4;
+          margin: 8mm;
+        }
+
+        /* Full white background */
+        body {
+          background: white !important;
+          margin: 0;
+          padding: 0;
+        }
+
+        .resume-wrapper {
+          margin: 8mm !important; /* Clean and balanced margins */
+          padding: 10mm !important;
+          box-shadow: none !important;
+          border-radius: 0 !important;
+          width: auto !important;
+          max-width: none !important;
+        }
+
+        /* Ensure timeline markers are positioned correctly on printed page */
+        .timeline {
+          padding-left: 48px;
+        }
       }
     </style>
   </head>
   <body>
     <!-- Top Toolbar (Preview2 style) -->
-    <div
-      id="fontSizeControls"
-      style="
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 15px;
-        padding: 12px 14px;
-        background: #f8f8f8;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      "
-    >
+    <div id="fontSizeControls">
       <label for="fontSizeRange" style="font-size: 15px">Font Size:</label>
       <input
         type="range"
@@ -251,6 +286,7 @@
       />
       <span id="fontSizeValue" style="font-size: 14px">16px</span>
     </div>
+
     <div class="actions">
       <button onclick="window.print()">Download PDF</button>
     </div>
@@ -294,7 +330,9 @@
         const v = pl[k];
         if (v)
           contact.push(
-            `<a href="${ensureUrl(v)}" target="_blank">${safe(k)}</a>`
+            `<a href="${ensureUrl(
+              v
+            )}" target="_blank" rel="noopener noreferrer">${safe(k)}</a>`
           );
       });
 
@@ -389,7 +427,9 @@
               p.projectUrl
                 ? `- <a href="${ensureUrl(
                     p.projectUrl
-                  )}" target="_blank">${safe(p.projectUrl)}</a>`
+                  )}" target="_blank" rel="noopener noreferrer">${safe(
+                    p.projectUrl
+                  )}</a>`
                 : ""
             }</p>
           ${p.description ? `<p>${safe(p.description)}</p>` : ""}
