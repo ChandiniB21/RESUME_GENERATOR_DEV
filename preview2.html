@@ -248,6 +248,42 @@
         url = String(url).trim();
         return /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url) ? url : "https://" + url;
       }
+      // ---------------------- DATE HELPERS ----------------------
+      // format "YYYY-MM" -> "Jan 2020". If value is only "YYYY" returns "Jan 2020" (assumes Jan)
+      function formatMonthYear(val) {
+        if (!val) return "";
+        val = String(val).trim();
+        if (/^\d{4}$/.test(val)) {
+          // treat year-only as January for consistent display (change if you prefer just "2020")
+          const y = parseInt(val, 10);
+          return new Date(y, 0, 1).toLocaleString("default", {
+            month: "short",
+            year: "numeric",
+          });
+        }
+        // Accept "YYYY", "YYYY-MM" or "YYYY-MM-DD"
+        const parts = val.split("-");
+        if (parts.length < 2) return val;
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10);
+        if (isNaN(year) || isNaN(month)) return val;
+        const d = new Date(year, month - 1, 1);
+        return d.toLocaleString("default", { month: "short", year: "numeric" }); // "Jan 2020"
+      }
+
+      // format an item with startDate/endDate/current => "Jan 2020 – Present"
+      function formatRange(item) {
+        if (!item) return "";
+        const start = item.startDate ? formatMonthYear(item.startDate) : "";
+        const end = item.current
+          ? "Present"
+          : item.endDate
+          ? formatMonthYear(item.endDate)
+          : "";
+        if (start && end) return `${start} – ${end}`; // en-dash
+        return start || end || "";
+      }
+      // ---------------------- END DATE HELPERS ----------------------
 
       const pi = data.personalInfo || {};
       const pl = data.publicLinks || {};
@@ -304,27 +340,23 @@
           .map((e) => {
             const degree = safe(e.degree || "");
             const institution = safe(e.institution || "");
-            const start = safe(e.startDate || "");
-            const end = safe(e.endDate || "Present");
-
+            const period = formatRange(e);
             const score = e.score ? ` | Score: ${safe(e.score)}` : "";
             const type = e.type ? ` | ${safe(e.type)}` : "";
-
             const description = e.description
               ? `<p style="margin:4px 0 10px 0;">${safe(e.description)}</p>`
               : "";
-
             return `
-        <div style="margin-bottom:10px;">
-          <p style="margin:0; font-weight:600;">
-            ${degree} - ${institution} - ${score}${type}
-            <span style="float:right; color:#555; font-size:14px;">
-              ${start} - ${end}
-            </span>
-          </p>
-          ${description}
-        </div>
-      `;
+      <div style="margin-bottom:10px;">
+        <p style="margin:0; font-weight:600;">
+          ${degree} - ${institution} - ${score}${type}
+          <span style="float:right; color:#555; font-size:14px;">
+            ${safe(period)}
+          </span>
+        </p>
+        ${description}
+      </div>
+    `;
           })
           .join("");
 
@@ -333,23 +365,23 @@
 
       if (Array.isArray(data.experience)) {
         const html = data.experience
-          .map(
-            (e) => `
-    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
-      <p style="margin:0; font-weight:600;">
-        ${safe(e.jobTitle || "")} at ${safe(e.company || "")}
-      </p>
-      <p style="margin:0; font-size:14px; color:#555;">
-        ${safe(e.startDate || "")} - ${safe(e.endDate || "Present")}
-      </p>
-    </div>
-    ${
-      e.description
-        ? `<p style="margin:4px 0 12px 0;">${safe(e.description)}</p>`
-        : ""
-    }
-    `
-          )
+          .map((e) => {
+            return `
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+        <p style="margin:0; font-weight:600;">
+          ${safe(e.jobTitle || "")} at ${safe(e.company || "")}
+        </p>
+        <p style="margin:0; font-size:14px; color:#555;">
+          ${safe(formatRange(e))}
+        </p>
+      </div>
+      ${
+        e.description
+          ? `<p style="margin:4px 0 12px 0;">${safe(e.description)}</p>`
+          : ""
+      }
+    `;
+          })
           .join("");
 
         addSection("Experience", html);
@@ -361,25 +393,23 @@
           .map((i) => {
             const name = safe(i.name || i.internshipName || "");
             const org = i.organization ? ` - ${safe(i.organization)}` : "";
-            const dateRange =
-              i.startDate || i.endDate
-                ? ` <span style="float:right; color:#555; font-size:14px;">${safe(
-                    i.startDate || ""
-                  )} - ${safe(i.endDate || "Present")}</span>`
-                : "";
-
+            const period = formatRange(i);
+            const dateRange = period
+              ? ` <span style="float:right; color:#555; font-size:14px;">${safe(
+                  period
+                )}</span>`
+              : "";
             const description = i.description
               ? `<p style="margin:4px 0 10px 0;">${safe(i.description)}</p>`
               : "";
-
             return `
-        <div style="overflow:hidden; margin-bottom:10px;">
-          <p style="margin:0; font-weight:600; font-size:15px;">
-            ${name}${org}${dateRange}
-          </p>
-          ${description}
-        </div>
-      `;
+      <div style="overflow:hidden; margin-bottom:10px;">
+        <p style="margin:0; font-weight:600; font-size:15px;">
+          ${name}${org}${dateRange}
+        </p>
+        ${description}
+      </div>
+    `;
           })
           .join("");
 
@@ -395,24 +425,23 @@
                   p.projectUrl
                 )}</a>`
               : "";
-            const duration =
-              p.startDate || p.endDate
-                ? `<span style="float:right; color:#555; font-size:14px;">${safe(
-                    p.startDate || ""
-                  )} - ${safe(p.endDate || "Present")}</span>`
-                : "";
+            const period = formatRange(p);
+            const duration = period
+              ? `<span style="float:right; color:#555; font-size:14px;">${safe(
+                  period
+                )}</span>`
+              : "";
             const description = p.description
               ? `<p style="margin:4px 0 10px 0;">${safe(p.description)}</p>`
               : "";
-
             return `
-          <div style="overflow:hidden; margin-bottom:8px;">
-            <p style="margin:0; font-weight:600;">
-              ${name}${link}${duration}
-            </p>
-            ${description}
-          </div>
-        `;
+      <div style="overflow:hidden; margin-bottom:8px;">
+        <p style="margin:0; font-weight:600;">
+          ${name}${link}${duration}
+        </p>
+        ${description}
+      </div>
+    `;
           })
           .join("");
 

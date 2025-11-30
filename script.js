@@ -51,7 +51,7 @@
     certificationsList: qs("#certificationsList"),
     internshipsList: qs("#internshipsList"),
     addAchievement: qs("#addAchievement"),
-  achievementsList: qs("#achievementsList"),
+    achievementsList: qs("#achievementsList"),
     hobbiesList: qs("#hobbiesList"),
     additionalInfo: qs("#additionalInfo"),
     declaration: qs("#declaration"),
@@ -323,28 +323,30 @@
        <div class="row row-2">
   <label>Start Year
     <input class="input"
-      type="number"
+      type="month"
      
       data-k="startDate"
       data-i="${i}"
-      placeholder="e.g. 2020"
+      placeholder="YYYY-MM"
       value="${exp.startDate || ""}">
   </label>
 
   <label>End Year
     <input class="input"
-      type="number"
+      type="month"
      
       data-k="endDate"
       data-i="${i}"
-      placeholder="e.g. 2024"
+      placeholder="YYYY-MM"
       ${exp.current ? "disabled" : ""}
       value="${exp.endDate || ""}">
   </label>
 </div>
 
 <label class="full" style="display:flex;align-items:center;gap:8px;">
-  <input type="checkbox" data-k="current" data-i="${i}" ${exp.current ? "checked" : ""}/>
+  <input type="checkbox" data-k="current" data-i="${i}" ${
+        exp.current ? "checked" : ""
+      }/>
   Currently working here
 </label>
 
@@ -428,17 +430,17 @@
     <div class="row row-2">
   <label>
     Start Year
-    <input class="input" type="number" 
-    data-k="startDate" data-i="${i}" placeholder="e.g. 2022"
-    value="${edu.startDate || ''}">
+    <input class="input" type="month" 
+    data-k="startDate" data-i="${i}" placeholder="YYYY-MM"
+    value="${edu.startDate || ""}">
   </label>
 
   <label>
     End Year
-    <input class="input" type="number" 
-    data-k="endDate" data-i="${i}" placeholder="e.g. 2024"
+    <input class="input" type="month" 
+    data-k="endDate" data-i="${i}" placeholder="YYYY-MM"
     ${edu.current ? "disabled" : ""}
-    value="${edu.endDate || ''}">
+    value="${edu.endDate || ""}">
   </label>
 </div>
 
@@ -705,11 +707,15 @@
       </div>
      <div class="row row-2">
   <label>Start Year
-    <input class="input"type="number"placeholder="e.g. 2021"data-k="startDate"data-i="${i}"value="${project.startDate || ""}">
+    <input class="input"type="month"placeholder="YYYY-MM"data-k="startDate"data-i="${i}"value="${
+        project.startDate || ""
+      }">
   </label>
 
   <label>End Year
-    <input class="input"type="number"placeholder="e.g. 2023"data-k="endDate" data-i="${i}"value="${project.endDate || ""}">
+    <input class="input"type="month"placeholder="YYYY-MM"data-k="endDate" data-i="${i}"value="${
+        project.endDate || ""
+      }">
   </label>
 </div>
 
@@ -823,11 +829,15 @@
        <div class="row row-2">
 
   <label>Start Year
-    <input class="input"type="number"data-k="startDate"data-i="${i}"placeholder="e.g. 2021"value="${intern.startDate || ''}">
+    <input class="input"type="month"data-k="startDate"data-i="${i}"placeholder="YYYY-MM"value="${
+        intern.startDate || ""
+      }">
   </label>
 
   <label>End Year
-    <input class="input"type="number"data-k="endDate"data-i="${i}"placeholder="e.g. 2023"${intern.current ? "disabled" : ""}value="${intern.endDate || ''}">
+    <input class="input"type="month"data-k="endDate"data-i="${i}"placeholder="YYYY-MM"${
+        intern.current ? "disabled" : ""
+      }value="${intern.endDate || ""}">
   </label>
 
 </div>
@@ -880,49 +890,51 @@
     });
   }
   // ===== Achievements (MULTI TEXTAREA VERSION) =====
-if (els.addAchievement) {
-  els.addAchievement.addEventListener("click", () => {
-    data.achievements.push({ text: "" });
-    renderAchievements();
-    saveToStorage();
-  });
-}
+  if (els.addAchievement) {
+    els.addAchievement.addEventListener("click", () => {
+      data.achievements.push({ text: "" });
+      renderAchievements();
+      saveToStorage();
+    });
+  }
 
-function renderAchievements() {
-  if (!els.achievementsList) return;
-  els.achievementsList.innerHTML = "";
+  function renderAchievements() {
+    if (!els.achievementsList) return;
+    els.achievementsList.innerHTML = "";
 
-  if (!Array.isArray(data.achievements)) data.achievements = [];
+    if (!Array.isArray(data.achievements)) data.achievements = [];
 
-  data.achievements.forEach((ach, i) => {
-    if (!ach || typeof ach !== "object") data.achievements[i] = { text: "" };
+    data.achievements.forEach((ach, i) => {
+      if (!ach || typeof ach !== "object") data.achievements[i] = { text: "" };
 
-    const div = document.createElement("div");
-    div.className = "list-item";
-    div.innerHTML = `
+      const div = document.createElement("div");
+      div.className = "list-item";
+      div.innerHTML = `
       <div class="list-item-header">
         <span class="list-item-title">Achievement ${i + 1}</span>
         <button class="btn btn-small btn-danger" data-remove="${i}">Remove</button>
       </div>
 
       <label class="full">
-        <textarea class="textarea" rows="3" data-k="text" data-i="${i}" placeholder="Write your achievement...">${escapeHtml(ach.text || "")}</textarea>
+        <textarea class="textarea" rows="3" data-k="text" data-i="${i}" placeholder="Write your achievement...">${escapeHtml(
+        ach.text || ""
+      )}</textarea>
       </label>
     `;
 
-    // remove
-    div.querySelector("[data-remove]").addEventListener("click", () => {
-      data.achievements.splice(i, 1);
-      renderAchievements();
-      saveToStorage();
+      // remove
+      div.querySelector("[data-remove]").addEventListener("click", () => {
+        data.achievements.splice(i, 1);
+        renderAchievements();
+        saveToStorage();
+      });
+
+      // autosave
+      attachChangeHandlers(div, data.achievements, i);
+
+      els.achievementsList.appendChild(div);
     });
-
-    // autosave
-    attachChangeHandlers(div, data.achievements, i);
-
-    els.achievementsList.appendChild(div);
-  });
-}
+  }
 
   // ===== Hobbies =====
   els.addHobby.addEventListener("click", () => {
@@ -1261,6 +1273,21 @@ function renderAchievements() {
           "'": "&#039;",
         }[c])
     );
+  }
+  // format "YYYY-MM" -> "Jan 2020". If value is only "YYYY" returns "YYYY".
+  function formatMonthYear(val) {
+    if (!val) return "";
+    if (/^\d{4}$/.test(val)) return val; // already year-only
+
+    const [y, m] = val.split("-");
+    const year = parseInt(y, 10);
+    const month = parseInt(m, 10);
+    if (!year || isNaN(month)) return val;
+
+    // create date and get short month name (capitalized)
+    const d = new Date(year, month - 1, 1);
+    const monthName = d.toLocaleString("default", { month: "short" }); // "Jan"
+    return `${monthName} ${year}`; // "Jan 2020"
   }
 
   // ===== Validate required minimal ATS fields =====

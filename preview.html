@@ -218,6 +218,41 @@
         // otherwise add https://
         return "https://" + url;
       }
+      // format "YYYY-MM" -> "Jan 2020". If value is only "YYYY" returns "Jan 2020" (assumes Jan)
+      function formatMonthYear(val) {
+        if (!val) return "";
+        val = String(val).trim();
+        // if saved as "YYYY" => assume January of that year for display (optional)
+        if (/^\d{4}$/.test(val)) {
+          // show "Jan 2020" rather than "2020" for consistency
+          const y = parseInt(val, 10);
+          return new Date(y, 0, 1).toLocaleString("default", {
+            month: "short",
+            year: "numeric",
+          });
+        }
+        // expecting "YYYY-MM" or "YYYY-MM-DD"
+        const parts = val.split("-");
+        if (parts.length < 2) return val;
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10);
+        if (isNaN(year) || isNaN(month)) return val;
+        const d = new Date(year, month - 1, 1);
+        return d.toLocaleString("default", { month: "short", year: "numeric" }); // "Jan 2020"
+      }
+
+      // format a start/end object into "Jan 2020 – Present"
+      function formatRange(item) {
+        if (!item) return "";
+        const start = item.startDate ? formatMonthYear(item.startDate) : "";
+        const end = item.current
+          ? "Present"
+          : item.endDate
+          ? formatMonthYear(item.endDate)
+          : "";
+        if (start && end) return `${start} – ${end}`; // en-dash
+        return start || end || "";
+      }
 
       function addSection(title, html) {
         if (html && html.trim()) {
@@ -315,22 +350,21 @@
       if (Array.isArray(data.education) && data.education.length) {
         const html = data.education
           .map((e) => {
-            const period =
-              (e.startDate || "") +
-              (e.current ? " - Present" : e.endDate ? " - " + e.endDate : "");
+            const period = formatRange(e);
             const score =
               e.score && e.scoreType
                 ? `${safe(e.scoreType)}: ${safe(e.score)}`
                 : "";
             return `
-              <p><strong>${safe(e.degree || "")}</strong>, ${safe(
+      <p><strong>${safe(e.degree || "")}</strong>, ${safe(
               e.institution || ""
             )} (${safe(period)})</p>
-              ${score ? `<p>${score}</p>` : ""}
-              ${e.description ? `<p>${safe(e.description)}</p>` : ""}
-            `;
+      ${score ? `<p>${score}</p>` : ""}
+      ${e.description ? `<p>${safe(e.description)}</p>` : ""}
+    `;
           })
           .join("");
+
         addSection("Education", html);
       }
 
@@ -338,25 +372,24 @@
       if (Array.isArray(data.experience) && data.experience.length) {
         const html = data.experience
           .map((e) => {
-            const period =
-              (e.startDate || "") +
-              (e.current ? " - Present" : e.endDate ? " - " + e.endDate : "");
+            const period = formatRange(e);
             return `
-        <p><strong>${safe(e.jobTitle || "")}</strong>, ${safe(
+      <p><strong>${safe(e.jobTitle || "")}</strong>, ${safe(
               e.company || ""
             )} (${safe(period)})</p>
-        ${
-          e.description
-            ? `<ul>${e.description
-                .split(/[\n•\-]\s*/)
-                .filter(Boolean)
-                .map((x) => `<li>${safe(x)}</li>`)
-                .join("")}</ul>`
-            : ""
-        }
-      `;
+      ${
+        e.description
+          ? `<ul>${e.description
+              .split(/[\n•\-]\s*/)
+              .filter(Boolean)
+              .map((x) => `<li>${safe(x)}</li>`)
+              .join("")}</ul>`
+          : ""
+      }
+    `;
           })
           .join("");
+
         addSection("Work Experience", html);
       }
 
@@ -364,19 +397,17 @@
       // ===== Internships (UPDATED with Currently Working) =====
       if (Array.isArray(data.internships) && data.internships.length) {
         const html = data.internships
-          .map((i) => {
-            const period =
-              (i.startDate || "") +
-              " - " +
-              (i.current ? "Present" : i.endDate || "");
+          .map((it) => {
+            const period = formatRange(it);
             return `
-        <p><strong>${safe(i.name || "")}</strong>, ${safe(
-              i.organization || ""
+      <p><strong>${safe(it.name || "")}</strong>, ${safe(
+              it.organization || ""
             )} (${safe(period)})</p>
-        ${i.description ? `<p>${safe(i.description)}</p>` : ""}
-      `;
+      ${it.description ? `<p>${safe(it.description)}</p>` : ""}
+    `;
           })
           .join("");
+
         addSection("Internships", html);
       }
 
@@ -384,31 +415,32 @@
       if (Array.isArray(data.projects) && data.projects.length) {
         const html = data.projects
           .map((p) => {
-            const period = [p.startDate, p.endDate].filter(Boolean).join(" - ");
+            const period = formatRange(p);
             return `
-        <p>
-          <strong>${safe(p.name || "")}</strong>
-          ${period ? ` (${safe(period)})` : ""}
-        </p>
-        ${
-          p.projectUrl
-            ? `<p><a href="${safe(
-                ensureUrl(p.projectUrl)
-              )}" target="_blank">${safe(p.projectUrl)}</a></p>`
-            : ""
-        }
-        ${
-          p.description
-            ? `<ul>${p.description
-                .split(/[\n•\-]\s*/)
-                .filter(Boolean)
-                .map((x) => `<li>${safe(x)}</li>`)
-                .join("")}</ul>`
-            : ""
-        }
-      `;
+      <p>
+        <strong>${safe(p.name || "")}</strong>
+        ${period ? ` (${safe(period)})` : ""}
+      </p>
+      ${
+        p.projectUrl
+          ? `<p><a href="${safe(
+              ensureUrl(p.projectUrl)
+            )}" target="_blank">${safe(p.projectUrl)}</a></p>`
+          : ""
+      }
+      ${
+        p.description
+          ? `<ul>${p.description
+              .split(/[\n•\-]\s*/)
+              .filter(Boolean)
+              .map((x) => `<li>${safe(x)}</li>`)
+              .join("")}</ul>`
+          : ""
+      }
+    `;
           })
           .join("");
+
         addSection("Projects", html);
       }
 

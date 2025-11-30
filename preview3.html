@@ -316,6 +316,41 @@
         url = String(url).trim();
         return /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url) ? url : "https://" + url;
       }
+      // ---------------------- DATE HELPERS ----------------------
+      // format "YYYY-MM" -> "Jan 2020". If value is only "YYYY" returns "Jan 2020" (assumes Jan)
+      function formatMonthYear(val) {
+        if (!val) return "";
+        val = String(val).trim();
+        if (/^\d{4}$/.test(val)) {
+          // treat year-only as January for consistent display (change if you prefer "2020")
+          const y = parseInt(val, 10);
+          return new Date(y, 0, 1).toLocaleString("default", {
+            month: "short",
+            year: "numeric",
+          });
+        }
+        const parts = val.split("-");
+        if (parts.length < 2) return val;
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10);
+        if (isNaN(year) || isNaN(month)) return val;
+        const d = new Date(year, month - 1, 1);
+        return d.toLocaleString("default", { month: "short", year: "numeric" }); // "Jan 2020"
+      }
+
+      // format an item with startDate/endDate/current => "Jan 2020 – Present"
+      function formatRange(item) {
+        if (!item) return "";
+        const start = item.startDate ? formatMonthYear(item.startDate) : "";
+        const end = item.current
+          ? "Present"
+          : item.endDate
+          ? formatMonthYear(item.endDate)
+          : "";
+        if (start && end) return `${start} – ${end}`; // en-dash
+        return start || end || "";
+      }
+      // ---------------------- END DATE HELPERS ----------------------
 
       const pi = data.personalInfo || {};
       const pl = data.publicLinks || {};
@@ -369,15 +404,13 @@
         const html = buildTimeline(
           data.experience,
           (e) => `
-          <div class="timeline-item">
-            <small>${safe(e.startDate || "")} - ${safe(
-            e.endDate || "Present"
-          )}</small>
-            <h3>${safe(e.jobTitle || "")}</h3>
-            <p>${safe(e.company || "")}</p>
-            ${e.description ? `<p>${safe(e.description)}</p>` : ""}
-          </div>
-        `
+      <div class="timeline-item">
+        <small>${safe(formatRange(e))}</small>
+        <h3>${safe(e.jobTitle || "")}</h3>
+        <p>${safe(e.company || "")}</p>
+        ${e.description ? `<p>${safe(e.description)}</p>` : ""}
+      </div>
+    `
         );
         addSection("Work Experience", html);
       }
@@ -387,15 +420,13 @@
         const html = buildTimeline(
           data.education,
           (e) => `
-          <div class="timeline-item">
-            <small>${safe(e.startDate || "")} - ${safe(
-            e.endDate || "Present"
-          )}</small>
-            <h3>${safe(e.degree || "")}</h3>
-            <p>${safe(e.institution || "")}</p>
-            ${e.description ? `<p>${safe(e.description)}</p>` : ""}
-          </div>
-        `
+      <div class="timeline-item">
+        <small>${safe(formatRange(e))}</small>
+        <h3>${safe(e.degree || "")}</h3>
+        <p>${safe(e.institution || "")}</p>
+        ${e.description ? `<p>${safe(e.description)}</p>` : ""}
+      </div>
+    `
         );
         addSection("Education", html);
       }
@@ -405,36 +436,45 @@
         const html = buildTimeline(
           data.internships,
           (i) => `
-          <div class="timeline-item">
-            <small>${safe(i.startDate || "")} - ${safe(
-            i.endDate || "Present"
-          )}</small>
-            <h3>${safe(i.name || "")}</h3>
-            <p>${safe(i.organization || "")}</p>
-            ${i.description ? `<p>${safe(i.description)}</p>` : ""}
-          </div>
-        `
+      <div class="timeline-item">
+        <small>${safe(formatRange(i))}</small>
+        <h3>${safe(i.name || "")}</h3>
+        <p>${safe(i.organization || "")}</p>
+        ${i.description ? `<p>${safe(i.description)}</p>` : ""}
+      </div>
+    `
         );
         addSection("Internships", html);
       }
 
       // Projects
-      if (Array.isArray(data.projects)) {
+      if (Array.isArray(data.projects) && data.projects.length) {
         const html = data.projects
-          .map(
-            (p) => `
-          <p><strong>${safe(p.name || "")}</strong> ${
-              p.projectUrl
-                ? `- <a href="${ensureUrl(
-                    p.projectUrl
-                  )}" target="_blank" rel="noopener noreferrer">${safe(
-                    p.projectUrl
-                  )}</a>`
+          .map((p) => {
+            const period = formatRange(p);
+            const link = p.projectUrl
+              ? ` - <a href="${ensureUrl(
+                  p.projectUrl
+                )}" target="_blank" rel="noopener noreferrer">${safe(
+                  p.projectUrl
+                )}</a>`
+              : "";
+            return `
+        <div style="margin-bottom:8px;">
+          <p style="margin:0; font-weight:600;">
+            ${safe(p.name || "")}${link}
+            ${
+              period
+                ? `<span style="float:right; color:#007bff; font-size:13px;">${safe(
+                    period
+                  )}</span>`
                 : ""
-            }</p>
+            }
+          </p>
           ${p.description ? `<p>${safe(p.description)}</p>` : ""}
-        `
-          )
+        </div>
+      `;
+          })
           .join("");
         addSection("Projects", html);
       }
