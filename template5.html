@@ -382,6 +382,49 @@ html, body {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
+    // ---------- URL helpers ----------
+function normalizeUrl(u) {
+  if (!u) return "";
+  try {
+    u = String(u).trim();
+    // allow data:, blob:, / relative paths, http(s)
+    if (/^(data:|blob:|\/|http:\/\/|https:\/\/)/i.test(u)) return u;
+    return "https://" + u;
+  } catch {
+    return "";
+  }
+}
+// ---------- DATE HELPERS ----------
+function formatMonthYear(val) {
+  if (!val) return "";
+  val = String(val).trim();
+  // year-only
+  if (/^\d{4}$/.test(val)) {
+    const y = parseInt(val, 10);
+    return new Date(y, 0, 1).toLocaleString("default", { month: "short", year: "numeric" });
+  }
+  // accept YYYY-MM or YYYY-M
+  const parts = val.split("-");
+  if (parts.length < 2) return val;
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10);
+  if (isNaN(year) || isNaN(month)) return val;
+  return new Date(year, month - 1, 1).toLocaleString("default", { month: "short", year: "numeric" });
+}
+
+function formatRange(item) {
+  if (!item) return "";
+  const startRaw = item.startDate || item.from || "";
+  const endRaw = item.endDate || item.to || "";
+  const current = !!item.current || /present|now/i.test(String(endRaw));
+  const start = startRaw ? formatMonthYear(startRaw) : "";
+  const end = current ? "Present" : (endRaw ? formatMonthYear(endRaw) : "");
+  if (start && end) return `${start} – ${end}`;
+  return start || end || "";
+}
+// ---------- end date helpers ----------
+
+
 function renderTemplate5() {
 
     const data = JSON.parse(localStorage.getItem("resumeData") || "{}");
@@ -454,7 +497,8 @@ else if (data.publicLinks) {
         <div class="edu-item">
             <div class="bold">${e.degree}</div>
             <div>${e.institution}</div>
-            <div>${e.startDate} - ${e.endDate || "present"}</div>
+           <div>${formatRange(e)}</div>
+
             <div class="bold">${e.scoreType || "Score"}: ${e.score || ""}</div>
             <div>${e.description || ""}</div>
         </div>`;
@@ -467,7 +511,8 @@ else if (data.publicLinks) {
         <div class="exp-item">
             <div class="bold">${x.jobTitle}</div>
             <div>${x.company}</div>
-            <div>${x.startDate} - ${x.endDate || "present"}</div>
+           <div>${formatRange(x)}</div>
+
             <div>${x.description}</div>
         </div>`;
     });
@@ -479,7 +524,8 @@ else if (data.publicLinks) {
         <div class="project-item">
             <div class="bold">${p.name}</div>
             ${p.projectUrl ? `<div><a href="${p.projectUrl}" target="_blank">${p.projectUrl}</a></div>` : ""}
-            <div>${p.startDate} - ${p.endDate}</div>
+           <div>${formatRange(p)}</div>
+
             <div>${p.description}</div>
         </div>`;
     });
@@ -503,7 +549,8 @@ else if (data.publicLinks) {
         <div class="intern-item">
             <div class="bold">${i.name}</div>
             <div>${i.organization}</div>
-            <div>${i.startDate} - ${i.endDate || "present"}</div>
+           <div>${formatRange(i)}</div>
+
             <div>${i.description}</div>
         </div>`;
     });
