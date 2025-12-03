@@ -351,6 +351,8 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
+        /* When users prefer reduced motion, remove animations but ensure elements are visible.
+     Make final visible state explicit (opacity:1, no transforms). */
         .resume-card,
         .resume-card .surface,
         .resume-img,
@@ -358,12 +360,18 @@
         .resume-canvas::after {
           transition: none !important;
           animation: none !important;
+          opacity: 1 !important; /* ensure visible */
+          transform: none !important; /* reset any translate/scale/rotate */
         }
+
+        /* Also remove hover transform effects (so there is no visual movement) */
         .resume-card:hover .resume-img,
         .resume-card:hover .surface,
-        .resume-card:hover .resume-caption {
+        .resume-card:hover .resume-caption,
+        .resume-card:hover {
           transform: none !important;
           opacity: 1 !important;
+          box-shadow: none !important;
         }
       }
 
@@ -863,7 +871,7 @@
             <div class="resume-caption">Peach Modern Template</div>
           </article>
           <!-- Template 6 -->
-           
+
           <article
             class="resume-card"
             role="listitem"
@@ -888,7 +896,7 @@
                 />
               </div>
             </div>
-            <div class="resume-caption">Premium Minimalist Resume  Template</div>
+            <div class="resume-caption">Premium Minimalist Resume Template</div>
           </article>
         </div>
       </main>
