@@ -4,173 +4,50 @@
 <meta charset="UTF-8">
 <title>Template 5 Resume</title>
 <style>
-    body {
+/* ===== GLOBAL STYLES ===== */
+html, body {
     margin: 0;
     padding: 0;
-    background: #fdeeee !important; /* same preview background */
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-}
-
-/* 🔥 TRUE A4 FRAME */
-.page-wrapper {
-    width: 794px;              /* A4 width in px */
-    min-height: 1123px;        /* A4 height */
-    margin: 0 auto;
-    padding: 0;
-    background: #fdeeee !important;
-}
-
-.pdf-page {
-    background: #ffffff;
-    width: 760px;               /* inner content width */
-    min-height: 1040px;
-    margin: 40px auto;          /* ⭐ perfect top & bottom margin */
-    padding: 0;
-    display: block;
-    box-sizing: border-box;
-    overflow: hidden;
-}
-
-/* Main resume content */
-.resume-container {
-    display: flex;
     width: 100%;
     height: 100%;
-}
-
-/* PDF PRINT RULES */
-@media print {
-    body, html {
-        background: #fdeeee !important;
-    }
-    .page-wrapper {
-        background: #fdeeee !important;
-    }
-    .pdf-page {
-        margin: 0 !important;
-        width: 794px !important;
-        min-height: 1123px !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-}
-.pdf-page {
-    margin: 0 auto;
-}
-
-
-  
-
-
-
-html, body {
-    width: 100%;
-    height: 100%;
-    background: #fdeeee !important;   /* 🔥 FULL PAGE BACKGROUND */
+    font-family: "Poppins", Arial, sans-serif;
+    background: #fdeeee !important; /* FULL PAGE BACKGROUND */
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 /* ===== PAGE WRAPPER (A4 PRECISE) ===== */
 .page-wrapper {
-    width: 794px;
-    min-height: 1123px;
-    margin: 20px auto;
-    background: #fdeeee !important;   /* 🔥 SAME BACKGROUND IN PDF */
+    width: 794px;               /* A4 width */
+    min-height: 1123px;         /* A4 height */
+    margin: 20px auto;          /* perfect top & bottom margin */
+    background: #fdeeee !important;
     padding: 0;
     display: flex;
     justify-content: center;
-    
+    align-items: flex-start;
 }
 
-/* ===== INNER CONTENT ===== */
+/* ===== INNER CONTENT (PDF PAGE) ===== */
 .resume-container {
-    width: 760px;
-    min-height: 1080px;
-    background: #ffffff;
     display: flex;
-    overflow: hidden;
+    width: 100%;
+    gap: 20px;          /* space between left & right panel */
 }
-
-/* LEFT PANEL */
 .left {
     width: 32%;
     background: #f8c6cc;
     padding: 25px 10px 40px;
 }
 
-/* RIGHT PANEL */
-.right {
-    width: 65%;
-    padding: 30px 35px;
+.left ul {
+    list-style: none;
+    padding-left: 20px;
+    margin-top: 10px;
+    font-size: 14px;
 }
-
-/* PDF PRINT FIX */
-@media print {
-    body {
-        background: #fdeeee !important;
-    }
-    .page-wrapper {
-        background: #fdeeee !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-}
-
-    body {
-    background: #ffffff; /* Full white A4 background */
-}
-
-.page-wrapper {
-    width: 794px;               /* exact A4 width */
-    min-height: 1123px;         /* exact A4 height */
-    margin: 20px auto;          /* perfect top & bottom margin */
-    padding: 0;
-    background: #ffffff;        /* MUST be white */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.page-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; 
-}
-
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: "Poppins", Arial;
-        background: #fdeeee;
-    }
-
-    /* ⭐ FIXED ALIGNMENT FOR PDF + PAGE */
-    .resume-container {
-    width: 760px;                 /* inside A4 frame */
-    min-height: 1080px;
-    margin: 0 auto;
-    padding: 0;
-    background: #ffffff;
-    display: flex;
-    box-sizing: border-box;
-    overflow: hidden;
-}
-
-
-   .left {
-    width: 32%;
-    background: #f8c6cc;          /* your pink shade */
-    padding: 25px 10px 40px;
-    min-height: 1080px;
-    box-sizing: border-box;
-}
-* {
-    word-break: break-word;
-    overflow-wrap: break-word;
-}
-
-
 
 .left ul li {
     position: relative;
@@ -188,90 +65,78 @@ html, body {
     font-weight: bold;
 }
 
-    .profile-pic {
-        width: 180px;
-        height: 180px;
-        object-fit: cover;
-        border-radius: 50%;
-        border: 6px solid #fff;
-        margin-top: 15px;
-    }
+/* Profile Pic and Name */
+.profile-pic {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 6px solid #fff;
+    margin-top: 15px;
+}
 
-    .name {
-        font-size: 24px;
-        font-weight: 700;
-        margin-top: 20px;
-    }
+.name {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 20px;
+}
 
-    .role {
-        color: #444;
-        font-size: 14px;
-    }
+.role {
+    color: #444;
+    font-size: 14px;
+}
 
-    .section-title {
-        background: #f4a8b3;
-        padding: 6px 14px;
-        font-size: 14px;
-        font-weight: 600;
-        width: fit-content;
-        margin: 25px auto 10px;
-        border-radius: 20px;
-    }
+/* Section Titles */
+.section-title,
+.block-title {
+    background: #f4a8b3;
+    padding: 6px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    width: fit-content;
+    margin: 25px auto 10px;
+    border-radius: 20px;
+}
 
-    .left ul {
-        list-style: none;
-        text-align: left;
-        padding-left: 20px;
-        margin-top: 10px;
-        font-size: 14px;
-    }
+/* Skill Items */
+.skill-item {
+    margin: 8px 0;
+    font-weight: 600;
+}
 
-    .skill-item {
-        margin: 8px 0;
-        font-weight: 600;
-    }
+.skill-cat {
+    font-size: 12px;
+    color: #333;
+}
 
-    .skill-cat {
-        font-size: 12px;
-        color: #333;
-    }
+.skill-level {
+    display: block;
+    font-size: 12px;
+    color: #666;
+}
 
-    .skill-level {
-        display: block;
-        font-size: 12px;
-        color: #666;
-    }
+/* ===== RIGHT PANEL ===== */
+/* RIGHT PANEL */
+.right {
+    width: 65%;
+    padding: 25px 15px;
+}
+.right a, .left a {
+    word-break: break-all;
+}
 
-    .right {
-        width: 65%;
-        padding: 30px 35px;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-    }
+.right .block > div {
+    max-width: 550px;
+    margin-left: auto;
+    margin-right: auto;
+}
 
-    .right a, 
-    .left a {
-        word-break: break-all;
-    }
+/* Force spacing below block titles */
+.block {
+    margin-bottom: 25px;
+}
 
-    .block-title {
-        background: #f4a8b3;
-        width: fit-content;
-        padding: 6px 18px;
-        border-radius: 20px;
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 15px;
-    }
-
-    .block {
-        margin-bottom: 30px;
-    }
-
-    .bold {
-        font-weight: 700;
-    }
-    /* ⭐ ONLY RIGHT SIDE DESCRIPTION TEXT → JUSTIFY */
+/* Right side description text justification */
 #summary,
 #education div,
 #experience div,
@@ -286,14 +151,32 @@ html, body {
     margin-bottom: 6px;
 }
 
-/* ⭐ RIGHT SIDE CONTENT CENTERED WIDTH ALIGNMENT */
-.right .block > div {
-    max-width: 550px;
-    margin-left: auto;
-    margin-right: auto;
+/* PDF page spacing for additional pages */
+.pdf-page:not(:first-of-type) {
+    margin-top: 60px !important;
+    padding-top: 40px !important;
 }
 
+/* ===== PDF PRINT RULES ===== */
+@media print {
+    body, html {
+        background: #fdeeee !important;
+    }
+    .page-wrapper {
+        background: #fdeeee !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    .pdf-page {
+    background: #ffffff;
+    width: 794px;       /* full A4 width for PDF */
+    padding: 30px;      /* internal padding for top/bottom spacing */
+    box-sizing: border-box;
+    display: block;
+}
+}
 </style>
+
 </head>
 <body style="background:#fdeeee !important;">
 
@@ -622,25 +505,24 @@ function downloadPDF() {
 
     html2pdf()
         .set({
-            margin: [0, 0, 0, 0],      // 🔥 no extra margin added
+            margin: [0, 0, 0, 0],      // ZERO margin
             filename: 'resume_template5.pdf',
             html2canvas: {
-                scale: 3,
+                scale: 3,               // high-res
                 useCORS: true,
-                backgroundColor: null   // keep background
+                backgroundColor: "#fdeeee" // full page background
             },
             jsPDF: {
                 unit: 'pt',
-                format: 'a4',
+                format: [794, 1123],    // exact A4 size in pixels
                 orientation: 'portrait'
             },
-            pagebreak: {
-                mode: ['avoid-all', 'css', 'legacy']
-            }
+            pagebreak: { mode: ['avoid-all', 'css'] }
         })
         .from(element)
         .save();
 }
+
 
 function downloadTXT() {
     let resumeText = document.querySelector(".resume-container").innerText;
