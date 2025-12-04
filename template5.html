@@ -4,6 +4,20 @@
 <meta charset="UTF-8">
 <title>Template 5 Resume</title>
 <style>
+    /* PDF second page and above → push content down */
+/* FORCE TOP MARGIN FOR ALL PDF PAGES EXCEPT FIRST */
+@media print {
+    .html2pdf__page-break + * {
+        margin-top: 70px !important;   /* top gap */
+        padding-top: 20px !important;  /* inside spacing */
+    }
+}
+
+.pdf-page + .pdf-page {
+    margin-top: 80px !important;
+    padding-top: 40px !important;
+}
+
 /* ===== GLOBAL STYLES ===== */
 html, body {
     margin: 0;
@@ -11,7 +25,7 @@ html, body {
     width: 100%;
     height: 100%;
     font-family: "Poppins", Arial, sans-serif;
-    background: #fdeeee !important; /* FULL PAGE BACKGROUND */
+   background: #fdeeee !important; /* FULL PAGE BACKGROUND */
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     word-break: break-word;
@@ -20,14 +34,13 @@ html, body {
 
 /* ===== PAGE WRAPPER (A4 PRECISE) ===== */
 .page-wrapper {
-    width: 794px;               /* A4 width */
-    min-height: 1123px;         /* A4 height */
-    margin: 20px auto;          /* perfect top & bottom margin */
-    background: #fdeeee !important;
+    background: #ffffff !important;
+    width: 794px;
+    min-height: 1123px;
+    margin: 40px auto;       /* nice gap top & bottom */
     padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    box-shadow: 0 0 20px rgba(0,0,0,0.10); /* soft shadow like screenshot */
+    border-radius: 6px;
 }
 
 /* ===== INNER CONTENT (PDF PAGE) ===== */
@@ -38,7 +51,7 @@ html, body {
 }
 .left {
     width: 32%;
-    background: #f8c6cc;
+    background: #f8c6cc !important;
     padding: 25px 10px 40px;
 }
 
@@ -168,7 +181,7 @@ html, body {
         print-color-adjust: exact !important;
     }
     .pdf-page {
-    background: #ffffff;
+    background: #ffffff !important;
     width: 794px;       /* full A4 width for PDF */
     padding: 30px;      /* internal padding for top/bottom spacing */
     box-sizing: border-box;
